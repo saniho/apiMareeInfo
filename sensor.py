@@ -124,17 +124,23 @@ class infoMareeSensor(Entity):
         niemeHoraire = 0
 
         self._attributes = {}
-        self._attributes["horaire_4"] = ""
-        self._attributes["coeff_4"] = ""
-        self._attributes["etat_4"] = ""
-        self._attributes["hauteur_4"] = ""
+        self._attributes["horaire_0_4"] = ""
+        self._attributes["coeff_0_4"] = ""
+        self._attributes["etat_0_4"] = ""
+        self._attributes["hauteur_0_4"] = ""
+        self._attributes["horaire_1_4"] = ""
+        self._attributes["coeff_1_4"] = ""
+        self._attributes["etat_1_4"] = ""
+        self._attributes["hauteur_1_4"] = ""
         for horaireMaree in infoPort.keys():
             niemeHoraire += 1
             info = infoPort[horaireMaree]
-            self._attributes["horaire_%s" %(niemeHoraire)] = "%s" %(horaireMaree)
-            self._attributes["coeff_%s" %(niemeHoraire)] = "%s" %(info['coeff'])
-            self._attributes["etat_%s" %(niemeHoraire)] = "%s" %(info['etat'])
-            self._attributes["hauteur_%s" %(niemeHoraire)] = "%s" %(info['hauteur'])
+            nieme = info["nieme"]
+            jour = info["jour"]
+            self._attributes["horaire_%s_%s" %(jour, nieme)] = "%s" %(info['horaire'])
+            self._attributes["coeff_%s_%s" %(jour, nieme)] = "%s" %(info['coeff'])
+            self._attributes["etat_%s_%s" %(jour, nieme)] = "%s" %(info['etat'])
+            self._attributes["hauteur_%s_%s" %(jour, nieme)] = "%s" %(info['hauteur'])
         self._attributes.update(status_counts)
         self._state = ""
 
