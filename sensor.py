@@ -20,13 +20,9 @@ from homeassistant.util import slugify
 from homeassistant.util.dt import now, parse_date
 
 _LOGGER = logging.getLogger(__name__)
-
 DOMAIN = "saniho"
-
 ICON = "mdi:package-variant-closed"
-
 SCAN_INTERVAL = timedelta(seconds=1800)
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_CODE): cv.string,
@@ -52,14 +48,14 @@ class myMareeInfo:
         _LOGGER.warning("-update possible-")
         if ( self._lastSynchro == None ) or \
             ( (self._lastSynchro + self._update_interval) < courant ):
-            #_LOGGER.warning("--------------")
-            #_LOGGER.warning("tente un update  ? ... %s" %(self._lastSynchro))
+            #_LOGGER.info("--------------")
+            #_LOGGER.info("tente un update  ? ... %s" %(self._lastSynchro))
 
             self._myMaree.getInformationPort(self._nomDuPort)
             self._infoPort = self._myMaree.getInfo()
             self._lastSynchro = datetime.datetime.now()
-            _LOGGER.warning("update fait, last synchro ... %s " %(self._lastSynchro))
-            _LOGGER.warning("update fait, last synchro(info port) ... %s " %(self._infoPort))
+            _LOGGER.info("update fait, last synchro ... %s " %(self._lastSynchro))
+            _LOGGER.info("update fait, last synchro(info port) ... %s " %(self._infoPort))
 
     def getInfoPort(self):
         return self._infoPort
@@ -71,15 +67,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the platform."""
     name = config.get(CONF_NAME)
     update_interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
-
     nomDuPort = config.get(CONF_CODE)
-
     try:
         session = []
     except :
         _LOGGER.exception("Could not run my First Extension")
         return False
-
     myPort = myMareeInfo( nomDuPort, update_interval )
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort )], True)
@@ -99,8 +92,7 @@ class infoMareeSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.MareeDuJour" \
-               %(self._myPort.getNomPort())
+        return "myPort.%s.MareeDuJour" %self._myPort.getNomPort()
 
     @property
     def state(self):
@@ -117,21 +109,20 @@ class infoMareeSensor(Entity):
         status_counts = defaultdict(int)
         self._myPort.update()
         infoPort = self._myPort.getInfoPort()
-        _LOGGER.warning("tente un update  infoPort? ... %s" % (infoPort))
-        _LOGGER.warning("tente un update  infoPort? ... %s" % (infoPort.keys()))
-        status_counts[0] = ""
-
+        _LOGGER.info("tente un update  infoPort? ... %s" % (infoPort))
+        _LOGGER.info("tente un update  infoPort? ... %s" % (infoPort.keys()))
         niemeHoraire = 0
-
         self._attributes = {}
-        self._attributes["horaire_0_4"] = ""
-        self._attributes["coeff_0_4"] = ""
-        self._attributes["etat_0_4"] = ""
-        self._attributes["hauteur_0_4"] = ""
-        self._attributes["horaire_1_4"] = ""
-        self._attributes["coeff_1_4"] = ""
-        self._attributes["etat_1_4"] = ""
-        self._attributes["hauteur_1_4"] = ""
+        for n in range(2):
+            self._attributes["horaire_%s_4"%n] = ""
+            self._attributes["coeff_%s_4"%n] = ""
+            self._attributes["etat_%s_4"%n] = ""
+            self._attributes["hauteur_%s_4"%n] = ""
+
+        #probleme mauvaise variable
+        #self._attributes["nomPort"] = self._myPort.getNomDuPort()
+        #self._attributes["dateCourante"] = self._myPort.getDateCourante()
+
         for horaireMaree in infoPort.keys():
             niemeHoraire += 1
             info = infoPort[horaireMaree]

@@ -6,9 +6,20 @@ _LOGGER = logging.getLogger(__name__)
 class apiMareeInfo:
     def __init__(self):
         pass
+    def getinformationPort(self, soup):
+        import json
+        script = soup.findAll('script')[7].string
+        #print(script)
+        jsonch = script[script.find('{'):script.rfind('}')+1]
+        jsonch = jsonch.replace("null",'"None"').replace("true",'"True"')
+        jsonch = jsonch.replace("false",'"False"').replace("'",'"')
+        #print(jsonch)
+        jsonData = json.loads(jsonch)
+        #print(jsonData)
+        self._nomDuPort = jsonData["PortNom"]
+        self._dateCourante = jsonData["aujourdhui"]
 
     def getinformationJour(self, soup, idsoup, idJour):
-
         pagehtml = soup.find(id=idsoup).prettify()
         col = 0
         for ligne in pagehtml.split("</td>")[1:-1]:
@@ -27,7 +38,6 @@ class apiMareeInfo:
             # print(x)
 
         chaine = pagehtml.split("</td>")[0]
-
         chaine = chaine.split("<td>")[1]
         for carReplacement in ["<td>", "<br/>", "</b>", "<b>", "\n"]:
             chaine = chaine.replace(carReplacement, " ")
@@ -35,7 +45,6 @@ class apiMareeInfo:
             chaine = chaine.replace("  ", " ")
         tab = chaine.strip().split(" ")
         tabHoraires = tab
-        #
 
         import copy
         bassemer = copy.copy(tabHauteurs)
@@ -73,9 +82,12 @@ class apiMareeInfo:
         return myTab
 
     def getInformationPort(self, idPort):
-
-        urlpagemaree = "http://maree.info/%s" %(idPort)
+        urlpagemaree = "https://maree.info/%s" %(idPort)
         _LOGGER.warning("tente un update  ? ... %s" % (urlpagemaree))
+        import ssl
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
         import urllib.request
         req = urllib.request.Request(
             urlpagemaree,
@@ -83,17 +95,21 @@ class apiMareeInfo:
             headers={
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
             })
-        page = urllib.request.urlopen(req)
+        page = urllib.request.urlopen(req, context=ctx)
         soup = BeautifulSoup(page, 'html.parser')
         myTab = {}
         myTab.update(self.getinformationJour( soup, "MareeJours_0", "0"))
         myTab.update(self.getinformationJour( soup, "MareeJours_1", "1"))
+        self.getinformationPort(soup)
+        #print(soup)
         self._donnees = myTab
 
     def getInfo(self):
         return self._donnees
 
-def main():
-    maree = apiMareeInfo()
-    maree.getInformationPort("124")
-    print(maree.getInfo())
+    def getNomDuPort(self):
+        return self._nomDuPort
+
+    def getDateCourante(self):
+        return self._dateCourante
+
