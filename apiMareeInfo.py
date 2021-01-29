@@ -1,7 +1,10 @@
 import logging
+from datetime import timedelta, datetime
+
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 _LOGGER = logging.getLogger(__name__)
+import time
 
 class apiMareeInfo:
     def __init__(self):
@@ -17,7 +20,7 @@ class apiMareeInfo:
         jsonData = json.loads(jsonch)
         #print(jsonData)
         self._nomDuPort = jsonData["PortNom"]
-        self._dateCourante = jsonData["aujourdhui"]
+        self._dateCourante = str(jsonData["aujourdhui"])
 
     def getinformationJour(self, soup, idsoup, idJour):
         pagehtml = soup.find(id=idsoup).prettify()
@@ -43,6 +46,7 @@ class apiMareeInfo:
             chaine = chaine.replace(carReplacement, " ")
         for x in range(5):
             chaine = chaine.replace("  ", " ")
+        chaine = chaine.replace("h",":") # pour remplacer le h
         tab = chaine.strip().split(" ")
         tabHoraires = tab
 
@@ -100,8 +104,14 @@ class apiMareeInfo:
         myTab = {}
         myTab.update(self.getinformationJour( soup, "MareeJours_0", "0"))
         myTab.update(self.getinformationJour( soup, "MareeJours_1", "1"))
+
         self.getinformationPort(soup)
-        #print(soup)
+        for horaireMaree in myTab.keys():
+            info = myTab[horaireMaree]
+            nieme = info["nieme"]
+            date = datetime.strptime(self.getDateCourante() +" " + info["horaire"],"%Y%m%d %H:%M")
+            date = date + timedelta(int(info["jour"]))
+            info["dateComplete"] = date
         self._donnees = myTab
 
     def getInfo(self):

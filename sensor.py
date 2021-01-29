@@ -1,7 +1,7 @@
 """Sensor for my first"""
 import logging
 from collections import defaultdict
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import voluptuous as vol
 
@@ -32,10 +32,10 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 from . import apiMareeInfo
 
 class myMareeInfo:
-    def __init__(self, nomDuPort, _update_interval):
+    def __init__(self, idDuPort, _update_interval):
         self._lastSynchro = None
         self._update_interval = _update_interval
-        self._nomDuPort = nomDuPort
+        self._idDuPort = idDuPort
         self._myMaree = apiMareeInfo.apiMareeInfo()
         pass
 
@@ -51,7 +51,7 @@ class myMareeInfo:
             #_LOGGER.info("--------------")
             #_LOGGER.info("tente un update  ? ... %s" %(self._lastSynchro))
 
-            self._myMaree.getInformationPort(self._nomDuPort)
+            self._myMaree.getInformationPort(self._idDuPort)
             self._infoPort = self._myMaree.getInfo()
             self._lastSynchro = datetime.datetime.now()
             _LOGGER.info("update fait, last synchro ... %s " %(self._lastSynchro))
@@ -59,21 +59,33 @@ class myMareeInfo:
 
     def getInfoPort(self):
         return self._infoPort
-    def getNomPort(self):
-        return self._nomDuPort
+    def getIdPort(self):
+        return self._idDuPort
+    def getNomDuPort(self):
+        return self._myMaree.getNomDuPort()
+    def getDateCourante(self):
+        return self._myMaree.getDateCourante()
 
+    def getNextMaree(self):
+        maintenant = datetime.now()
+        prochainemaree = None
+        for x in self._infoPort.keys():
+            if ( prochainemaree == None ):
+                if ( maintenant < self._infoPort[x][ "dateComplete"]):
+                    prochainemaree = self._infoPort[x]
+        return prochainemaree
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the platform."""
     name = config.get(CONF_NAME)
     update_interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
-    nomDuPort = config.get(CONF_CODE)
+    idDuPort = config.get(CONF_CODE)
     try:
         session = []
     except :
         _LOGGER.exception("Could not run my First Extension")
         return False
-    myPort = myMareeInfo( nomDuPort, update_interval )
+    myPort = myMareeInfo( idDuPort, update_interval )
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort )], True)
 
@@ -92,7 +104,7 @@ class infoMareeSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.MareeDuJour" %self._myPort.getNomPort()
+        return "myPort.%s.MareeDuJour" %self._myPort.getIdPort()
 
     @property
     def state(self):
@@ -120,8 +132,8 @@ class infoMareeSensor(Entity):
             self._attributes["hauteur_%s_4"%n] = ""
 
         #probleme mauvaise variable
-        #self._attributes["nomPort"] = self._myPort.getNomDuPort()
-        #self._attributes["dateCourante"] = self._myPort.getDateCourante()
+        self._attributes["nomPort"] = self._myPort.getNomDuPort()
+        self._attributes["dateCourante"] = self._myPort.getDateCourante()
 
         for horaireMaree in infoPort.keys():
             niemeHoraire += 1
@@ -132,8 +144,12 @@ class infoMareeSensor(Entity):
             self._attributes["coeff_%s_%s" %(jour, nieme)] = "%s" %(info['coeff'])
             self._attributes["etat_%s_%s" %(jour, nieme)] = "%s" %(info['etat'])
             self._attributes["hauteur_%s_%s" %(jour, nieme)] = "%s" %(info['hauteur'])
+        self._attributes["next_maree"] = "%s" %self._myPort.getNextMaree()["horaire"]
+        self._attributes["next_coeff"] = "%s" %self._myPort.getNextMaree()["coeff"]
+        self._attributes["next_etat"] = "%s" %self._myPort.getNextMaree()["etat"]
+        self._attributes["timeLastCall"] = datetime.now()
         self._attributes.update(status_counts)
-        self._state = ""
+        self._state = self._myPort.getNextMaree()["horaire"]
 
     @property
     def device_state_attributes(self):
