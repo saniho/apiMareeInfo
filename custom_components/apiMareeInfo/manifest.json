@@ -1,6 +1,6 @@
 {
-    "domain": "saniho",
-    "name": "saniho",
+    "domain": "apiMareeInfo",
+    "name": "apiMareeInfo sensor",
     "documentation": "",
     "requirements": ["beautifulsoup4==4.9.0"],
     "dependencies": [],
