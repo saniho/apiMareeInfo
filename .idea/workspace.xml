@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="additem in attributes">
-      <change afterPath="$PROJECT_DIR$/custom_component/apiMareeInfo/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_component/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_component/apiMareeInfo/manifest.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_component/apiMareeInfo/sensor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_component/apiMareeInfo/testMareeInfo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hacs.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repository.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apiMareeInfo.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/manifest.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sensor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testMareeInfo.py" beforeDir="false" />
+    <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="HACS integration">
+      <change beforePath="$PROJECT_DIR$/hacs.json" beforeDir="false" afterPath="$PROJECT_DIR$/hacs.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
