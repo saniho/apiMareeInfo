@@ -7,4 +7,4 @@ DOMAIN = "apiMareeInfo"
 
 __VERSION__ = "1.0.0.1"
 
-__name__ = "apiMAreeInfo"
+__name__ = "apiMareeInfo"
