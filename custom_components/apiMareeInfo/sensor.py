@@ -127,13 +127,13 @@ class infoMareeSensor(Entity):
         """Update device state."""
         status_counts = defaultdict(int)
 
-        self._attributes["version"] = __VERSION__
         self._myPort.update()
         infoPort = self._myPort.getInfoPort()
         _LOGGER.info("tente un update  infoPort? ... %s" % (infoPort))
         _LOGGER.info("tente un update  infoPort? ... %s" % (infoPort.keys()))
         niemeHoraire = 0
         self._attributes = {}
+        self._attributes["version"] = __VERSION__
         for n in range(2):
             self._attributes["horaire_%s_4"%n] = ""
             self._attributes["coeff_%s_4"%n] = ""
