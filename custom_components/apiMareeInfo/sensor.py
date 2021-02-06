@@ -19,6 +19,13 @@ from homeassistant.util import Throttle
 from homeassistant.util import slugify
 from homeassistant.util.dt import now, parse_date
 
+
+from .const import (
+    DOMAIN,
+    __VERSION__,
+    __name__,
+)
+
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "saniho"
 ICON = "mdi:package-variant-closed"
@@ -119,6 +126,8 @@ class infoMareeSensor(Entity):
     def _update(self):
         """Update device state."""
         status_counts = defaultdict(int)
+
+        self._attributes["version"] = __VERSION__
         self._myPort.update()
         infoPort = self._myPort.getInfoPort()
         _LOGGER.info("tente un update  infoPort? ... %s" % (infoPort))
