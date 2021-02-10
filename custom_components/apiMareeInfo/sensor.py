@@ -73,13 +73,17 @@ class myMareeInfo:
     def getDateCourante(self):
         return self._myMaree.getDateCourante()
 
-    def getNextMaree(self):
+    def getNextMaree(self, indice = 1):
+        i = 1
         maintenant = datetime.now()
         prochainemaree = None
         for x in self._infoPort.keys():
             if ( prochainemaree == None ):
                 if ( maintenant < self._infoPort[x][ "dateComplete"]):
-                    prochainemaree = self._infoPort[x]
+                    if (indice == i ):
+                        prochainemaree = self._infoPort[x]
+                    else:
+                        i += 1
         return prochainemaree
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -153,9 +157,12 @@ class infoMareeSensor(Entity):
             self._attributes["coeff_%s_%s" %(jour, nieme)] = "%s" %(info['coeff'])
             self._attributes["etat_%s_%s" %(jour, nieme)] = "%s" %(info['etat'])
             self._attributes["hauteur_%s_%s" %(jour, nieme)] = "%s" %(info['hauteur'])
-        self._attributes["next_maree"] = "%s" %self._myPort.getNextMaree()["horaire"]
-        self._attributes["next_coeff"] = "%s" %self._myPort.getNextMaree()["coeff"]
-        self._attributes["next_etat"] = "%s" %self._myPort.getNextMaree()["etat"]
+        # pour avoir les 2 prochaines marées
+        for x in range(2):
+            i = x + 1
+            self._attributes["next_maree_%s"%i] = "%s" %self._myPort.getNextMaree(i)["horaire"]
+            self._attributes["next_coeff_%s"%i] = "%s" %self._myPort.getNextMaree(i)["coeff"]
+            self._attributes["next_etat_%s"%i] = "%s" %self._myPort.getNextMaree(i)["etat"]
         self._attributes["timeLastCall"] = datetime.now()
         self._attributes.update(status_counts)
         self._state = self._myPort.getNextMaree()["horaire"]
