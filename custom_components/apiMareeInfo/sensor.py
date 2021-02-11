@@ -36,7 +36,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-from . import apiMareeInfo
+from . import apiMareeInfo, sensorApiMaree
+
 
 class myMareeInfo:
     def __init__(self, idDuPort, _update_interval):
@@ -55,36 +56,21 @@ class myMareeInfo:
         _LOGGER.warning("-update possible-")
         if ( self._lastSynchro == None ) or \
             ( (self._lastSynchro + self._update_interval) < courant ):
-            #_LOGGER.info("--------------")
-            #_LOGGER.info("tente un update  ? ... %s" %(self._lastSynchro))
-
             self._myMaree.getInformationPort(self._idDuPort)
-            self._infoPort = self._myMaree.getInfo()
             self._lastSynchro = datetime.datetime.now()
-            _LOGGER.info("update fait, last synchro ... %s " %(self._lastSynchro))
-            _LOGGER.info("update fait, last synchro(info port) ... %s " %(self._infoPort))
 
-    def getInfoPort(self):
-        return self._infoPort
     def getIdPort(self):
         return self._idDuPort
-    def getNomDuPort(self):
-        return self._myMaree.getNomDuPort()
+    # revoir recupearation valeur
+    def getInfoPort(self):
+        return "self._infoPort"
+    #def getNomDuPort(self):
+    #    return self._myMaree.getNomDuPort()
+    def getmyMaree(self):
+        return self._myMaree
     def getDateCourante(self):
         return self._myMaree.getDateCourante()
 
-    def getNextMaree(self, indice = 1):
-        i = 1
-        maintenant = datetime.now()
-        prochainemaree = None
-        for x in self._infoPort.keys():
-            if ( prochainemaree == None ):
-                if ( maintenant < self._infoPort[x][ "dateComplete"]):
-                    if (indice == i ):
-                        prochainemaree = self._infoPort[x]
-                    else:
-                        i += 1
-        return prochainemaree
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the platform."""
@@ -111,6 +97,7 @@ class infoMareeSensor(Entity):
         self._attributes = None
         self._state = None
         self.update = Throttle(interval)(self._update)
+        self._sAM = sensorApiMaree.manageSensorState( self._myPort.getmyMAree() )
 
     @property
     def name(self):
@@ -129,43 +116,8 @@ class infoMareeSensor(Entity):
 
     def _update(self):
         """Update device state."""
-        status_counts = defaultdict(int)
-
         self._myPort.update()
-        infoPort = self._myPort.getInfoPort()
-        _LOGGER.info("tente un update  infoPort? ... %s" % (infoPort))
-        _LOGGER.info("tente un update  infoPort? ... %s" % (infoPort.keys()))
-        niemeHoraire = 0
-        self._attributes = {}
-        self._attributes["version"] = __VERSION__
-        for n in range(2):
-            self._attributes["horaire_%s_4"%n] = ""
-            self._attributes["coeff_%s_4"%n] = ""
-            self._attributes["etat_%s_4"%n] = ""
-            self._attributes["hauteur_%s_4"%n] = ""
-
-        #probleme mauvaise variable
-        self._attributes["nomPort"] = self._myPort.getNomDuPort()
-        self._attributes["dateCourante"] = self._myPort.getDateCourante()
-
-        for horaireMaree in infoPort.keys():
-            niemeHoraire += 1
-            info = infoPort[horaireMaree]
-            nieme = info["nieme"]
-            jour = info["jour"]
-            self._attributes["horaire_%s_%s" %(jour, nieme)] = "%s" %(info['horaire'])
-            self._attributes["coeff_%s_%s" %(jour, nieme)] = "%s" %(info['coeff'])
-            self._attributes["etat_%s_%s" %(jour, nieme)] = "%s" %(info['etat'])
-            self._attributes["hauteur_%s_%s" %(jour, nieme)] = "%s" %(info['hauteur'])
-        # pour avoir les 2 prochaines marées
-        for x in range(2):
-            i = x + 1
-            self._attributes["next_maree_%s"%i] = "%s" %self._myPort.getNextMaree(i)["horaire"]
-            self._attributes["next_coeff_%s"%i] = "%s" %self._myPort.getNextMaree(i)["coeff"]
-            self._attributes["next_etat_%s"%i] = "%s" %self._myPort.getNextMaree(i)["etat"]
-        self._attributes["timeLastCall"] = datetime.now()
-        self._attributes.update(status_counts)
-        self._state = self._myPort.getNextMaree()["horaire"]
+        self._state, self._attributes = self._sAM.getStatus()
 
     @property
     def device_state_attributes(self):

@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>
+   maree.info - Marées Saint-Gilles-Croix-de-Vie / France - horaire, hauteur, coefficient de marée
+  </title>
+  <meta content="IE=7,IE=9" http-equiv="X-UA-Compatible"/>
+  <meta content="fr" http-equiv="Content-Language"/>
+  <meta content="Les marées pour Saint-Gilles-Croix-de-Vie / France - Annuaire calendrier, horaire de marée : heure hauteur coefficient. Les marées au quotidien pour vos activités de bord de mer ( bateau voile plongée sous-marine surf kite funboard pêche et bien d'autres ... )" name="Description"/>
+  <meta content="saint-gilles-croix-de-vie,port,horaire,heure des marées,bateau,calendrier,table des marées,tableau des marées,nautisme,voile,voilier,ocean,mer,calendrier marees,maree,coefficient,coefficients,coefficient des marees,hauteur d'eau,pleine mer,basse mer,vive-eau,morte-eau,equinoxe,annuaire,marées,prediction,calcul de la marée,marnage,intervalle,amplitude,le plein,la marée,grande marée,grandes marees,peche,peche à pied,surf,surfcasting,kite,accastillage,gps,plongee sous-marine,funboard,prédiction de la marée,phénomène des marées,courbe de hauteur d'eau,horaires des marées,rythme des marées,annuaire des marées,flot,flux,jusant,reflux,horaire maree,indicateur de marée,coef,coeff,correction,meteo,météo,météo marine,vent,beaufort,grib,barbule,temperature,marée haute,marée basse" name="Keywords"/>
+  <meta content="index, follow" name="Robots"/>
+  <meta content="noarchive" name="Robots"/>
+  <meta content="fr" name="Language"/>
+  <meta content="app-id=642338158, affiliate-data=at=1001l4Zg&amp;ct=sb" name="apple-itunes-app"/>
+  <meta content="summary" name="twitter:card"/>
+  <meta content="@maree_info" name="twitter:site"/>
+  <meta content="http://maree.info/img/maree-info-icon-240x240.png" name="twitter:image"/>
+  <meta content="FR" name="twitter:app:country"/>
+  <meta content="642338158" name="twitter:app:id:iphone"/>
+  <meta content="maree-info://124" name="twitter:app:url:iphone"/>
+  <meta content="642338158" name="twitter:app:id:ipad"/>
+  <meta content="maree-info://124" name="twitter:app:url:ipad"/>
+  <meta content="http://maree.info/img/maree-info-icon-240x240.png" property="og:image"/>
+  <link href="http://maree.info/124" rel="canonical"/>
+  <link href="https://plus.google.com/117898131810063558585/" rel="publisher">
+   <link href="http://maree.info/img/Marees.gif" rel="image_src"/>
+   <link href="http://maree.info/img/maree-info-icon-192x192.png" rel="apple-touch-icon-precomposed" size="192x192"/>
+   <link href="/css/Main.css?20180209" rel="stylesheet" type="text/css"/>
+   <link href="/css/UI.css?20180209" rel="stylesheet" type="text/css"/>
+   <link href="/css/maree.css?20180209" rel="stylesheet" type="text/css"/>
+   <script src="/js/Tools.js?20180209" type="text/javascript">
+   </script>
+   <script src="/js/UI.js?20180209" type="text/javascript">
+   </script>
+   <script src="/js/ads.js?adsite=1" type="text/javascript">
+   </script>
+   <script src="/js/Main.js?20180209" type="text/javascript">
+   </script>
+   <script src="/js/maree.js?20180209" type="text/javascript">
+   </script>
+   <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js">
+   </script>
+   <!--[if (gte IE 7)&(lt IE 9)]>
+  <link rel="stylesheet" type="text/css" href="/css/IE7.css" />
+  <script src="/js/IE7.js" type="text/javascript" id="IE7"></script>
+<![endif]-->
+   <!--[if lte IE 6]>
+  <link rel="stylesheet" type="text/css" href="/css/IE6.css" />
+  <script src="/js/IE6.js" type="text/javascript" id="IE6"></script>
+<![endif]-->
+   <style id="cssPrefUser" media="screen" type="text/css">
+    BODY {
+  background-color: #A0A0A0; 
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#A0A0A0), to(#f0f0f0)); 
+  background-image: -webkit-linear-gradient(top, #A0A0A0, #f0f0f0); 
+  background-image:    -moz-linear-gradient(top, #A0A0A0, #f0f0f0); 
+  background-image:     -ms-linear-gradient(top, #A0A0A0, #f0f0f0); 
+  background-image:      -o-linear-gradient(top, #A0A0A0, #f0f0f0); 
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#A0A0A0', endColorstr='#f0f0f0',GradientType=0 ); 
+  background-image:         linear-gradient(top, #A0A0A0, #f0f0f0);
+}
+   </style>
+   <script type="text/javascript">
+    window.google_analytics_uacct = 'UA-25787770-1';
+
+mareeinfo=window.mareeinfo||{};
+mareeinfo.version='20180209';
+mareeinfo.support=document.addEventListener&&!!window.CanvasRenderingContext2D;
+mareeinfo.imgBuffer=mareeinfo.support&&$c('canvas');
+              
+var User = {
+             'PortsFav'    : [],
+             'PortsFavMax' : 5,
+             'PortsFavCMD' : 1,
+             'UID'         : 0,
+             'TID'         : QSv(window.location.href,"tid",0,/^[1-9][0-9]+$/)||0           };
+
+if(!isTouch())$evL( window, 'resize load DOMContentLoaded', SetMainPos );
+$evL( window, 'load', function (){ if(navigator.geolocation)$cnR('MenuPortsLocalisation','Disabled');} );
+   </script>
+   <script type="text/javascript">
+    var Marees = {
+               'Port'       : 124, 
+               'PortNom'    : "Saint-Gilles-Croix-de-Vie", 
+               'aujourdhui' : 20210211,
+               'Dates'      : [20210211,20210212,20210213,20210214,20210215,20210216,20210217],
+               'Page'       : 0,
+               'PagesCnt'   : 7,
+               'Cal'        : 202102,
+               'CalType'    : 'c',
+               'Meteo'      : [0,0,0,0,0,0,0],
+               'Surcote'    : [0,0,0,0,0,0,0],
+               'LiveCnt'    : 0,
+               'ModeGraph'  : [false,false,false,false,false,false,false],
+               'GraphAbs'   : [0,0,0,0,0,0,0],
+               'MareeMinYMD': 20110101,
+               'MareeMaxYMD': 20220131,
+               'InitGraph'  : [0,0,0,0,0,0,0],
+               'Seuil'      : [null,null,null,null,null,null,null],
+               'Nuit'       : [0,0,0,0,0,0,0],
+               'Params'     : {
+                                'Meteo'  :{'DiffJour':false},
+                                'Surcote':{'DiffJour':false},
+                                'Graph'  :{'DiffJour':false}
+                              }
+             };
+   </script>
+  </link>
+ </head>
+ <body class="Rounded" id="Body" ontouchstart="">
+  <div id="Main" onclick="">
+   <div id="Entete">
+    <div id="Nav">
+     <table cellspacing="0">
+      <tr>
+       <th id="Logo" rowspan="2">
+        <a href="/">
+         <img alt="marée.info - horaires et coefficients des marées pour vos activités de bord de mer ( bateau, voile, plongée sous-marine, surf, kite, funboard, pêche à pied, surfcasting, et bien d'autres ... )" height="50" src="/img/maree.info@2x.png" width="160"/>
+        </a>
+       </th>
+       <td id="Welcome">
+        Bienvenue sur
+        <h1>
+         <strong class="mareeinfo">
+          marée
+          <span>
+           .
+          </span>
+          info
+         </strong>
+         - horaires et coefficients des marées !
+        </h1>
+       </td>
+      </tr>
+      <tr>
+       <td id="MainMenu">
+        <span class="Menu MenuTxt PMenuMainMenuSel0" id="MainMenu_Ports" onmouseover="PMenu_Process(this,null,null,null,null,function(){$fb('MenuPortsRechercheQ',0)});">
+         <a href="/">
+          Ports
+         </a>
+        </span>
+        <span class="Menu MenuTxt PMenuMainMenuSel0" id="MainMenu_Outils" onmouseover="PMenu_Process(this);">
+         Marées
+        </span>
+        <span class="Menu MenuTxt PMenuMainMenuSel0" id="MainMenu_Compte" onmouseover="PMenu_Process(this);">
+         Mon compte
+        </span>
+        <span class="Menu MenuTxt PMenuMainMenuSel0" id="MainMenu_APropos" onmouseover="PMenu_Process(this);">
+         ?
+        </span>
+        <span class="Menu" id="MenuFTG" onmouseover="InitFTG();">
+         <a class="FB" href="http://www.facebook.com/maree.info" id="MenuFTG_0" onclick="GAL('FB')" onmouseover="selChild('MenuFTG',0);PMenu_Process('MenuFTG',$(this.id+'_SubMenu'));" target="_blank">
+         </a>
+         <a class="TW" href="http://twitter.com/maree_info" id="MenuFTG_1" onclick="GAL('TW')" onmouseover="selChild('MenuFTG',1);PMenu_Process('MenuFTG',$(this.id+'_SubMenu'));" target="_blank">
+         </a>
+         <!-- a href="https://plus.google.com/117898131810063558585/?prsrc=3" target="_blank" id="MenuFTG_2" class="GG" onmouseover="selChild('MenuFTG',2);PMenu_Process('MenuFTG',$(this.id+'_SubMenu'));" onclick="GAL('GP')"></a -->
+        </span>
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div id="SNSM">
+    </div>
+   </div>
+   <div id="Page">
+    <div id="Rub">
+     <div class="OnlyScreen">
+      <ins class="adsbygoogle" data-ad-client="ca-pub-7797330180473685" data-ad-slot="3101386463" style="display:inline-block;width:160px;height:90px">
+      </ins>
+      <script>
+       <!--
+(adsbygoogle = window.adsbygoogle || []).push({});
+//-->
+      </script>
+      <ins class="adsbygoogle" data-ad-client="ca-pub-7797330180473685" data-ad-slot="3315039267" style="display:inline-block;width:160px;height:600px">
+      </ins>
+      <script>
+       <!-- 
+(adsbygoogle = window.adsbygoogle || []).push({});
+//-->
+      </script>
+     </div>
+    </div>
+    <div id="Contenu" itemscope="" itemtype="http://schema.org/BodyOfWater">
+     <table cellspacing="0" id="MareeEntete">
+      <tr>
+       <td id="MareeEnteteJour" onmouseover="DoMenuCal(this);">
+        <b class="UT1">
+         Jeudi 11 Février 2021
+        </b>
+        <i>
+        </i>
+        <small class="UT1">
+         UTC+1
+         <span title="Jour 42">
+          Semaine 6
+         </span>
+        </small>
+       </td>
+       <td itemprop="geo" itemscope="" itemtype="http://schema.org/GeoCoordinates">
+        <small>
+         46°42' N
+         <br/>
+         1°55' W
+        </small>
+        <meta content="46.70" itemprop="latitude">
+         <meta content="-1.92" itemprop="longitude"/>
+        </meta>
+       </td>
+       <th id="MareeEntetePort">
+        <h2 class="Port" id="Port124" itemprop="name">
+         Saint-Gilles-Croix-de-Vie
+         <u class="Fav" onclick="return OnPortFav(this.parentNode)">
+         </u>
+        </h2>
+       </th>
+      </tr>
+     </table>
+     <div id="MareeJours_Content">
+      <div id="Chrono_Content">
+       <h3 id="CH" onclick="DoChrono()">
+        Tableau horaire - marée haute - marée basse
+       </h3>
+      </div>
+      <table cellspacing="0" id="MareeJours">
+       <tr class="MJE" onclick="DoChrono()">
+        <th>
+         Date
+        </th>
+        <th>
+         Heure
+        </th>
+        <th>
+         Hauteur
+        </th>
+        <th>
+         Coeff.
+        </th>
+       </tr>
+       <tr class="MJ MJ0" id="MareeJours_0" onclick="return GoMareeJour(0)" title="UTC+1">
+        <th>
+         <a href="/124" onclick="this.onmouseover();this.blur();return false;" onmouseover="QSr(this,'?d=202102110');">
+          Jeu.
+          <br/>
+          <b>
+           11
+          </b>
+         </a>
+        </th>
+        <td>
+         <b>
+          04h30
+         </b>
+         <br/>
+         10h34
+         <br/>
+         <b>
+          17h00
+         </b>
+         <br/>
+         22h54
+        </td>
+        <td>
+         <b>
+          5,06m
+         </b>
+         <br/>
+         0,84m
+         <br/>
+         <b>
+          4,87m
+         </b>
+         <br/>
+         0,86m
+        </td>
+        <td>
+         <b>
+          85
+         </b>
+         <br/>
+         <br/>
+         <b>
+          88
+         </b>
+         <br/>
+        </td>
+       </tr>
+       <tr class="MJ MJ1" id="MareeJours_1" onclick="return GoMareeJour(1)" title="UTC+1">
+        <th>
+         <a href="/124" onclick="this.onmouseover();this.blur();return false;" onmouseover="QSr(this,'?d=202102111');">
+          Ven.
+          <br/>
+          <b>
+           12
+          </b>
+         </a>
+        </th>
+        <td>
+         <b>
+          05h05
+         </b>
+         <br/>
+         11h17
+         <br/>
+         <b>
+          17h30
+         </b>
+         <br/>
+         23h34
+        </td>
+        <td>
+         <b>
+          5,18m
+         </b>
+         <br/>
+         0,73m
+         <br/>
+         <b>
+          4,94m
+         </b>
+         <br/>
+         0,78m
+        </td>
+        <td>
+         <b>
+          91
+         </b>
+         <br/>
+         <br/>
+         <b>
+          92
+         </b>
+         <br/>
+        </td>
+       </tr>
+       <tr class="MJ MJ0" id="MareeJours_2" onclick="return GoMareeJour(2)" title="UTC+1">
+        <th>
+         <a href="/124" onclick="this.onmouseover();this.blur();return false;" onmouseover="QSr(this,'?d=202102112');">
+          Sam.
+          <br/>
+          <b>
+           13
+          </b>
+         </a>
+        </th>
+        <td>
+         <b>
+          05h36
+         </b>
+         <br/>
+         11h56
+         <br/>
+         <b>
+          17h58
+         </b>
+        </td>
+        <td>
+         <b>
+          5,23m
+         </b>
+         <br/>
+         0,73m
+         <br/>
+         <b>
+          4,94m
+         </b>
+        </td>
+        <td>
+         <b>
+          93
+         </b>
+         <br/>
+         <br/>
+         <b>
+          93
+         </b>
+        </td>
+       </tr>
+       <tr class="MJ MJ1" id="MareeJours_3" onclick="return GoMareeJour(3)" title="UTC+1">
+        <th>
+         <a href="/124" onclick="this.onmouseover();this.blur();return false;" onmouseover="QSr(this,'?d=202102113');">
+          Dim.
+          <br/>
+          <b>
+           14
+          </b>
+         </a>
+        </th>
+        <td>
+         00h13
+         <br/>
+         <b>
+          06h06
+         </b>
+         <br/>
+         12h33
+         <br/>
+         <b>
+          18h23
+         </b>
+        </td>
+        <td>
+         0,81m
+         <br/>
+         <b>
+          5,20m
+         </b>
+         <br/>
+         0,83m
+         <br/>
+         <b>
+          4,88m
+         </b>
+        </td>
+        <td>
+         <br/>
+         <b>
+          91
+         </b>
+         <br/>
+         <br/>
+         <b>
+          89
+         </b>
+        </td>
+       </tr>
+       <tr class="MJ MJ0" id="MareeJours_4" onclick="return GoMareeJour(4)" title="UTC+1">
+        <th>
+         <a href="/124" onclick="this.onmouseover();this.blur();return false;" onmouseover="QSr(this,'?d=202102114');">
+          Lun.
+          <br/>
+          <b>
+           15
+          </b>
+         </a>
+        </th>
+        <td>
+         00h49
+         <br/>
+         <b>
+          06h36
+         </b>
+         <br/>
+         13h08
+         <br/>
+         <b>
+          18h50
+         </b>
+        </td>
+        <td>
+         0,94m
+         <br/>
+         <b>
+          5,09m
+         </b>
+         <br/>
+         1,01m
+         <br/>
+         <b>
+          4,77m
+         </b>
+        </td>
+        <td>
+         <br/>
+         <b>
+          86
+         </b>
+         <br/>
+         <br/>
+         <b>
+          83
+         </b>
+        </td>
+       </tr>
+       <tr class="MJ MJ1" id="MareeJours_5" onclick="return GoMareeJour(5)" title="UTC+1">
+        <th>
+         <a href="/124" onclick="this.onmouseover();this.blur();return false;" onmouseover="QSr(this,'?d=202102115');">
+          Mar.
+          <br/>
+          <b>
+           16
+          </b>
+         </a>
+        </th>
+        <td>
+         01h24
+         <br/>
+         <b>
+          07h07
+         </b>
+         <br/>
+         13h42
+         <br/>
+         <b>
+          19h18
+         </b>
+        </td>
+        <td>
+         1,15m
+         <br/>
+         <b>
+          4,92m
+         </b>
+         <br/>
+         1,25m
+         <br/>
+         <b>
+          4,61m
+         </b>
+        </td>
+        <td>
+         <br/>
+         <b>
+          78
+         </b>
+         <br/>
+         <br/>
+         <b>
+          73
+         </b>
+        </td>
+       </tr>
+       <tr class="MJ MJ0" id="MareeJours_6" onclick="return GoMareeJour(6)" title="UTC+1">
+        <th>
+         <a href="/124" onclick="this.onmouseover();this.blur();return false;" onmouseover="QSr(this,'?d=202102116');">
+          Mer.
+          <br/>
+          <b>
+           17
+          </b>
+         </a>
+        </th>
+        <td>
+         02h00
+         <br/>
+         <b>
+          07h40
+         </b>
+         <br/>
+         14h16
+         <br/>
+         <b>
+          19h49
+         </b>
+        </td>
+        <td>
+         1,41m
+         <br/>
+         <b>
+          4,70m
+         </b>
+         <br/>
+         1,52m
+         <br/>
+         <b>
+          4,39m
+         </b>
+        </td>
+        <td>
+         <br/>
+         <b>
+          68
+         </b>
+         <br/>
+         <br/>
+         <b>
+          62
+         </b>
+        </td>
+       </tr>
+      </table>
+      <div id="LabPMBM">
+       <b>
+        PM : Pleine Mer
+       </b>
+       BM : Basse Mer
+      </div>
+     </div>
+     <div id="MareeJour">
+      <div id="MareeJour_Pages">
+       <div class="MareeJour_Page" id="MareeJour_Page_0">
+        <div class="MareeJour_Content" id="MareeJour_Content_0">
+         <div class="MareeJourDetail_Content" id="MareeJourDetail_Content_0">
+          <table cellspacing="0" class="MareeJourDetail" id="MareeJourDetail_0">
+           <tr>
+            <th class="Coef" colspan="2" title="coefficient">
+             Coeff.
+            </th>
+            <th>
+             Heure
+            </th>
+            <th>
+             Durée
+             <br/>
+             de la
+             <br/>
+             marée
+            </th>
+            <th>
+             Heure
+             <br/>
+             de
+             <br/>
+             marée
+            </th>
+            <th>
+             Hauteur
+            </th>
+            <th>
+             Marnage
+            </th>
+            <th title="1/12 ème">
+             <sup>
+              1
+             </sup>
+             /
+             <sub>
+              12
+             </sub>
+            </th>
+            <th title="1/12 + 2/12 èmes">
+             <sup>
+              1
+             </sup>
+             /
+             <sub>
+              4
+             </sub>
+            </th>
+            <th title="1/12 + 2/12 + 3/12 èmes">
+             <sup>
+              1
+             </sup>
+             /
+             <sub>
+              2
+             </sub>
+            </th>
+           </tr>
+           <tr>
+            <td class="SEPH" colspan="10">
+             <div>
+             </div>
+            </td>
+           </tr>
+           <tr>
+            <td class="PMBM">
+             <b title="Pleine Mer">
+              PM
+             </b>
+             <br/>
+             <span title="Basse Mer">
+              BM
+             </span>
+             <br/>
+             <b title="Pleine Mer">
+              PM
+             </b>
+             <br/>
+             <span title="Basse Mer">
+              BM
+             </span>
+            </td>
+            <td class="Coef">
+             <b>
+              85
+             </b>
+             <br/>
+             <br/>
+             <b>
+              88
+             </b>
+             <br/>
+            </td>
+            <td class="SEPV">
+             <b>
+              04h30
+             </b>
+             <br/>
+             10h34
+             <br/>
+             <b>
+              17h00
+             </b>
+             <br/>
+             22h54
+            </td>
+            <td>
+             06h04
+             <br/>
+             <b>
+              06h26
+             </b>
+             <br/>
+             05h54
+            </td>
+            <td>
+             01h00
+             <br/>
+             <b>
+              01h04
+             </b>
+             <br/>
+             00h59
+            </td>
+            <td class="SEPV">
+             <b>
+              5,06m
+             </b>
+             <br/>
+             0,84m
+             <br/>
+             <b>
+              4,87m
+             </b>
+             <br/>
+             0,86m
+            </td>
+            <td>
+             4,22m
+             <br/>
+             <b>
+              4,03m
+             </b>
+             <br/>
+             4,01m
+            </td>
+            <td>
+             0,35m
+             <br/>
+             <b>
+              0,34m
+             </b>
+             <br/>
+             0,33m
+            </td>
+            <td>
+             1,06m
+             <br/>
+             <b>
+              1,01m
+             </b>
+             <br/>
+             1,00m
+            </td>
+            <td>
+             2,11m
+             <br/>
+             <b>
+              2,02m
+             </b>
+             <br/>
+             2,01m
+            </td>
+           </tr>
+           <tr>
+            <td class="SEPH" colspan="10">
+             <div>
+             </div>
+            </td>
+           </tr>
+          </table>
+         </div>
+         <div class="MareeJourExtra_Content" id="MareeJourExtra_Content_0">
+          <div class="Graph_Content" id="Graph_Content_0">
+           <h3 onclick="DoMeteo(0)">
+            Horaires des marées à Saint-Gilles-Croix-de-Vie - marégramme
+           </h3>
+           <table cellspacing="0" class="Graph" id="Graph_0">
+            <tr>
+             <th class="LabHauteur">
+              <span onclick="DoMareeJourExtra('Hauteurs',0);">
+               H
+               <br/>
+               a
+               <br/>
+               u
+               <br/>
+               t
+               <br/>
+               e
+               <br/>
+               u
+               <br/>
+               r
+               <br/>
+               <br/>
+               (m)
+              </span>
+             </th>
+             <td>
+              <div class="Maregramme" id="Maregramme_0" onmousemove="if($(this.id+'_IMG').complete)InitGraph(0);" ontouchstart="if($(this.id+'_IMG').complete)InitGraph(0);">
+               <img alt="Horaires des marées à Saint-Gilles-Croix-de-Vie" border="0" class="Maregramme_IMG" galleryimg="no" height="252" id="Maregramme_0_IMG" src="/maree-graph.php?p=124&amp;d=20210211&amp;ut=1&amp;scale=1" title="" width="478"/>
+               <div class="Cadre">
+               </div>
+              </div>
+             </td>
+            </tr>
+            <tr>
+             <td>
+             </td>
+             <th class="LabHeure">
+              Heures
+             </th>
+            </tr>
+           </table>
+           <div style="margin-left:15px;">
+            <br/>
+            <b>
+             Astuce
+            </b>
+            <span class="MareeInfoFlotteur">
+            </span>
+            cliquez sur "Hauteur (m)" pour afficher les hauteurs heure par heure, puis déplacez la souris sur ce tableau pour visualiser la ligne sur le graphique.
+           </div>
+          </div>
+         </div>
+         <div class="MareeJourEphemeride_Content" id="MareeJourEphemeride_Content_0" onclick="DoNuit(0,0);" onmouseout="DoNuit(0,-1);" onmouseover="DoNuit(0,1);">
+          <div class="SoleilLever">
+           Lever du soleil : 08h15
+          </div>
+          <div class="SoleilCoucher">
+           Coucher du soleil : 18h21
+          </div>
+          <div class="Lune">
+           Nouvelle lune
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="MareeJour_Page" id="MareeJour_Page_1">
+        <div class="MareeJour_Content LoadFlag" id="MareeJour_Content_1">
+        </div>
+       </div>
+       <div class="MareeJour_Page" id="MareeJour_Page_2">
+        <div class="MareeJour_Content LoadFlag" id="MareeJour_Content_2">
+        </div>
+       </div>
+       <div class="MareeJour_Page" id="MareeJour_Page_3">
+        <div class="MareeJour_Content LoadFlag" id="MareeJour_Content_3">
+        </div>
+       </div>
+       <div class="MareeJour_Page" id="MareeJour_Page_4">
+        <div class="MareeJour_Content LoadFlag" id="MareeJour_Content_4">
+        </div>
+       </div>
+       <div class="MareeJour_Page" id="MareeJour_Page_5">
+        <div class="MareeJour_Content LoadFlag" id="MareeJour_Content_5">
+        </div>
+       </div>
+       <div class="MareeJour_Page" id="MareeJour_Page_6">
+        <div class="MareeJour_Content LoadFlag" id="MareeJour_Content_6">
+        </div>
+       </div>
+       <div style="clear:left;">
+       </div>
+      </div>
+     </div>
+     <br/>
+     <div style="margin-left:15px;text-align:center;width:540px;">
+      <a href="https://www.facebook.com/notes/mar%C3%A9einfo-annuaire-des-mar%C3%A9es/bien-choisir-son-logiciel-de-mar%C3%A9e/1862417793815386/" onclick="GAEV('COM',this.href);" target="_blank">
+       <b style="color:#c00000;">
+        A lire !
+       </b>
+       <b>
+        Bien choisir son logiciel de marée
+       </b>
+      </a>
+      <br/>
+     </div>
+     <a href="https://geo.itunes.apple.com/fr/app/maree.info/id642338158?mt=8&amp;at=1001l4Zg&amp;ct=ws" onclick="GAEV('APPSTORE_MDI',this.href);" style="margin:24px 0 0px 15px;display:block;border:1px solid white;text-decoration:none;width:540px;" target="_blank">
+      <img src="/img/maree.info_iphone_ipad_icon-pastille.png" style="float:left;padding-right:8px;" width="54"/>
+      <div style="margin-top:0px">
+       <strong>
+        marée.info pour iPhone, Apple Watch et iPad
+        <!-- span style="color:#c00000;">Nouvelle version<i style="color:black;">!</i></span -->
+       </strong>
+       <br/>
+       Pratique : le coefficient de marée s'affiche sur l'icône de l'application
+       <br/>
+       <b>
+        La marée du jour gratuite pour tous les ports
+        <i style="color:#c00000;font-size:18px;">
+         !
+        </i>
+       </b>
+      </div>
+     </a>
+     <br/>
+     <div style="margin-top:4px;margin-left:15px;">
+      <a href="https://geo.itunes.apple.com/fr/app/maree.info/id1062372794?mt=8&amp;at=1001l4Zg&amp;ct=w4d" onclick="GAEV('APPSTORE_W4D',this.href);" style="text-decoration:none;" target="_blank">
+       <img alt="Weather4D" height="48" src="/img/W4D-icon-240x240.png" style="float:left;margin-top:-8px;padding-left:1px;padding-right:12px;" width="48"/>
+       <b>
+        Weather4D
+       </b>
+       2.0 - Navigation, météo, cartographie et routage
+       <br/>
+       Découvrez la nouvelle application pour iPhone et iPad
+      </a>
+      <br/>
+     </div>
+    </div>
+    <div id="FinContenu">
+    </div>
+    <div id="BasPage">
+     <div id="MDI" title="marée.info - Annuaire des marées - Horaires, hauteurs et coefficients des marées">
+      <span>
+       marée.info
+      </span>
+     </div>
+     <div id="SHOM" title="SHOM - Service Hydrographique et Océanographique de la Marine - Informations nautiques, cartes marines pour navigation">
+     </div>
+     <div id="LT">
+      <a href="/">
+       Horaires des marées
+      </a>
+      -
+      <a href="/">
+       http://maree.info
+      </a>
+      © 2002-2021 - Mise à jour le 06 janvier 2021 - webmaster@frbateaux.net -
+      <a href="/cgu" id="CGU">
+       Conditions d'utilisation et de reproduction
+      </a>
+     </div>
+     <div id="LB">
+      D'après les
+      <a href="/">
+       prédictions des marées officielles
+      </a>
+      © SHOM - mise à jour 06/2016 - Licence n°20/2015
+     </div>
+     <div id="FlotteurBasPage">
+     </div>
+    </div>
+   </div>
+  </div>
+  <div id="Modal" onclick="ResizeModal()">
+  </div>
+  <div class="PMenuSubMenu" id="MainMenu_Ports_SubMenu">
+   <div class="PMenuGroup PMenuGroupLast">
+    <div class="PMenuItem PMenuMultipleItems Liste">
+     <a href="/">
+      Tous les ports de France
+     </a>
+     , ou par zone
+     <div>
+      <a href="/?z=32">
+       Mer du Nord
+      </a>
+      -
+      <a href="/?z=1">
+       Manche Est
+      </a>
+      -
+      <a href="/?z=2">
+       Manche Ouest
+      </a>
+      <br/>
+      <a href="/?z=4">
+       Pointe Bretagne
+      </a>
+      -
+      <a href="/?z=8">
+       Bretagne Sud
+      </a>
+      -
+      <a href="/?z=16">
+       Atlantique
+      </a>
+     </div>
+    </div>
+    <a class="PMenuItem PMenuItemLeftIcon Localisation Disabled" href="/" id="MenuPortsLocalisation" onclick="$evS(event);MenuPortsLOC();return false;">
+     Ports au plus proche de votre position
+    </a>
+    <div class="PMenuItem PMenuItemLeftIcon Recherche">
+     <form action="/" onclick="$evS(event)">
+      <input autocomplete="off" class="TxtVide" id="MenuPortsRechercheQ" name="q" onblur="$cnR('MainMenu_Ports_SubMenu','PMenuFlagLocked');if(this.value==this.title||trim(this.value)==''){this.value=this.title;$cnA(this,'TxtVide');}else $cnR(this,'TxtVide');" onclick="$cnA('MainMenu_Ports_SubMenu','PMenuFlagLocked');$evS(event);" onfocus="$cnA('MainMenu_Ports_SubMenu','PMenuFlagLocked');if(this.value==this.title)this.value='';$cnR(this,'TxtVide');" onkeyup="var v=txtsort(this.value);
+                                                                             if(v.length&lt;2&amp;&amp;!v.match(/^[a-j]$/)){$sSH('MenuPortsResultat_Content','none');this.keyRQL=v;}
+                                                                             else if(v!=this.keyRQL)
+                                                                              {
+                                                                               this.keyRQL=v;
+                                                                               if(this.keyRQTID)window.clearTimeout(this.keyRQTID);
+                                                                               this.keyRQTID=window.setTimeout('JS(\'/do/menu-ports-recherche.php?q='+escape(this.value)+'\',true,null,\'MenuPortsRechercheJS\');',500);
+                                                                              }
+                                                                            " size="20" title="Lieu, ville ou code postal" type="text" value="Lieu, ville ou code postal"/>
+      <span id="MenuPortsRechercheCANCEL" onclick="var e=$('MenuPortsRechercheQ');if(e){e.value='';e.onkeyup();e.blur();e.onblur();}">
+      </span>
+      <input id="MenuPortsRechercheOK" onclick="$('MenuPortsRechercheQ').onkeyup();return false;" type="submit" value="OK"/>
+     </form>
+     <div id="MenuPortsResultat_Content">
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="PMenuSubMenu" id="MenuCal_SubMenu">
+   <div id="MenuCal_Pages">
+   </div>
+   <div class="Pied">
+    <div id="MenuCalSwitchCalType" onclick="SetMenuCalTypeDef(Marees.CalType=='c'?'l':'c');GAEV('Action','SetMenuCalTypeDef:'+Marees.CalType);" title="Inverser l'affichage du calendrier : coefficients ou phases de la lune">
+     <span class="Selected" id="MenuCalSwitchCalType_c">
+      Coef
+     </span>
+     <span>
+      /
+     </span>
+     <span class="" id="MenuCalSwitchCalType_l">
+      Lune
+     </span>
+    </div>
+    <a href="/124/calendrier" id="MenuCalGoCalendrier" onclick="this.href='/124/calendrier?d='+Marees.Cal" onmouseover="this.title=this.firstChild.innerHTML;">
+     <span>
+      Afficher le calendrier des marées pour Saint-Gilles-Croix-de-Vie
+     </span>
+    </a>
+    <a href="/124/coefficients" id="MenuCalGoCoefficients" onclick="this.href='/124/coefficients?d='+Marees.Cal" onmouseover="this.title=this.firstChild.innerHTML;">
+     <span>
+      Rechercher une date / un coefficient de marée
+     </span>
+    </a>
+    <a href="/124" id="Aujourdhui">
+     Aujourd'hui :
+     <span>
+      jeudi 11 février 2021
+     </span>
+    </a>
+   </div>
+  </div>
+  <div class="PMenuSubMenu PMenuOption_MenuLeft" id="MenuMareeJour_SubMenu">
+   <a class="PMenuItem" href="#surcote" onclick="DoSurcote(Marees.Page,0);return false;">
+    Afficher/masquer les surcotes et décotes (
+    <span style="color:#c00000">
+     en test
+    </span>
+    )
+   </a>
+   <a class="PMenuItem" href="#" onclick="DoMeteo(Marees.Page,0);return false;">
+    Afficher/masquer la météo (vent, pression, ...)
+   </a>
+   <a class="PMenuItem" href="#" onclick="DoMareeJourExtra('Hauteurs',Marees.Page,0);return false;">
+    Afficher/masquer les hauteurs heure par heure
+   </a>
+   <a class="PMenuItem" href="#" onclick="DoNuit(Marees.Page,0);return false;">
+    Afficher/masquer la limite jour/nuit
+   </a>
+   <a class="PMenuItem" href="#" onclick="CleanGraph(Marees.Page);return false;">
+    Effacer la ligne de seuil
+   </a>
+   <a class="PMenuItem" href="#" onclick="DoGraphAbs(Marees.Page);return false;">
+    Echelle de hauteurs : mini/maxi du jour ou du port
+   </a>
+  </div>
+  <div class="PMenuSubMenu" id="MainMenu_Outils_SubMenu">
+   <div class="PMenuGroup">
+    <a class="PMenuItem PMenuItemLeftIcon Horaire" href="/124">
+     Horaires des marées à Saint-Gilles-Croix-de-Vie
+    </a>
+    <a class="PMenuItem PMenuItemLeftIcon Meteo" href="/124/meteo">
+     Météo et marées à Saint-Gilles-Croix-de-Vie
+    </a>
+    <div class="PMenuItem PMenuMultipleItems Coef">
+     <a href="/124/coefficients">
+      Coefficients des marées à Saint-Gilles-Croix-de-Vie
+     </a>
+     <div class="Small">
+      <a href="/124/coefficients?c=gm">
+       Grandes marées
+      </a>
+      -
+      <a href="/124/coefficients?c=ve">
+       vives-eaux
+      </a>
+      -
+      <a href="/124/coefficients?c=me">
+       mortes-eaux
+      </a>
+     </div>
+    </div>
+    <a class="PMenuItem PMenuItemLeftIcon Calendrier" href="/124/calendrier">
+     Calendrier des marées pour Saint-Gilles-Croix-de-Vie
+    </a>
+   </div>
+   <div class="PMenuGroup PMenuGroupLast">
+    <a class="PMenuItem PMenuItemLeftIcon Horloge" href="http://horloge.maree.frbateaux.net/">
+     Horloge des marées
+    </a>
+    <a class="PMenuItem PMenuItemLeftIcon Meteo" href="/meteo">
+     Météo GRIB - Carte d'ensemble - En test
+    </a>
+   </div>
+  </div>
+  <div class="PMenuSubMenu" id="MainMenu_Compte_SubMenu">
+   <div class="PMenuGroup Annonce">
+    Vous être nombreux à utiliser le site quotidiennement,
+    <br/>
+    la
+    <b>
+     création d'un compte
+    </b>
+    vous permettra entre autres :
+    <ul>
+     <li>
+      de
+      <b>
+       personnaliser
+      </b>
+      l'affichage (couleur, image de fond, ...),
+     </li>
+     <li>
+      d'enregister vos
+      <b>
+       ports favoris
+      </b>
+      pour un accès plus rapide,
+     </li>
+     <li>
+      etc ...
+     </li>
+    </ul>
+    La création de compte n'est pas encore disponible.
+    <br/>
+   </div>
+   <div class="PMenuGroup PMenuGroupLast">
+    <a class="PMenuItem" href="#" onclick="LoadTheme(90001,true);return false;">
+     Activer le thème "Voiles et Voiliers / Photo à la Hune"
+    </a>
+    <a class="PMenuItem Disabled" href="#" id="MenuCompteNoTheme" onclick="NoTheme(false,true);return false;">
+     Désactiver le thème
+    </a>
+    <a class="PMenuItem" href="#" onclick="NoTheme(true,true);return false;">
+     Toujours désactiver les thèmes
+    </a>
+   </div>
+  </div>
+  <div class="PMenuSubMenu" id="MainMenu_APropos_SubMenu">
+   <a class="PMenuItem" href="/cgu">
+    Conditions d'utilisation
+   </a>
+   <a class="PMenuItem" href="/cgu">
+    A propos ...
+   </a>
+   <a class="PMenuItem" href="/changelog">
+    Suivi des modifications
+   </a>
+  </div>
+  <div class="PMenuSubMenu PMenuSubMenuFTG" id="MenuFTG_0_SubMenu">
+   <a class="PMenuItem" href="http://www.facebook.com/maree.info" onclick="GAL('FB')" target="_blank">
+    Suivre maree.info sur Facebook
+   </a>
+   <a class="PMenuItem" href="http://www.facebook.com/share.php?u=http%3A//maree.info/" onclick="window.open(this.href,'facebook','toolbar=no,width=550,height=550');return false;" target="_blank">
+    Partager sur Facebook
+   </a>
+   <div class="UpdateFlag" id="FBLike">
+    <div class="Loading DummyLoadingSmall">
+    </div>
+   </div>
+  </div>
+  <div class="PMenuSubMenu PMenuSubMenuFTG" id="MenuFTG_1_SubMenu">
+   <a class="PMenuItem" href="/twitter">
+    Présentation : Comptes et services sur Twitter
+   </a>
+   <a class="PMenuItem" href="https://twitter.com/maree_info" onclick="GAL('TW')" target="_blank">
+    Suivre
+    <b>
+     @maree_info
+    </b>
+    sur Twitter
+   </a>
+   <a class="PMenuItem" href="https://twitter.com/maree_info/lists" onclick="GAL('TW')" target="_blank">
+    Liste des ports à suivre sur Twitter
+   </a>
+  </div>
+  <div class="PMenuSubMenu PMenuSubMenuFTG" id="MenuFTG_2_SubMenu">
+   <a class="PMenuItem" href="https://plus.google.com/117898131810063558585/?prsrc=3" onclick="GAL('GP')" target="_blank">
+    maree.info sur Google +
+   </a>
+   <div class="GP">
+    <div class="g-plusone Loading DummyLoadingSmall" data-href="http://maree.info" data-width="250">
+    </div>
+   </div>
+  </div>
+  <script type="text/javascript">
+   window.setTimeout("$sHTML('SNSM','<a href=\"http://www.snsm.org/?utm_source=maree.info\" target=_blank onclick=\"GAL(\\'SNSM\\')\">Sauveteurs en mer, je suis solidaire<br>aidez la SNSM sur &nbsp;<b>www.snsm.org</b></a>')",10);
+window.setTimeout( "InitMenuMareeJours();DoMareeJour(0);UpdateAujourdhui();", 10 );
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-25787770-1']);
+_gaq.push(['_setDomainName', '.maree.info']);
+_gaq.push(['_setAllowHash', false]);
+_gaq.push(['_setAllowAnchor', true]);
+_gaq.push(['_setCustomVar',2,'ads',''+window.mareeinfo_ads,1]);
+_gaq.push(['_setCustomVar',3,'tid',''+LoadTheme(User.TID),3]);
+_gaq.push(['_trackPageview']); 
+(function(){ var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+             ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+           })();
+
+window.setTimeout("JS('/js/cgu.js',true)",50);
+  </script>
+ </body>
+</html>
