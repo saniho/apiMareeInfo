@@ -96,13 +96,16 @@ class apiMareeInfo:
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
             })
         page = urllib.request.urlopen(req, context=ctx)
-        soup = BeautifulSoup(page, 'html.parser')
-        return soup
+        return page
 
-    def getInformationPort(self, idPort):
+    def getInformationPort(self, idPort, htmlPage=None):
         urlpagemaree = "https://maree.info/%s" %(idPort)
         _LOGGER.warning("tente un update  ? ... %s" % (urlpagemaree))
-        soup = self.getHtmlPage( urlpagemaree)
+        if ( htmlPage == None):
+            page = self.getHtmlPage(urlpagemaree)
+        else:
+            page = htmlPage
+        soup = BeautifulSoup(page, 'html.parser')
         myTab = {}
         myTab.update(self.getinformationJour( soup, "MareeJours_0", "0"))
         myTab.update(self.getinformationJour( soup, "MareeJours_1", "1"))

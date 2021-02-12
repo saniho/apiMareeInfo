@@ -27,9 +27,10 @@ class manageSensorState:
         self.version = version
         pass
 
-    def getNextMaree(self, indice = 1):
+    def getNextMaree(self, indice = 1, maintenant = None):
         i = 1
-        maintenant = datetime.datetime.now()
+        if (maintenant == None):
+            maintenant = datetime.datetime.now()
         prochainemaree = None
         for x in self._myPort.getInfo().keys():
             if ( prochainemaree == None ):

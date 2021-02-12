@@ -24,6 +24,7 @@ from .const import (
     DOMAIN,
     __VERSION__,
     __name__,
+    SCAN_INTERVAL_http,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,7 +39,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 from . import apiMareeInfo, sensorApiMaree
 
-
 class myMareeInfo:
     def __init__(self, idDuPort, _update_interval):
         self._lastSynchro = None
@@ -49,23 +49,19 @@ class myMareeInfo:
 
 
     def update(self,):
-        import json
         import datetime
 
         courant = datetime.datetime.now()
-        _LOGGER.warning("-update possible-")
+        #_LOGGER.warning("-update possible- ?")
         if ( self._lastSynchro == None ) or \
             ( (self._lastSynchro + self._update_interval) < courant ):
+            _LOGGER.warning("-update possible- on lance")
             self._myMaree.getInformationPort(self._idDuPort)
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
         return self._idDuPort
     # revoir recupearation valeur
-    def getInfoPort(self):
-        return "self._infoPort"
-    #def getNomDuPort(self):
-    #    return self._myMaree.getNomDuPort()
     def getmyMaree(self):
         return self._myMaree
     def getDateCourante(self):
@@ -76,6 +72,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the platform."""
     name = config.get(CONF_NAME)
     update_interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
+    update_interval_http = SCAN_INTERVAL_http
     idDuPort = config.get(CONF_CODE)
     try:
         session = []
@@ -97,7 +94,8 @@ class infoMareeSensor(Entity):
         self._attributes = None
         self._state = None
         self.update = Throttle(interval)(self._update)
-        self._sAM = sensorApiMaree.manageSensorState( self._myPort.getmyMAree() )
+        self._sAM = sensorApiMaree.manageSensorState()
+        self._sAM.init( self._myPort.getmyMaree() )
 
     @property
     def name(self):
