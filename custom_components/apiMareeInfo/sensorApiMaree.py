@@ -57,6 +57,7 @@ class manageSensorState:
 
         #probleme mauvaise variable
         status_counts["nomPort"] = self._myPort.getNomDuPort()
+        status_counts["Copyright"] = self._myPort.getCopyright()
         status_counts["dateCourante"] = self._myPort.getDateCourante()
 
         for horaireMaree in self._myPort.getInfo().keys():

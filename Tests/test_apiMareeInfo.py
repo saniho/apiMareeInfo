@@ -2,27 +2,22 @@
 import datetime
 
 from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
-
-
-def loadHtmlFile( filename ):
-    dateHtml = open(filename).read()
-    return dateHtml
-
-def test_lectureFichier():
-    dataHtml = loadHtmlFile("Tests/htmlpage/port.html")
-    assert len(dataHtml) == 37142
+import json
 
 def test_getinformation_port():
-    dataHtml = loadHtmlFile("Tests/htmlpage/port.html")
+    with open('./Tests/json/SJM.json') as f:
+        dataJson = json.load(f)
     _myMaree = apiMareeInfo.apiMareeInfo()
-    _myMaree.getInformationPort("124", dataHtml)
+    lat, lng = "1","1"
+    _myMaree.setPort(lat, lng)
+    _myMaree.getInformationPort(dataJson)
 
     _sAM = sensorApiMaree.manageSensorState()
     _sAM.init(_myMaree)
     assert _myMaree.getNomDuPort() == "Saint-Gilles-Croix-de-Vie"
-    maintenant = datetime.datetime.strptime( "2021-02-11 22:14", "%Y-%m-%d %H:%M")
-    assert _sAM.getNextMaree(1, maintenant)['horaire'] == "22:54"
-    assert _sAM.getNextMaree(1, maintenant)['coeff'] == "88"
-    assert _sAM.getNextMaree(1, maintenant)['hauteur'] == "0,86m"
-    assert _sAM.getNextMaree(1, maintenant)['etat'] == "BM"
-    assert _sAM.getNextMaree(1, maintenant)['dateComplete'] == datetime.datetime(2021, 2, 11, 22, 54)
+    maintenant = datetime.datetime.strptime( "2021-02-19 04:14", "%Y-%m-%d %H:%M")
+    assert _sAM.getNextMaree(1, maintenant)['horaire'] == "08:59"
+    assert _sAM.getNextMaree(1, maintenant)['coeff'] == 45
+    assert _sAM.getNextMaree(1, maintenant)['hauteur'] == 4.15
+    assert _sAM.getNextMaree(1, maintenant)['etat'] == "PM"
+    assert _sAM.getNextMaree(1, maintenant)['dateComplete'] == datetime.datetime(2021, 2, 19, 8, 59)
