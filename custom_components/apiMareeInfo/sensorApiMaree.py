@@ -50,10 +50,10 @@ class manageSensorState:
         niemeHoraire = 0
         status_counts["version"] = __VERSION__
         for n in range(2):
-            status_counts["horaire_%s_4"%n] = ""
-            status_counts["coeff_%s_4"%n] = ""
-            status_counts["etat_%s_4"%n] = ""
-            status_counts["hauteur_%s_4"%n] = ""
+            status_counts["horaire_%s_3"%n] = ""
+            status_counts["coeff_%s_3"%n] = ""
+            status_counts["etat_%s_3"%n] = ""
+            status_counts["hauteur_%s_3"%n] = ""
 
         #probleme mauvaise variable
         status_counts["nomPort"] = self._myPort.getNomDuPort()

@@ -1,12 +1,14 @@
 # apimareeInfo
 
-Objectif, recuperer le contenu de la page web maree.info pour avoir les informations sur les horaires de marées, depuis le site : http://maree.info/
-exemple : http://maree.info/124
+Objectif, recuperer le contenu les informations de marée, exemple ici le port de SGXV( Saint Gilles Croix de Vie ).
 
 pour declarer le sensor dans HA : 
+un code pour le port, et ces coordonnées GPS
 
 ```yaml
 - platform: apiMareeInfo
   code: 124
-  scan_interval: 1800
+  latitude: 46.7711
+  longitude: -2.05306
+  scan_interval: 120
 ```
