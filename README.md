@@ -12,3 +12,8 @@ un code pour le port, et ces coordonnées GPS
   longitude: -2.05306
   scan_interval: 120
 ```
+
+
+v 1.0.1.0
+
+Warning : changement service, dans le sensor il faut ajouter maintenant les coordonnées GPS du port
