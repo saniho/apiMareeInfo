@@ -8,6 +8,6 @@ DOMAIN = "apiMareeInfo"
 # delai pour l'update http, toutes les 3 heures
 SCAN_INTERVAL_http = datetime.timedelta(seconds=60*60*3)
 
-__VERSION__ = "1.0.1.0"
+__VERSION__ = "1.0.1.1RC"
 
 __name__ = "apiMareeInfo"
