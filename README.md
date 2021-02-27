@@ -14,9 +14,9 @@ un code pour le port, et ces coordonnées GPS
 ```
 Pour information, ce sensor est compatible avec la card
 
-vous permetant d'obetnir ainsi ce genre de résultat :
+vous permetant d'obtenir ainsi ce genre de résultat :
 
-<img src="https://raw.githubusercontent.com/saniho/apimareeInfo/main/img/imgCard.png" height="300"/>
+<img src="https://github.com/saniho/apiMareeInfo/raw/master/img/imgCard.png" height="300"/>
 
 Releases Notes :
 
