@@ -77,11 +77,14 @@ class manageSensorState:
             status_counts["next_etat_%s"%i] = "%s" %self.getNextMaree(i)["etat"]
         status_counts["timeLastCall"] = datetime.datetime.now()
 
+        dicoPrevis = []
         for maDate in self._myPort.getPrevis().keys():
             dico = {}
+            dico["datetime"] = maDate
             for clefPrevis in self._myPort.getPrevis()[maDate].keys():
-                dico[ clefPrevis] = self._myPort.getPrevis()[maDate][ clefPrevis ]
-            status_counts[ maDate ] = dico
+                dico[ clefPrevis ] = self._myPort.getPrevis()[maDate][ clefPrevis ]
+            dicoPrevis.append( dico )
+        status_counts[ "prevision" ] = dicoPrevis
         self._attributes = status_counts
         self._state = self.getNextMaree()["horaire"]
         return self._state, self._attributes

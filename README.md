@@ -16,7 +16,6 @@ Pour information, ce sensor est compatible avec la card
 
 vous permetant d'obetnir ainsi ce genre de résultat :
 
-
 <img src="https://raw.githubusercontent.com/saniho/apimareeInfo/main/img/imgCard.png" height="300"/>
 
 Releases Notes :

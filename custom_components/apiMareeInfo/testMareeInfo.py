@@ -34,7 +34,7 @@ print(_myMaree.getDateCourante())
 _sAM = sensorApiMaree.manageSensorState()
 _sAM.init(_myMaree )
 state, attributes = _sAM.getStatus()
-print(state, attributes)
+#print(state, attributes)
 sensorApiMaree.logSensorState( attributes )
 
 #print(data)
