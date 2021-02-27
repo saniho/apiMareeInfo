@@ -1,11 +1,8 @@
 import logging
-from datetime import timedelta, datetime
-
+from datetime import datetime
+import json
 import requests
-from bs4 import BeautifulSoup
-from urllib.request import urlopen
 _LOGGER = logging.getLogger(__name__)
-import time
 
 class apiMareeInfo:
     def __init__(self):
@@ -34,14 +31,16 @@ class apiMareeInfo:
     def getInformationPort(self, jsonData = None):
         if (jsonData == None):
             jsonData = self.getJson(self._url)
-        #print(jsonData)
+
+        #with open('port.json', 'w') as outfile:
+        #    json.dump(jsonData, outfile)
         self._nomDuPort = jsonData["contenu"]["marees"][0]['lieu']
         self._dateCourante = jsonData["contenu"]["marees"][0]['datetime']
 
         a = {}
-        myTab = {}
+        myMarees = {}
         j = 0
-        for maree in jsonData["contenu"]["marees"][:4]:
+        for maree in jsonData["contenu"]["marees"][:6]:
             i = 0
             for ele in maree["etales"]:
                 dateComplete = datetime.fromisoformat(ele["datetime"])
@@ -50,12 +49,34 @@ class apiMareeInfo:
                     "etat" : ele["type_etale"], "nieme": i, "jour": j, "date": ele["datetime"], \
                     "dateComplete" : dateComplete.replace(tzinfo=None)}
                 clef = "horaire_%s_%s"%(j,i)
-                a[clef] = detailMaree
+                myMarees[clef] = detailMaree
                 #print(clef, detailMaree)
                 i += 1
             j += 1
-        myTab.update(a)
-        self._donnees = myTab
+        self._donnees = myMarees
+
+        dicoPrevis = {}
+        for ele in jsonData["contenu"]["previs"]["detail"]:
+            dateComplete = datetime.fromisoformat(ele["datetime"])
+            detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""), \
+                           "dirvdegres": ele.get("dirvdegres", ""), \
+                           "dateComplete": dateComplete.replace(tzinfo=None), \
+                           "nuagecouverture": ele.get("nuagecouverture",""),
+                           "precipitation": ele.get("precipitation",""),
+                           "teau": ele.get("teau",""),
+                           "t": ele.get("t",""),
+                           "risqueorage": ele.get("risqueorage",""),
+                           "dirhouledegres": ele.get("dirhouledegres",""),
+                           "hauteurhoule": ele.get("hauteurhoule",""),
+                           "periodehoule": ele.get("periodehoule",""),
+                           "hauteurmerv": ele.get("hauteurmerv",""),
+                           "periodemerv": ele.get("periodemerv",""),
+                           "hauteurvague": ele.get("hauteurvague","")
+
+                           }
+            clef = dateComplete
+            dicoPrevis[clef] = detailPrevis
+        self._donneesPrevis = dicoPrevis
 
 
     def getNomDuPort(self):
@@ -72,3 +93,6 @@ class apiMareeInfo:
 
     def getInfo(self):
         return self._donnees
+
+    def getPrevis(self):
+        return self._donneesPrevis
