@@ -4,6 +4,29 @@ import json
 import requests
 _LOGGER = logging.getLogger(__name__)
 
+class listePorts:
+    def __init__(self):
+        pass
+
+    def getJson(self, url):
+        try:
+            import json
+            session = requests.Session()
+            response = session.post(url, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.Timeout as error:
+            response = {"error": "UNKERROR_001"}
+            return response
+        except requests.exceptions.HTTPError as error:
+            return response.json()
+        pass
+
+    def getListePort(self, nomPort):
+        url = "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" %(nomPort)
+        retour = self.getJson(url)
+        return retour
+
 class apiMareeInfo:
     def __init__(self):
         self._donnees = {}
@@ -27,13 +50,18 @@ class apiMareeInfo:
         self._lng = lng
         self._url = \
             "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s"%(lat, lng)
+        #self._url = \
+        #    "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
+        #    lat, lng)
+        #print(self._url)
 
     def getInformationPort(self, jsonData = None):
         if (jsonData == None):
             jsonData = self.getJson(self._url)
 
-        #with open('port.json', 'w') as outfile:
-        #    json.dump(jsonData, outfile)
+        print(jsonData)
+        with open('port.json', 'w') as outfile:
+            json.dump(jsonData, outfile)
         self._nomDuPort = jsonData["contenu"]["marees"][0]['lieu']
         self._dateCourante = jsonData["contenu"]["marees"][0]['datetime']
 
