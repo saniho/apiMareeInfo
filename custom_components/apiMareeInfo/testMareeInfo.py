@@ -22,8 +22,8 @@ def testListePorts():
   import apiMareeInfo
 
   _myPort = apiMareeInfo.listePorts()
-  a = _myPort.getListePort( "sables")
+  a = _myPort.getListePort( "olonne")
   print(a)
 
-testPort()
-#testListePorts()
+#testPort()
+testListePorts()

@@ -24,7 +24,11 @@ class listePorts:
 
     def getListePort(self, nomPort):
         url = "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" %(nomPort)
+        print(url)
         retour = self.getJson(url)
+        print(retour)
+        for x in retour["contenu"]:
+            print(x["id"], x["nom"], x[ "lat"], x["lon"])
         return retour
 
 class apiMareeInfo:
@@ -59,9 +63,9 @@ class apiMareeInfo:
         if (jsonData == None):
             jsonData = self.getJson(self._url)
 
-        print(jsonData)
-        with open('port.json', 'w') as outfile:
-            json.dump(jsonData, outfile)
+        #print(jsonData)
+        #with open('port.json', 'w') as outfile:
+        #    json.dump(jsonData, outfile)
         self._nomDuPort = jsonData["contenu"]["marees"][0]['lieu']
         self._dateCourante = jsonData["contenu"]["marees"][0]['datetime']
 
