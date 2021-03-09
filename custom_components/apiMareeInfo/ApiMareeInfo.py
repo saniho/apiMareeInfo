@@ -4,12 +4,46 @@ import json
 import requests
 _LOGGER = logging.getLogger(__name__)
 
-class apiMareeInfo:
+
+class ListePorts:
     def __init__(self):
-        self._donnees = {}
+        # fonction init aucune action à réaliser
         pass
 
-    def getJson(self, url):
+    def getjson(self, url):
+        try:
+            import json
+            session = requests.Session()
+            response = session.post(url, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.Timeout as error:
+            response = {"error": "UNKERROR_001"}
+            return response
+        except requests.exceptions.HTTPError as error:
+            return response.json()
+        pass
+
+    def getlisteport(self, nomport):
+        url = "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" %(nomport)
+        print(url)
+        retour = self.getjson(url)
+        print(retour)
+        for x in retour["contenu"]:
+            print(x["id"], x["nom"], x[ "lat"], x["lon"])
+        return retour
+
+
+class ApiMareeInfo:
+    def __init__(self):
+        self._donnees = {}
+        self._nomDuPort = None
+        self._dateCourante = None
+        self._lat = None
+        self._lng = None
+        pass
+
+    def getjson(self, url):
         try:
             import json
             session = requests.Session()
@@ -22,25 +56,33 @@ class apiMareeInfo:
         except requests.exceptions.HTTPError as error:
             return response.json()
 
-    def setPort(self, lat, lng):
+    def setport(self, lat, lng):
         self._lat = lat
         self._lng = lng
         self._url = \
             "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s"%(lat, lng)
+        """ autre url possible
+        self._url = \
+        #    "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
+        #    lat, lng)
+        #print(self._url)
+        """
 
-    def getInformationPort(self, jsonData = None):
-        if (jsonData == None):
-            jsonData = self.getJson(self._url)
+    def getinformationport(self, jsondata = None, outfile=None):
+        if (jsondata == None):
+            jsondata = self.getjson(self._url)
 
-        #with open('port.json', 'w') as outfile:
-        #    json.dump(jsonData, outfile)
-        self._nomDuPort = jsonData["contenu"]["marees"][0]['lieu']
-        self._dateCourante = jsonData["contenu"]["marees"][0]['datetime']
+        if outfile != None:
+            print(jsondata)
+            with open('port.json', 'w') as outfile:
+                json.dump(jsondata, outfile)
+        self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
+        self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
 
         a = {}
         myMarees = {}
         j = 0
-        for maree in jsonData["contenu"]["marees"][:6]:
+        for maree in jsondata["contenu"]["marees"][:6]:
             i = 0
             for ele in maree["etales"]:
                 dateComplete = datetime.fromisoformat(ele["datetime"])
@@ -56,7 +98,7 @@ class apiMareeInfo:
         self._donnees = myMarees
 
         dicoPrevis = {}
-        for ele in jsonData["contenu"]["previs"]["detail"]:
+        for ele in jsondata["contenu"]["previs"]["detail"]:
             dateComplete = datetime.fromisoformat(ele["datetime"])
             detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""), \
                            "dirvdegres": ele.get("dirvdegres", ""), \
@@ -78,21 +120,20 @@ class apiMareeInfo:
             dicoPrevis[clef] = detailPrevis
         self._donneesPrevis = dicoPrevis
 
-
-    def getNomDuPort(self):
+    def getnomduport(self):
         return self._nomDuPort.split("©")[0].strip()
 
-    def getCopyright(self):
+    def getcopyright(self):
         return "©SHOM"
 
-    def getNomCompletDuPort(self):
+    def getnomcompletduport(self):
         return self._nomDuPort
 
-    def getDateCourante(self):
+    def getdatecourante(self):
         return self._dateCourante
 
-    def getInfo(self):
+    def getinfo(self):
         return self._donnees
 
-    def getPrevis(self):
+    def getprevis(self):
         return self._donneesPrevis

@@ -1,50 +1,30 @@
-"""import apiMareeInfo, sensorApiMaree
+def testPort():
+  import json
 
-_myMaree = apiMareeInfo.apiMareeInfo()
-_myMaree.getInformationPort("124")
+  with open('../../Tests/json/SJM.json') as f:
+    data = json.load(f)
+  import apiMareeInfo, sensorApiMaree
 
-_sAM = sensorApiMaree.manageSensorState()
-_sAM.init(_myMaree )
-state, attributes = _sAM.getStatus()
-print(state, attributes)
-sensorApiMaree.logSensorState( attributes )
-print(_myMaree.getInfo())
-print(_myMaree.getNomDuPort())
-print(_myMaree.getDateCourante())
+  _myMaree = apiMareeInfo.ApiMareeInfo()
+  lat, lng = "46.7711", "-2.05306"
+  lat, lng = "46.4967", "-1.79667"
+  _myMaree.setport(lat, lng)
+  # _myMaree.getInformationPort( outfile = "file.json" )
+  _myMaree.getinformationport()
+  print(_myMaree.getinfo())
+  print(_myMaree.getnomduport())
+  print(_myMaree.getdatecourante())
+  _sAM = sensorApiMaree.manageSensorState()
+  _sAM.init(_myMaree )
+  state, attributes = _sAM.getstatus()
+  sensorApiMaree.logSensorState( attributes )
 
-"""
+def testListePorts():
+  import apiMareeInfo
 
+  _myPort = apiMareeInfo.ListePorts()
+  a = _myPort.getlisteport("olonne")
+  print(a)
 
-import json
-
-with open('../../Tests/json/SJM.json') as f:
-  data = json.load(f)
-import apiMareeInfo, sensorApiMaree
-
-_myMaree = apiMareeInfo.apiMareeInfo()
-url = "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=46.7711&lon=-2.05306"
-
-_myMaree.setPort( "46.7711", "-2.05306")
-_myMaree.getInformationPort()
-
-print(_myMaree.getInfo())
-print(_myMaree.getNomDuPort())
-print(_myMaree.getDateCourante())
-
-_sAM = sensorApiMaree.manageSensorState()
-_sAM.init(_myMaree )
-state, attributes = _sAM.getStatus()
-#print(state, attributes)
-sensorApiMaree.logSensorState( attributes )
-
-#print(data)
-#print(data["contenu"]["marees"])
-#for maree in data["contenu"]["marees"]:
-#    print(maree)
-#maree = data["contenu"]["marees"][0]
-#for ele in maree["etales"]:
-#    print(ele["datetime"])
-#    print(ele["hauteur"])
-#    print(ele["type_etale"])
-#    print(ele.get("coef",""))
-#print(maree.keys())
+testPort()
+testListePorts()
