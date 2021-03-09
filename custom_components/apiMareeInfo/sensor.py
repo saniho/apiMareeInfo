@@ -50,7 +50,7 @@ class myMareeInfo:
         self._idDuPort = idDuPort
         self._lat = lat
         self._lng = lng
-        self._myMaree = apiMareeInfo.apiMareeInfo()
+        self._myMaree = apiMareeInfo.ApiMareeInfo()
         pass
 
 
@@ -62,8 +62,8 @@ class myMareeInfo:
         if ( self._lastSynchro == None ) or \
             ( (self._lastSynchro + self._update_interval) < courant ):
             _LOGGER.warning("-update possible- on lance")
-            self._myMaree.setPort(self._lat, self._lng)
-            self._myMaree.getInformationPort()
+            self._myMaree.setport(self._lat, self._lng)
+            self._myMaree.getinformationport()
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
@@ -72,7 +72,7 @@ class myMareeInfo:
     def getmyMaree(self):
         return self._myMaree
     def getDateCourante(self):
-        return self._myMaree.getDateCourante()
+        return self._myMaree.getdatecourante()
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
@@ -124,7 +124,7 @@ class infoMareeSensor(Entity):
     def _update(self):
         """Update device state."""
         self._myPort.update()
-        self._state, self._attributes = self._sAM.getStatus()
+        self._state, self._attributes = self._sAM.getstatus()
 
     @property
     def device_state_attributes(self):
