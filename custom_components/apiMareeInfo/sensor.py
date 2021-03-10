@@ -41,7 +41,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-from . import apiMareeInfo, sensorApiMaree
+from . import ApiMareeInfo, sensorApiMaree
 
 class myMareeInfo:
     def __init__(self, idDuPort, lat, lng, _update_interval):

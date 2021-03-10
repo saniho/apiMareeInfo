@@ -2,17 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="addListePort dans le test">
-      <change afterPath="$PROJECT_DIR$/Tests/TestResults/Test Results - pytest_in_test_apiMareeInfo_py.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.scannerwork/report-task.txt" beforeDir="false" afterPath="$PROJECT_DIR$/.scannerwork/report-task.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Tests/test_apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/test_apiMareeInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/ApiMareeInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/port.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/testMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/testMareeInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sonar-project.properties" beforeDir="false" afterPath="$PROJECT_DIR$/sonar-project.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +21,11 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubProjectSettings">
+    <option name="CREATE_PULL_REQUEST_DEFAULT_BRANCH" value="master" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_USER" value="saniho" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_NAME" value="apiMareeInfo" />
   </component>
   <component name="ProjectId" id="1nfUrWIrPFAxqZqHOuHWKwBIU2K" />
   <component name="ProjectLevelVcsManager">
