@@ -2,7 +2,9 @@
     "domain": "apiMareeInfo",
     "name": "apiMareeInfo sensor",
     "documentation": "",
-    "requirements": ["beautifulsoup4==4.9.0"],
+    "version": "v1.0.1.4",
+    "requirements": [
+    ],
     "dependencies": [],
     "codeowners": []
 }

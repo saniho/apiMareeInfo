@@ -2,17 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="addListePort dans le test">
-      <change afterPath="$PROJECT_DIR$/Tests/TestResults/Test Results - pytest_in_test_apiMareeInfo_py.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.scannerwork/report-task.txt" beforeDir="false" afterPath="$PROJECT_DIR$/.scannerwork/report-task.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Tests/test_apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/Tests/test_apiMareeInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/ApiMareeInfo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/port.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/testMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/testMareeInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sonar-project.properties" beforeDir="false" afterPath="$PROJECT_DIR$/sonar-project.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +19,11 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubProjectSettings">
+    <option name="CREATE_PULL_REQUEST_DEFAULT_BRANCH" value="master" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_USER" value="saniho" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_NAME" value="apiMareeInfo" />
   </component>
   <component name="ProjectId" id="1nfUrWIrPFAxqZqHOuHWKwBIU2K" />
   <component name="ProjectLevelVcsManager">
@@ -43,7 +40,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/Tests" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.testMareeInfo">
+  <component name="RunManager" selected="Python tests.pytest in test_apiMareeInfo.py">
     <configuration name="testMareeInfo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="apiMareeInfo" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -87,8 +84,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.testMareeInfo" />
         <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
+        <item itemvalue="Python.testMareeInfo" />
         <item itemvalue="Python.testMareeInfo" />
         <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
         <item itemvalue="Python.testMareeInfo" />
@@ -237,7 +234,28 @@
       <option name="project" value="LOCAL" />
       <updated>1615152283489</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="addListePort dans le test">
+      <created>1615408674912</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1615408674912</updated>
+    </task>
+    <task id="LOCAL-00021" summary="addListePort dans le test">
+      <created>1615409401147</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1615409401147</updated>
+    </task>
+    <task id="LOCAL-00022" summary="addListePort dans le test">
+      <created>1615409864733</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1615409864733</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
