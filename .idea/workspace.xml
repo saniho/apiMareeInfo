@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="addListePort dans le test">
+      <change afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -242,7 +240,14 @@
       <option name="project" value="LOCAL" />
       <updated>1615408674912</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="addListePort dans le test">
+      <created>1615409401147</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1615409401147</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
