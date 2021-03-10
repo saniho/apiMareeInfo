@@ -1,13 +1,13 @@
 
 import datetime
 
-from custom_components.apiMareeInfo import ApiMareeInfo, sensorApiMaree
+from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
 import json
 
 def test_getinformation_port():
     with open('./Tests/json/SJM.json') as f:
         dataJson = json.load(f)
-    _myMaree = ApiMareeInfo.ApiMareeInfo()
+    _myMaree = apiMareeInfo.ApiMareeInfo()
     lat, lng = "1","1"
     _myMaree.setport(lat, lng)
     _myMaree.getinformationport(dataJson)
