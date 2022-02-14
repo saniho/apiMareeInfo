@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+import datetime
 import json
 import requests
 _LOGGER = logging.getLogger(__name__)
@@ -74,8 +74,8 @@ class ApiMareeInfo:
 
         if outfile != None:
             print(jsondata)
-            with open('port.json', 'w') as outfile:
-                json.dump(jsondata, outfile)
+            with open(outfile, 'w') as outfilev:
+                json.dump(jsondata, outfilev)
         self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
         self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
 
@@ -85,7 +85,7 @@ class ApiMareeInfo:
         for maree in jsondata["contenu"]["marees"][:6]:
             i = 0
             for ele in maree["etales"]:
-                dateComplete = datetime.fromisoformat(ele["datetime"])
+                dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
                 detailMaree = {"coeff": ele.get("coef", ""), "hauteur": ele["hauteur"], \
                     "horaire": dateComplete.strftime( "%H:%M"), \
                     "etat" : ele["type_etale"], "nieme": i, "jour": j, "date": ele["datetime"], \
@@ -99,7 +99,7 @@ class ApiMareeInfo:
 
         dicoPrevis = {}
         for ele in jsondata["contenu"]["previs"]["detail"]:
-            dateComplete = datetime.fromisoformat(ele["datetime"])
+            dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
             detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""), \
                            "dirvdegres": ele.get("dirvdegres", ""), \
                            "dateComplete": dateComplete.replace(tzinfo=None), \
@@ -137,3 +137,11 @@ class ApiMareeInfo:
 
     def getprevis(self):
         return self._donneesPrevis
+
+    def getNextPluie(self):
+        dateCourante = datetime.datetime.now()
+        for x in self._donneesPrevis.keys():
+            a = datetime.datetime.fromisoformat(self._donneesPrevis[x]["datetime"])
+            print(a)
+            if a > dateCourante :
+                print("OK")

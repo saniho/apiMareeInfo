@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="addListePort dans le test">
+    <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="add MakeFile">
+      <change afterPath="$PROJECT_DIR$/Tests/json/SJM_20220214.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/testMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/testMareeInfo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +26,9 @@
     <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_USER" value="saniho" />
     <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_NAME" value="apiMareeInfo" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectId" id="1nfUrWIrPFAxqZqHOuHWKwBIU2K" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -40,7 +44,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/Tests" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable" />
   </component>
-  <component name="RunManager" selected="Python tests.pytest in test_apiMareeInfo.py">
+  <component name="RunManager" selected="Python.testMareeInfo">
     <configuration name="testMareeInfo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="apiMareeInfo" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -84,8 +88,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
         <item itemvalue="Python.testMareeInfo" />
+        <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
         <item itemvalue="Python.testMareeInfo" />
         <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
         <item itemvalue="Python.testMareeInfo" />
@@ -255,7 +259,14 @@
       <option name="project" value="LOCAL" />
       <updated>1615409864733</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="add MakeFile">
+      <created>1644875068091</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1644875068091</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -268,7 +279,6 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
@@ -278,6 +288,7 @@
     <MESSAGE value="next marée&#10;next marée + 1&#10;&#10;migration de service" />
     <MESSAGE value="next marée&#10;next marée + 1&#10;&#10;migration de service&#10;&#10;addSensorInformation( vent, temperature de l'eau, de l'air etc.. )" />
     <MESSAGE value="addListePort dans le test" />
-    <option name="LAST_COMMIT_MESSAGE" value="addListePort dans le test" />
+    <MESSAGE value="add MakeFile" />
+    <option name="LAST_COMMIT_MESSAGE" value="add MakeFile" />
   </component>
 </project>
