@@ -11,6 +11,7 @@ class ListePorts:
         pass
 
     def getjson(self, url):
+        response = None
         try:
             import json
             session = requests.Session()
@@ -44,6 +45,7 @@ class ApiMareeInfo:
         pass
 
     def getjson(self, url):
+        response = None
         try:
             import json
             session = requests.Session()
@@ -73,7 +75,6 @@ class ApiMareeInfo:
             jsondata = self.getjson(self._url)
 
         if outfile != None:
-            print(jsondata)
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
@@ -86,9 +87,9 @@ class ApiMareeInfo:
             i = 0
             for ele in maree["etales"]:
                 dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
-                detailMaree = {"coeff": ele.get("coef", ""), "hauteur": ele["hauteur"], \
-                    "horaire": dateComplete.strftime( "%H:%M"), \
-                    "etat" : ele["type_etale"], "nieme": i, "jour": j, "date": ele["datetime"], \
+                detailMaree = {"coeff": ele.get("coef", ""), "hauteur": ele["hauteur"],
+                    "horaire": dateComplete.strftime( "%H:%M"),
+                    "etat" : ele["type_etale"], "nieme": i, "jour": j, "date": ele["datetime"],
                     "dateComplete" : dateComplete.replace(tzinfo=None)}
                 clef = "horaire_%s_%s"%(j,i)
                 myMarees[clef] = detailMaree
@@ -141,7 +142,7 @@ class ApiMareeInfo:
     def getNextPluie(self):
         dateCourante = datetime.datetime.now()
         for x in self._donneesPrevis.keys():
-            a = datetime.datetime.fromisoformat(self._donneesPrevis[x]["datetime"])
-            print(a)
-            if a > dateCourante :
-                print("OK")
+            if self._donneesPrevis[x]["dateComplete"] > dateCourante:
+                if self._donneesPrevis[x]["precipitation"] != 0:
+                    return self._donneesPrevis[x]["dateComplete"]
+        return ""

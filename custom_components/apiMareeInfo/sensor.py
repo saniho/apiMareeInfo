@@ -91,6 +91,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     myPort = myMareeInfo( idDuPort, lat, lng, update_interval )
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort )], True)
+    add_entities([infoMareePluieSensor(session, name, update_interval, myPort )], True)
 
 class infoMareeSensor(Entity):
     """."""
@@ -125,6 +126,51 @@ class infoMareeSensor(Entity):
         """Update device state."""
         self._myPort.update()
         self._state, self._attributes = self._sAM.getstatus()
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
+
+    @property
+    def icon(self):
+        """Icon to use in the frontend."""
+        return ICON
+
+
+class infoMareePluieSensor(Entity):
+    """."""
+
+    def __init__(self, session, name, interval, myPort):
+        """Initialize the sensor."""
+        self._session = session
+        self._name = name
+        self._myPort = myPort
+        self._attributes = None
+        self._state = None
+        self.update = Throttle(interval)(self._update)
+        self._sAM = sensorApiMaree.manageSensorState()
+        self._sAM.init( self._myPort.getmyMaree() )
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "myPort.%s.ProchainePluie" %self._myPort.getIdPort()
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement of this entity, if any."""
+        return ""
+
+    def _update(self):
+        """Update device state."""
+        self._myPort.update()
+        self._state, self._attributes = self._sAM.getstatusProchainePluie()
 
     @property
     def device_state_attributes(self):

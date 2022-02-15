@@ -89,6 +89,18 @@ class manageSensorState:
         self._state = self.getnextmaree()["horaire"]
         return self._state, self._attributes
 
+    def getstatusProchainePluie(self):
+        state = "unavailable"
+        status_counts = defaultdict(int)
+        status_counts["version"] = self.version
+
+        self._LOGGER.info("tente un update  infoPort? ... %s" % (self._myPort))
+        status_counts["version"] = __VERSION__
+        dateNextPluie = self._myPort.getNextPluie()
+        status_counts["prochainePluie"] = dateNextPluie
+        self._attributes = status_counts
+        self._state = dateNextPluie
+        return self._state, self._attributes
 
 def logSensorState(status_counts):
     for x in status_counts.keys():

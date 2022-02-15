@@ -2,7 +2,7 @@
     "domain": "apiMareeInfo",
     "name": "apiMareeInfo sensor",
     "documentation": "",
-    "version": "v1.0.1.4",
+    "version": "1.0.2.0",
     "requirements": [
     ],
     "dependencies": [],
