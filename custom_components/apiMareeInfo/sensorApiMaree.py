@@ -85,6 +85,8 @@ class manageSensorState:
                     dico[clefPrevis] = self._myPort.getprevis()[maDate][clefPrevis]
                 dicoPrevis.append(dico)
         status_counts["prevision"] = dicoPrevis
+        status_counts["last_update"] = datetime.datetime.now()
+        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
         self._attributes = status_counts
         self._state = self.getnextmaree()["horaire"]
         return self._state, self._attributes
@@ -96,8 +98,11 @@ class manageSensorState:
 
         self._LOGGER.info("tente un update  infoPort? ... %s" % (self._myPort))
         status_counts["version"] = __VERSION__
-        dateNextPluie = self._myPort.getNextPluie()
+        dateNextPluie, precipitation = self._myPort.getNextPluie()
         status_counts["prochainePluie"] = dateNextPluie
+        status_counts["precipitation"] = precipitation
+        status_counts["last_update"] = datetime.datetime.now()
+        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
         self._attributes = status_counts
         self._state = dateNextPluie
         return self._state, self._attributes

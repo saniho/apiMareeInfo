@@ -79,6 +79,7 @@ class ApiMareeInfo:
                 json.dump(jsondata, outfilev)
         self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
         self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
+        self._httptimerequest = datetime.datetime.now()
 
         a = {}
         myMarees = {}
@@ -133,6 +134,9 @@ class ApiMareeInfo:
     def getdatecourante(self):
         return self._dateCourante
 
+    def gethttptimerequest(self):
+        return self._httptimerequest
+
     def getinfo(self):
         return self._donnees
 
@@ -144,5 +148,5 @@ class ApiMareeInfo:
         for x in self._donneesPrevis.keys():
             if self._donneesPrevis[x]["dateComplete"] > dateCourante:
                 if self._donneesPrevis[x]["precipitation"] != 0:
-                    return self._donneesPrevis[x]["dateComplete"]
-        return ""
+                    return self._donneesPrevis[x]["dateComplete"], self._donneesPrevis[x]["precipitation"]
+        return "", 0

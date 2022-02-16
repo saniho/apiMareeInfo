@@ -1,9 +1,10 @@
 def testPort():
   import json
 
-  with open('../../Tests/json/SJM_20220214.json') as f:
+  with open('./Tests/json/SJM_20220214.json') as f:
     dataJson = json.load(f)
-  import apiMareeInfo, sensorApiMaree
+
+  from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
 
   _myMaree = apiMareeInfo.ApiMareeInfo()
   lat, lng = "46.7711", "-2.05306"
@@ -23,7 +24,7 @@ def testPort():
   sensorApiMaree.logSensorState( attributes )
 
 def testListePorts():
-  import apiMareeInfo
+  from custom_components.apiMareeInfo import apiMareeInfo
 
   _myPort = apiMareeInfo.ListePorts()
   a = _myPort.getlisteport("olonne")

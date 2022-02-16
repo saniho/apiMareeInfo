@@ -14,6 +14,7 @@ from homeassistant.const import (
     CONF_NAME,
     ATTR_ATTRIBUTION,
     CONF_SCAN_INTERVAL,
+    CONF_SCAN_INTERVAL_HTTP,
 )
 
 from homeassistant.helpers.entity import Entity
@@ -26,13 +27,14 @@ from .const import (
     DOMAIN,
     __VERSION__,
     __name__,
-    SCAN_INTERVAL_http,
+    CONF_SCAN_INTERVAL_HTTP,
 )
 
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "saniho"
 ICON = "mdi:package-variant-closed"
 SCAN_INTERVAL = timedelta(seconds=1800)
+SCAN_INTERVAL_http = timedelta(seconds=1800)
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_CODE): cv.string,
@@ -79,7 +81,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the platform."""
     name = config.get(CONF_NAME)
     update_interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
-    update_interval_http = SCAN_INTERVAL_http
+    update_interval_http = config.get(CONF_SCAN_INTERVAL_HTTP, SCAN_INTERVAL_http)
     try:
         idDuPort = config.get(CONF_CODE)
         lat = config.get(CONF_LATITUDE)
