@@ -1,10 +1,12 @@
 import logging
 import datetime
 import json
-import requests
+try:
+    import requests
+except:
+    pass
 
 _LOGGER = logging.getLogger(__name__)
-
 
 class ListePorts:
     def __init__(self):
