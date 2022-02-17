@@ -8,6 +8,7 @@ except:
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class ListePorts:
     def __init__(self):
         # fonction init aucune action à réaliser
