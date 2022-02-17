@@ -1,7 +1,7 @@
 def testPort():
     import json
 
-    with open('./Tests/json/SJM_20220214.json') as f:
+    with open('./tests/json/SJM_20220214.json') as f:
         dataJson = json.load(f)
 
     from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree

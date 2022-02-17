@@ -5,7 +5,7 @@ import json
 
 
 def test_getinformation_port():
-    with open('../Tests/json/SJM.json') as f:
+    with open('../tests/json/SJM.json') as f:
         dataJson = json.load(f)
     _myMaree = apiMareeInfo.ApiMareeInfo()
     lat, lng = "1", "1"
