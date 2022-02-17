@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="add MakeFile">
+    <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="add MakeFile&#10;add prochaine pluie sensor">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -291,6 +292,7 @@
     <MESSAGE value="next marée&#10;next marée + 1&#10;&#10;migration de service&#10;&#10;addSensorInformation( vent, temperature de l'eau, de l'air etc.. )" />
     <MESSAGE value="addListePort dans le test" />
     <MESSAGE value="add MakeFile" />
-    <option name="LAST_COMMIT_MESSAGE" value="add MakeFile" />
+    <MESSAGE value="add MakeFile&#10;add prochaine pluie sensor" />
+    <option name="LAST_COMMIT_MESSAGE" value="add MakeFile&#10;add prochaine pluie sensor" />
   </component>
 </project>

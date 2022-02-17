@@ -18,8 +18,8 @@ def testPort():
   #print(_myMaree.getNextPluie())
   _sAM = sensorApiMaree.manageSensorState()
   _sAM.init(_myMaree )
-  #state, attributes = _sAM.getstatus()
-  #sensorApiMaree.logSensorState( attributes )
+  state, attributes = _sAM.getstatus()
+  sensorApiMaree.logSensorState( attributes )
   state, attributes = _sAM.getstatusProchainePluie()
   sensorApiMaree.logSensorState( attributes )
 

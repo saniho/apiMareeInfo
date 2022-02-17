@@ -65,7 +65,7 @@ class ApiMareeInfo:
         self._lng = lng
         self._url = \
             "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
-            lat, lng)
+                lat, lng)
         """ autre url possible
         self._url = \
         #    "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
