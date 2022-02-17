@@ -7,7 +7,7 @@ def testPort():
   from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
 
   _myMaree = apiMareeInfo.ApiMareeInfo()
-  lat, lng = "46.7711", "-2.05306"
+  #lat, lng = "46.7711", "-2.05306"
   lat, lng = "46.4967", "-1.79667"
   _myMaree.setport(lat, lng)
   #_myMaree.getinformationport( outfile = "file_20220214.json" )
