@@ -1,7 +1,8 @@
 import logging
-from datetime import datetime
+import datetime
 import json
 import requests
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -11,6 +12,7 @@ class ListePorts:
         pass
 
     def getjson(self, url):
+        response = None
         try:
             import json
             session = requests.Session()
@@ -25,12 +27,13 @@ class ListePorts:
         pass
 
     def getlisteport(self, nomport):
-        url = "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" %(nomport)
+        url = "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" % (
+            nomport)
         print(url)
         retour = self.getjson(url)
         print(retour)
         for x in retour["contenu"]:
-            print(x["id"], x["nom"], x[ "lat"], x["lon"])
+            print(x["id"], x["nom"], x["lat"], x["lon"])
         return retour
 
 
@@ -44,6 +47,7 @@ class ApiMareeInfo:
         pass
 
     def getjson(self, url):
+        response = None
         try:
             import json
             session = requests.Session()
@@ -60,7 +64,8 @@ class ApiMareeInfo:
         self._lat = lat
         self._lng = lng
         self._url = \
-            "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s"%(lat, lng)
+            "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
+                lat, lng)
         """ autre url possible
         self._url = \
         #    "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
@@ -68,16 +73,16 @@ class ApiMareeInfo:
         #print(self._url)
         """
 
-    def getinformationport(self, jsondata = None, outfile=None):
+    def getinformationport(self, jsondata=None, outfile=None):
         if (jsondata == None):
             jsondata = self.getjson(self._url)
 
         if outfile != None:
-            print(jsondata)
-            with open('port.json', 'w') as outfile:
-                json.dump(jsondata, outfile)
+            with open(outfile, 'w') as outfilev:
+                json.dump(jsondata, outfilev)
         self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
         self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
+        self._httptimerequest = datetime.datetime.now()
 
         a = {}
         myMarees = {}
@@ -85,37 +90,37 @@ class ApiMareeInfo:
         for maree in jsondata["contenu"]["marees"][:6]:
             i = 0
             for ele in maree["etales"]:
-                dateComplete = datetime.fromisoformat(ele["datetime"])
-                detailMaree = {"coeff": ele.get("coef", ""), "hauteur": ele["hauteur"], \
-                    "horaire": dateComplete.strftime( "%H:%M"), \
-                    "etat" : ele["type_etale"], "nieme": i, "jour": j, "date": ele["datetime"], \
-                    "dateComplete" : dateComplete.replace(tzinfo=None)}
-                clef = "horaire_%s_%s"%(j,i)
+                dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
+                detailMaree = {"coeff": ele.get("coef", ""), "hauteur": ele["hauteur"],
+                               "horaire": dateComplete.strftime("%H:%M"),
+                               "etat": ele["type_etale"], "nieme": i, "jour": j, "date": ele["datetime"],
+                               "dateComplete": dateComplete.replace(tzinfo=None)}
+                clef = "horaire_%s_%s" % (j, i)
                 myMarees[clef] = detailMaree
-                #print(clef, detailMaree)
+                # print(clef, detailMaree)
                 i += 1
             j += 1
         self._donnees = myMarees
 
         dicoPrevis = {}
         for ele in jsondata["contenu"]["previs"]["detail"]:
-            dateComplete = datetime.fromisoformat(ele["datetime"])
-            detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""), \
-                           "dirvdegres": ele.get("dirvdegres", ""), \
-                           "dateComplete": dateComplete.replace(tzinfo=None), \
-                           "nuagecouverture": ele.get("nuagecouverture",""),
-                           "precipitation": ele.get("precipitation",""),
-                           "teau": ele.get("teau",""),
-                           "t": ele.get("t",""),
-                           "risqueorage": ele.get("risqueorage",""),
-                           "dirhouledegres": ele.get("dirhouledegres",""),
-                           "hauteurhoule": ele.get("hauteurhoule",""),
-                           "periodehoule": ele.get("periodehoule",""),
-                           "hauteurmerv": ele.get("hauteurmerv",""),
-                           "periodemerv": ele.get("periodemerv",""),
-                           "hauteurvague": ele.get("hauteurvague","")
+            dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
+            detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""),
+                            "dirvdegres": ele.get("dirvdegres", ""),
+                            "dateComplete": dateComplete.replace(tzinfo=None),
+                            "nuagecouverture": ele.get("nuagecouverture", ""),
+                            "precipitation": ele.get("precipitation", ""),
+                            "teau": ele.get("teau", ""),
+                            "t": ele.get("t", ""),
+                            "risqueorage": ele.get("risqueorage", ""),
+                            "dirhouledegres": ele.get("dirhouledegres", ""),
+                            "hauteurhoule": ele.get("hauteurhoule", ""),
+                            "periodehoule": ele.get("periodehoule", ""),
+                            "hauteurmerv": ele.get("hauteurmerv", ""),
+                            "periodemerv": ele.get("periodemerv", ""),
+                            "hauteurvague": ele.get("hauteurvague", "")
 
-                           }
+                            }
             clef = dateComplete
             dicoPrevis[clef] = detailPrevis
         self._donneesPrevis = dicoPrevis
@@ -132,8 +137,19 @@ class ApiMareeInfo:
     def getdatecourante(self):
         return self._dateCourante
 
+    def gethttptimerequest(self):
+        return self._httptimerequest
+
     def getinfo(self):
         return self._donnees
 
     def getprevis(self):
         return self._donneesPrevis
+
+    def getNextPluie(self):
+        dateCourante = datetime.datetime.now()
+        for x in self._donneesPrevis.keys():
+            if self._donneesPrevis[x]["dateComplete"] > dateCourante:
+                if self._donneesPrevis[x]["precipitation"] != 0:
+                    return self._donneesPrevis[x]["dateComplete"], self._donneesPrevis[x]["precipitation"]
+        return "", 0
