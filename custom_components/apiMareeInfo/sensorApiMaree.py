@@ -93,7 +93,7 @@ class manageSensorState:
                 dicoPrevis.append(dico)
         status_counts["prevision"] = dicoPrevis
         status_counts["message"] = "%s (%s/%s)" % (
-        status_counts["next_maree_1"], status_counts["next_etat_1"], status_counts["next_coeff_1"])
+            status_counts["next_maree_1"], status_counts["next_etat_1"], status_counts["next_coeff_1"])
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
         self._attributes = status_counts

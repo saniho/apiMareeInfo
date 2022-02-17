@@ -77,7 +77,7 @@ class ApiMareeInfo:
         if (jsondata is None):
             jsondata = self.getjson(self._url)
 
-        if outfile != None:
+        if outfile is not None:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
