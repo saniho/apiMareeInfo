@@ -61,6 +61,7 @@ class manageSensorState:
         status_counts["dateCourante"] = self._myPort.getdatecourante()
         nieme_horaire = 0
         for horaireMaree in self._myPort.getinfo().keys():
+            nieme_horaire += 1
             info = self._myPort.getinfo()[horaireMaree]
             nieme = info["nieme"]
             jour = info["jour"]
@@ -68,6 +69,10 @@ class manageSensorState:
             status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
             status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
             status_counts["hauteur_%s_%s" % (jour, nieme)] = "%s" % (info['hauteur'])
+            if ( "nb_maree_%s" % (jour) not in status_counts):
+                status_counts["nb_maree_%s" % (jour)] = 1
+            else:
+                status_counts["nb_maree_%s" % (jour)] += 1
         # pour avoir les 2 prochaines marées
         for x in range(2):
             i = x + 1
