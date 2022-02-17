@@ -74,7 +74,7 @@ class ApiMareeInfo:
         """
 
     def getinformationport(self, jsondata=None, outfile=None):
-        if (jsondata == None):
+        if (jsondata is None):
             jsondata = self.getjson(self._url)
 
         if outfile != None:

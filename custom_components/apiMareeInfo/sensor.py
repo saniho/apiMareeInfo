@@ -6,7 +6,7 @@ import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import (# isort:skip
+from homeassistant.const import (  # isort:skip
     CONF_CODE,
     CONF_LATITUDE,
     CONF_LONGITUDE,
@@ -18,7 +18,7 @@ from homeassistant.const import (# isort:skip
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
-from .const import (# isort:skip
+from .const import (  # isort:skip
     __name__,
     CONF_SCAN_INTERVAL_HTTP,
 )
@@ -38,6 +38,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 from . import apiMareeInfo, sensorApiMaree
 
+
 class myMareeInfo:
     def __init__(self, idDuPort, lat, lng, _update_interval):
         self._lastSynchro = None
@@ -48,14 +49,11 @@ class myMareeInfo:
         self._myMaree = apiMareeInfo.ApiMareeInfo()
         pass
 
-
-    def update(self,):
+    def update(self, ):
         import datetime
-
         courant = datetime.datetime.now()
-        #_LOGGER.warning("-update possible- ?")
-        if ( self._lastSynchro == None ) or \
-            ( (self._lastSynchro + self._update_interval) < courant ):
+        if (self._lastSynchro is None) or \
+                ((self._lastSynchro + self._update_interval) < courant):
             _LOGGER.warning("-update possible- on lance")
             self._myMaree.setport(self._lat, self._lng)
             self._myMaree.getinformationport()
@@ -63,9 +61,10 @@ class myMareeInfo:
 
     def getIdPort(self):
         return self._idDuPort
-    # revoir recupearation valeur
+
     def getmyMaree(self):
         return self._myMaree
+
     def getDateCourante(self):
         return self._myMaree.getdatecourante()
 
@@ -80,13 +79,14 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         lat = config.get(CONF_LATITUDE)
         lng = config.get(CONF_LONGITUDE)
         session = []
-    except :
+    except:
         _LOGGER.exception("Could not run my apiMaree Extension miss argument ?")
         return False
-    myPort = myMareeInfo( idDuPort, lat, lng, update_interval )
+    myPort = myMareeInfo(idDuPort, lat, lng, update_interval)
     myPort.update()
-    add_entities([infoMareeSensor(session, name, update_interval, myPort )], True)
-    add_entities([infoMareePluieSensor(session, name, update_interval, myPort )], True)
+    add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
+    add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)
+
 
 class infoMareeSensor(Entity):
     """."""
@@ -100,12 +100,12 @@ class infoMareeSensor(Entity):
         self._state = None
         self.update = Throttle(interval)(self._update)
         self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init( self._myPort.getmyMaree() )
+        self._sAM.init(self._myPort.getmyMaree())
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.MareeDuJour" %self._myPort.getIdPort()
+        return "myPort.%s.MareeDuJour" % self._myPort.getIdPort()
 
     @property
     def state(self):
@@ -145,12 +145,12 @@ class infoMareePluieSensor(Entity):
         self._state = None
         self.update = Throttle(interval)(self._update)
         self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init( self._myPort.getmyMaree() )
+        self._sAM.init(self._myPort.getmyMaree())
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.ProchainePluie" %self._myPort.getIdPort()
+        return "myPort.%s.ProchainePluie" % self._myPort.getIdPort()
 
     @property
     def state(self):
