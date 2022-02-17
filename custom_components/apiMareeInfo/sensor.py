@@ -1,31 +1,24 @@
 """Sensor for my first"""
 import logging
-from collections import defaultdict
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import (
+from homeassistant.const import (# isort:skip
     CONF_CODE,
     CONF_LATITUDE,
     CONF_LONGITUDE,
     CONF_NAME,
     ATTR_ATTRIBUTION,
     CONF_SCAN_INTERVAL,
-    CONF_SCAN_INTERVAL_HTTP,
 )
 
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
-from homeassistant.util import slugify
-from homeassistant.util.dt import now, parse_date
 
-
-from .const import (
-    DOMAIN,
-    __VERSION__,
+from .const import (# isort:skip
     __name__,
     CONF_SCAN_INTERVAL_HTTP,
 )
