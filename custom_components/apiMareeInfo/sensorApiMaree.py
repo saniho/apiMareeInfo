@@ -24,14 +24,14 @@ class manageSensorState:
 
     def init(self, _myPort, _LOGGER=None, version=None):
         self._myPort = _myPort
-        if (_LOGGER == None):
+        if (_LOGGER is None):
             _LOGGER = logging.getLogger(__name__)
         self._LOGGER = _LOGGER
         self.version = version
 
     def getnextmaree(self, indice=1, maintenant=None):
         i = 1
-        if (maintenant == None):
+        if (maintenant is None):
             maintenant = datetime.datetime.now()
         prochainemaree = None
         for x in self._myPort.getinfo().keys():
@@ -69,7 +69,7 @@ class manageSensorState:
             status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
             status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
             status_counts["hauteur_%s_%s" % (jour, nieme)] = "%s" % (info['hauteur'])
-            if ( "nb_maree_%s" % (jour) not in status_counts):
+            if ("nb_maree_%s" % (jour) not in status_counts):
                 status_counts["nb_maree_%s" % (jour)] = 1
             else:
                 status_counts["nb_maree_%s" % (jour)] += 1
@@ -79,8 +79,8 @@ class manageSensorState:
             status_counts["next_maree_%s" % i] = "%s" % self.getnextmaree(i)["horaire"]
             status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i)["coeff"]
             status_counts["next_etat_%s" % i] = "%s" % self.getnextmaree(i)["etat"]
-            if( status_counts["next_coeff_%s" % i] == ""):
-                status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i+1)["coeff"]
+            if (status_counts["next_coeff_%s" % i] == ""):
+                status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i + 1)["coeff"]
         status_counts["timeLastCall"] = datetime.datetime.now()
 
         dicoPrevis = []
@@ -92,7 +92,8 @@ class manageSensorState:
                     dico[clefPrevis] = self._myPort.getprevis()[maDate][clefPrevis]
                 dicoPrevis.append(dico)
         status_counts["prevision"] = dicoPrevis
-        status_counts["message"] = "%s (%s/%s)" %(status_counts["next_maree_1"], status_counts["next_etat_1"], status_counts["next_coeff_1"])
+        status_counts["message"] = "%s (%s/%s)" % (
+            status_counts["next_maree_1"], status_counts["next_etat_1"], status_counts["next_coeff_1"])
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
         self._attributes = status_counts
@@ -109,12 +110,13 @@ class manageSensorState:
         dateNextPluie, precipitation = self._myPort.getNextPluie()
         status_counts["prochainePluie"] = dateNextPluie.strftime("%d/%m %H:%M")
         status_counts["precipitation"] = precipitation
-        status_counts["message"] = "%s - %s m.m" %(status_counts["prochainePluie"], status_counts["precipitation"])
+        status_counts["message"] = "%s - %s m.m" % (status_counts["prochainePluie"], status_counts["precipitation"])
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
         self._attributes = status_counts
         self._state = dateNextPluie
         return self._state, self._attributes
+
 
 def logSensorState(status_counts):
     for x in status_counts.keys():

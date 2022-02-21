@@ -1,7 +1,10 @@
 import logging
 import datetime
 import json
-import requests
+try:
+    import requests
+except:
+    pass
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,10 +77,10 @@ class ApiMareeInfo:
         """
 
     def getinformationport(self, jsondata=None, outfile=None):
-        if (jsondata == None):
+        if (jsondata is None):
             jsondata = self.getjson(self._url)
 
-        if outfile != None:
+        if outfile is not None:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
