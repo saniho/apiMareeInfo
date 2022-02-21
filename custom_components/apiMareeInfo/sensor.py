@@ -20,7 +20,7 @@ from homeassistant.util import Throttle
 
 from .const import (  # isort:skip
     __name__,
-    CONF_SCAN_INTERVAL_HTTP,
+    #CONF_SCAN_INTERVAL_HTTP,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,6 +28,7 @@ DOMAIN = "saniho"
 ICON = "mdi:package-variant-closed"
 SCAN_INTERVAL = timedelta(seconds=1800)
 SCAN_INTERVAL_http = timedelta(seconds=1800)
+CONF_SCAN_INTERVAL_HTTP = SCAN_INTERVAL_http
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_CODE): cv.string,
@@ -82,7 +83,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     except:
         _LOGGER.exception("Could not run my apiMaree Extension miss argument ?")
         return False
-    myPort = myMareeInfo(idDuPort, lat, lng, update_interval)
+    myPort = myMareeInfo(idDuPort, lat, lng, update_interval_http)
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
     add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)
