@@ -20,7 +20,7 @@ from homeassistant.util import Throttle
 
 from .const import (  # isort:skip
     __name__,
-    #CONF_SCAN_INTERVAL_HTTP,
+    # CONF_SCAN_INTERVAL_HTTP,
 )
 
 _LOGGER = logging.getLogger(__name__)
