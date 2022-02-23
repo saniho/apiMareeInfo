@@ -108,7 +108,11 @@ class manageSensorState:
         self._LOGGER.info("tente un update  infoPort? ... %s" % (self._myPort))
         status_counts["version"] = __VERSION__
         dateNextPluie, precipitation = self._myPort.getNextPluie()
-        status_counts["prochainePluie"] = dateNextPluie.strftime("%d/%m %H:%M")
+        if dateNextPluie != None :
+            dateNextPluieCh = dateNextPluie.strftime("%d/%m %H:%M")
+        else:
+            dateNextPluieCh = ""
+        status_counts["prochainePluie"] = dateNextPluieCh
         status_counts["precipitation"] = precipitation
         status_counts["message"] = "%s - %s m.m" % (status_counts["prochainePluie"], status_counts["precipitation"])
         status_counts["last_update"] = datetime.datetime.now()

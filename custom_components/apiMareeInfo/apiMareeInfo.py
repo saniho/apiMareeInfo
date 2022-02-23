@@ -155,4 +155,4 @@ class ApiMareeInfo:
             if self._donneesPrevis[x]["dateComplete"] > dateCourante:
                 if self._donneesPrevis[x]["precipitation"] != 0:
                     return self._donneesPrevis[x]["dateComplete"], self._donneesPrevis[x]["precipitation"]
-        return "", 0
+        return None, 0
