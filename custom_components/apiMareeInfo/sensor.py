@@ -136,10 +136,13 @@ class infoMareeSensor(Entity):
         return self._attributes
 
     @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
+
+    @property
     def icon(self):
         """Icon to use in the frontend."""
-        return ICON
-
 
 class infoMareePluieSensor(Entity):
     """."""
@@ -188,6 +191,10 @@ class infoMareePluieSensor(Entity):
         return self._attributes
 
     @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
+
+    @property
     def icon(self):
         """Icon to use in the frontend."""
-        return ICON
