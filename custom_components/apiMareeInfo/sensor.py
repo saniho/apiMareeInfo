@@ -131,18 +131,12 @@ class infoMareeSensor(Entity):
         self._state = "unavailable"
         self._myPort.update()
         try:
-            status_counts, state = self._sAM.getstatus()
-            status_counts["version"] = __VERSION__
+            state, status_counts = self._sAM.getstatus()
         except:
             return
         self._attributes = {ATTR_ATTRIBUTION: ""}
         self._attributes.update(status_counts)
         self._state = state
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        return self._attributes
 
     @property
     def extra_state_attributes(self):
@@ -193,18 +187,12 @@ class infoMareePluieSensor(Entity):
         self._state = "unavailable"
         self._myPort.update()
         try:
-            status_counts, state = self._sAM.getstatusProchainePluie()
-            status_counts["version"] = __VERSION__
+            state, status_counts = self._sAM.getstatusProchainePluie()
         except:
             return
         self._attributes = {ATTR_ATTRIBUTION: ""}
         self._attributes.update(status_counts)
         self._state = state
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        return self._attributes
 
     @property
     def extra_state_attributes(self):
