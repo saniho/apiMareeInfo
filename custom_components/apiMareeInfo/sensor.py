@@ -118,10 +118,17 @@ class infoMareeSensor(Entity):
         """Return the unit of measurement of this entity, if any."""
         return ""
 
-    def _update(self):
+    def _update_state(self):
         """Update device state."""
         self._myPort.update()
-        self._state, self._attributes = self._sAM.getstatus()
+        status_counts, state = self._sAM.getstatus()
+        self._attributes.update(status_counts)
+        self._state = state
+
+    def _update(self):
+        """Update device state."""
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._state = "unavailable"
 
     @property
     def device_state_attributes(self):
@@ -163,10 +170,17 @@ class infoMareePluieSensor(Entity):
         """Return the unit of measurement of this entity, if any."""
         return ""
 
-    def _update(self):
+    def _update_state(self):
         """Update device state."""
         self._myPort.update()
-        self._state, self._attributes = self._sAM.getstatusProchainePluie()
+        status_counts, state = self._sAM.getstatusProchainePluie()
+        self._attributes.update(status_counts)
+        self._state = state
+
+    def _update(self):
+        """Update device state."""
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._state = "unavailable"
 
     @property
     def device_state_attributes(self):

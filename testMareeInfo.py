@@ -3,7 +3,7 @@ def testPort():
 
     with open('./tests/json/SJM_20220214.json') as f:
         dataJson = json.load(f)
-
+    dataJson = None
     from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
 
     _myMaree = apiMareeInfo.ApiMareeInfo()
@@ -11,6 +11,7 @@ def testPort():
     lat, lng = "46.4967", "-1.79667"
     _myMaree.setport(lat, lng)
     # _myMaree.getinformationport( outfile = "file_20220214.json" )
+    dataJson = None
     _myMaree.getinformationport(dataJson)
     # print(_myMaree.getinfo())
     # print(_myMaree.getnomduport())
