@@ -23,6 +23,8 @@ from .const import (  # isort:skip
     # CONF_SCAN_INTERVAL_HTTP,
 )
 
+from .const import ( __VERSION__ )
+
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "saniho"
 ICON = "mdi:package-variant-closed"
@@ -104,6 +106,11 @@ class infoMareeSensor(Entity):
         self._sAM.init(self._myPort.getmyMaree())
 
     @property
+    def unique_id(self):
+        "Return a unique_id for this entity."
+        return "myPort.%s.MareeDuJour" % self._myPort.getIdPort()
+
+    @property
     def name(self):
         """Return the name of the sensor."""
         return "myPort.%s.MareeDuJour" % self._myPort.getIdPort()
@@ -118,17 +125,19 @@ class infoMareeSensor(Entity):
         """Return the unit of measurement of this entity, if any."""
         return ""
 
-    def _update_state(self):
-        """Update device state."""
-        self._myPort.update()
-        status_counts, state = self._sAM.getstatus()
-        self._attributes.update(status_counts)
-        self._state = state
-
     def _update(self):
         """Update device state."""
         self._attributes = {ATTR_ATTRIBUTION: ""}
         self._state = "unavailable"
+        self._myPort.update()
+        try:
+            status_counts, state = self._sAM.getstatus()
+            status_counts["version"] = __VERSION__
+        except:
+            return
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._attributes.update(status_counts)
+        self._state = state
 
     @property
     def device_state_attributes(self):
@@ -159,6 +168,11 @@ class infoMareePluieSensor(Entity):
         self._sAM.init(self._myPort.getmyMaree())
 
     @property
+    def unique_id(self):
+        "Return a unique_id for this entity."
+        return "myPort.%s.ProchainePluie" % self._myPort.getIdPort()
+
+    @property
     def name(self):
         """Return the name of the sensor."""
         return "myPort.%s.ProchainePluie" % self._myPort.getIdPort()
@@ -173,17 +187,19 @@ class infoMareePluieSensor(Entity):
         """Return the unit of measurement of this entity, if any."""
         return ""
 
-    def _update_state(self):
-        """Update device state."""
-        self._myPort.update()
-        status_counts, state = self._sAM.getstatusProchainePluie()
-        self._attributes.update(status_counts)
-        self._state = state
-
     def _update(self):
         """Update device state."""
         self._attributes = {ATTR_ATTRIBUTION: ""}
         self._state = "unavailable"
+        self._myPort.update()
+        try:
+            status_counts, state = self._sAM.getstatusProchainePluie()
+            status_counts["version"] = __VERSION__
+        except:
+            return
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._attributes.update(status_counts)
+        self._state = state
 
     @property
     def device_state_attributes(self):
