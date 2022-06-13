@@ -10,7 +10,7 @@ def testPort():
     # lat, lng = "46.7711", "-2.05306"
     lat, lng = "46.4967", "-1.79667"
     _myMaree.setport(lat, lng)
-    # _myMaree.getinformationport( outfile = "file_20220214.json" )
+    #_myMaree.getinformationport( outfile = "file_20220613.json" )
     dataJson = None
     _myMaree.getinformationport(dataJson)
     # print(_myMaree.getinfo())
