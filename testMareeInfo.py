@@ -10,7 +10,7 @@ def testPort():
     # lat, lng = "46.7711", "-2.05306"
     lat, lng = "46.4967", "-1.79667"
     _myMaree.setport(lat, lng)
-    #_myMaree.getinformationport( outfile = "file_20220613.json" )
+    _myMaree.getinformationport( outfile = "file_20220726.json" )
     dataJson = None
     _myMaree.getinformationport(dataJson)
     # print(_myMaree.getinfo())
@@ -29,9 +29,10 @@ def testListePorts():
     from custom_components.apiMareeInfo import apiMareeInfo
 
     _myPort = apiMareeInfo.ListePorts()
-    a = _myPort.getlisteport("olonne")
+    #a = _myPort.getlisteport("olonne")
+    a = _myPort.getlisteport("Arromanches")
     print(a)
 
 
 testPort()
-# testListePorts()
+#testListePorts()
