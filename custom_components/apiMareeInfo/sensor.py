@@ -59,7 +59,7 @@ class myMareeInfo:
                 ((self._lastSynchro + self._update_interval) < courant):
             _LOGGER.warning("-update possible- on lance")
             self._myMaree.setport(self._lat, self._lng)
-            self._myMaree.getinformationport()
+            self._myMaree.getinformationport( origine="stromio")
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
