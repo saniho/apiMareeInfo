@@ -14,7 +14,7 @@ from homeassistant.const import (  # isort:skip
     ATTR_ATTRIBUTION,
     CONF_SCAN_INTERVAL,
 )
-
+CONF_STORM_KEY = "stormio_key"
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
@@ -36,6 +36,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Required(CONF_CODE): cv.string,
         vol.Required(CONF_LATITUDE): cv.string,
         vol.Required(CONF_LONGITUDE): cv.string,
+        vol.Optional(CONF_STORM_KEY): cv.string,
     }
 )
 
@@ -43,12 +44,13 @@ from . import apiMareeInfo, sensorApiMaree
 
 
 class myMareeInfo:
-    def __init__(self, idDuPort, lat, lng, _update_interval):
+    def __init__(self, idDuPort, lat, lng, stormkey, _update_interval):
         self._lastSynchro = None
         self._update_interval = _update_interval
         self._idDuPort = idDuPort
         self._lat = lat
         self._lng = lng
+        self._stormkey = stormkey
         self._myMaree = apiMareeInfo.ApiMareeInfo()
         pass
 
@@ -59,7 +61,7 @@ class myMareeInfo:
                 ((self._lastSynchro + self._update_interval) < courant):
             _LOGGER.warning("-update possible- on lance")
             self._myMaree.setport(self._lat, self._lng)
-            self._myMaree.getinformationport( origine="stromio")
+            self._myMaree.getinformationport( origine="stormio", info={"stormkey":self._stormkey})
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
@@ -81,11 +83,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         idDuPort = config.get(CONF_CODE)
         lat = config.get(CONF_LATITUDE)
         lng = config.get(CONF_LONGITUDE)
+        stormkey = config.get( CONF_STORM_KEY )
         session = []
     except:
         _LOGGER.exception("Could not run my apiMaree Extension miss argument ?")
         return False
-    myPort = myMareeInfo(idDuPort, lat, lng, update_interval_http)
+    myPort = myMareeInfo(idDuPort, lat, lng, stormkey, update_interval_http)
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
     add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)

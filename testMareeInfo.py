@@ -38,7 +38,9 @@ def testPortStormGlass():
     _myMaree.setport(lat, lng)
     _myMaree.getinformationport( jsondata= dataJson, outfile = "file_20220726.json", origine="stormio" )
 
-    _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio" )
+    storm_key = '3c9e2ad4-d29e-11ea-bdeb-0242ac130002-3c9e2c28-d29e-11ea-bdeb-0242ac130002'
+
+    _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio", info={'stormkey':storm_key} )
     # print(_myMaree.getinfo())
     # print(_myMaree.getnomduport())
     # print(_myMaree.getdatecourante())

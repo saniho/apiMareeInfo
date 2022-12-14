@@ -68,10 +68,11 @@ class MeteoMarine:
             return response.json()
         pass
 class stormIO:
-    def __init__(self, lat, lng):
+    def __init__(self, lat, lng, storm_key):
         import requests
         self._lat = lat
         self._lng = lng
+        self._storm_key = storm_key
 
     def getdata(self):
         self._deb = "2022-12-14 03:40:44+00:00"
@@ -84,8 +85,7 @@ class stormIO:
                 'start': self._deb, 'end': self._fin,  # Convert to UTC timestam
             },
             headers={
-                'Authorization': '3c9e2ad4-d29e-11ea-bdeb-0242ac130002-3c9e2c28-d29e-11ea-bdeb-0242ac130002'
-
+                'Authorization': self._storm_key
             }
         )
         # Do something with response data.
@@ -100,21 +100,21 @@ class ApiMareeInfo:
         self._lng = None
         pass
 
-    def getjson(self, origine):
+    def getjson(self, origine, info={}):
         if ( origine == "MeteoMarine"):
             mm = MeteoMarine( self._lat, self._lng)
             return mm.getdata()
         elif ( origine == "stormio"):
-            mm = stormIO( self._lat, self._lng)
+            mm = stormIO( self._lat, self._lng, info["stormkey"])
             return mm.getdata()
 
     def setport(self, lat, lng):
         self._lat = lat
         self._lng = lng
 
-    def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine"):
+    def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine", info={}):
         if (jsondata is None):
-            jsondata = self.getjson(origine)
+            jsondata = self.getjson(origine, info)
 
         if outfile is not None:
             with open(outfile, 'w') as outfilev:
