@@ -28,8 +28,8 @@ from .const import ( __VERSION__ )
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "saniho"
 ICON = "mdi:package-variant-closed"
-SCAN_INTERVAL = timedelta(seconds=1800)
-SCAN_INTERVAL_http = timedelta(seconds=1800)
+SCAN_INTERVAL = timedelta(seconds=60*60*3)
+SCAN_INTERVAL_http = timedelta(seconds=60*60*3)
 CONF_SCAN_INTERVAL_HTTP = SCAN_INTERVAL_http
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {

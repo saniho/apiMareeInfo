@@ -25,22 +25,27 @@ def testPortMeteoMarine():
     sensorApiMaree.logSensorState(attributes)
 
 def testPortStormGlass():
+
+    import configparser
+
+    mon_conteneur = configparser.ConfigParser()
+    mon_conteneur.read("../myCredential/maree.txt")
+    thekey = token = mon_conteneur["MAREE"]["KEY"]
     import json
 
     with open('./tests/json/stormGlass.io/SJM_20221214.json', 'r') as f:
         dataJson = json.loads(f.read())
-    # dataJson = None
+    dataJson = None
     from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
 
     _myMaree = apiMareeInfo.ApiMareeInfo()
     # lat, lng = "46.7711", "-2.05306"
     lat, lng = "46.4967", "-1.79667"
     _myMaree.setport(lat, lng)
-    _myMaree.getinformationport( jsondata= dataJson, outfile = "file_20220726.json", origine="stormio" )
+    _myMaree.getinformationport( jsondata= dataJson, outfile = "file_20220726.json",
+                                 origine="stormio", info={'stormkey':thekey} )
 
-    storm_key = '3c9e2ad4-d29e-11ea-bdeb-0242ac130002-3c9e2c28-d29e-11ea-bdeb-0242ac130002'
-
-    _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio", info={'stormkey':storm_key} )
+    _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio", info={'stormkey':thekey} )
     # print(_myMaree.getinfo())
     # print(_myMaree.getnomduport())
     # print(_myMaree.getdatecourante())

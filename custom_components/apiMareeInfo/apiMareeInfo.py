@@ -98,6 +98,9 @@ class ApiMareeInfo:
         self._dateCourante = None
         self._lat = None
         self._lng = None
+        self._message = ""
+        self._error = False
+        self._errorMessage = ""
         pass
 
     def getjson(self, origine, info={}):
@@ -123,7 +126,14 @@ class ApiMareeInfo:
             self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
             self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
         elif( origine == "stormio"):
-            self._nomDuPort = jsondata["meta"]["station"]['name']
+            if ( "station" in jsondata["meta"]):
+                self._nomDuPort = jsondata["meta"]["station"]['name']
+                self._errorMessage = ""
+                self._error = False
+            else:
+                self._nomDuPort = ""
+                self._errorMessage = jsondata["errors"]["key"]
+                self._error = True
             self._dateCourante = datetime.datetime.now()
         else:
             raise "Data Origin unknow"
@@ -131,7 +141,8 @@ class ApiMareeInfo:
 
         a = {}
         myMarees = {}
-        if ( origine == "MeteoMarine"):
+        dicoPrevis = {}
+        if ( origine == "MeteoMarine") and ( not self._error):
             j = 0
             for maree in jsondata["contenu"]["marees"][:6]:
                 i = 0
@@ -148,7 +159,6 @@ class ApiMareeInfo:
                 j += 1
             self._donnees = myMarees
 
-            dicoPrevis = {}
             for ele in jsondata["contenu"]["previs"]["detail"]:
                 dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
                 detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""),
@@ -169,7 +179,7 @@ class ApiMareeInfo:
                                 }
                 clef = dateComplete
                 dicoPrevis[clef] = detailPrevis
-        elif( origine == "stormio"):
+        elif( origine == "stormio") and ( not self._error):
             j = 0
             dateCompletePrevious = self._dateCourante
             for maree in jsondata["data"][:6]:
@@ -188,7 +198,6 @@ class ApiMareeInfo:
                 dateCompletePrevious = dateComplete
             self._donnees = myMarees
 
-            dicoPrevis = {}
             # for ele in jsondata["contenu"]["previs"]["detail"]:
             #     dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
             #     detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""),
@@ -231,6 +240,11 @@ class ApiMareeInfo:
 
     def getprevis(self):
         return self._donneesPrevis
+
+    def getError(self):
+        return self._error
+    def getErrorMessage(self):
+        return self._errorMessage
 
     def getNextPluie(self):
         dateCourante = datetime.datetime.now()
