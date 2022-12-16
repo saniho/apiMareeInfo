@@ -32,6 +32,8 @@ class ListePorts:
     def getlisteport(self, nomport):
         url = "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" % (
             nomport)
+        url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
+            nomport)
         print(url)
         retour = self.getjson(url)
         print(retour)
@@ -44,6 +46,9 @@ class MeteoMarine:
 
         self._url = \
             "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
+                lat, lng)
+        self._url = \
+            "http://ws.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v30/previsionsSpot.php?lat=%s&lon=%s" % (
                 lat, lng)
         """ autre url possible
         self._url = \

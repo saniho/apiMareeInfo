@@ -50,6 +50,7 @@ class myMareeInfo:
         self._idDuPort = idDuPort
         self._lat = lat
         self._lng = lng
+        self._origine = "MeteoMarine"
         self._stormkey = stormkey
         self._myMaree = apiMareeInfo.ApiMareeInfo()
         pass
@@ -61,7 +62,10 @@ class myMareeInfo:
                 ((self._lastSynchro + self._update_interval) < courant):
             _LOGGER.warning("-update possible- on lance")
             self._myMaree.setport(self._lat, self._lng)
-            self._myMaree.getinformationport( origine="stormio", info={"stormkey":self._stormkey})
+            if ( self._origine == "MeteoMarine"):
+                self._myMaree.getinformationport(origine=self._origine)
+            else:
+                self._myMaree.getinformationport( origine="stormio", info={"stormkey":self._stormkey})
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
