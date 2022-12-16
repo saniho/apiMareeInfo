@@ -11,6 +11,7 @@ un code pour le port, et ces coordonnées GPS
   latitude: 46.7711
   longitude: -2.05306
   scan_interval: 120
+  stormio_key: kdjsqhdksqhjk
 ```
 Pour information, ce sensor est compatible avec la card
 
@@ -19,6 +20,13 @@ vous permetant d'obtenir ainsi ce genre de résultat :
 <img src="https://github.com/saniho/apiMareeInfo/raw/master/img/imgCard.png" height="300"/>
 
 Releases Notes :
+
+
+v 1.1.0
+
+cette nouvelle car necessite de s'inscrire sur le site de stormio( inscription gratuite )
+
+https://stormglass.io/
 
 v 1.0.1.1
 

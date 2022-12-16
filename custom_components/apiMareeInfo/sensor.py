@@ -91,7 +91,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     myPort = myMareeInfo(idDuPort, lat, lng, stormkey, update_interval_http)
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
-    add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)
+    # add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)
 
 
 class infoMareeSensor(Entity):

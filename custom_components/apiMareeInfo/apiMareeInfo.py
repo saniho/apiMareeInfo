@@ -75,8 +75,13 @@ class stormIO:
         self._storm_key = storm_key
 
     def getdata(self):
-        self._deb = "2022-12-14 03:40:44+00:00"
-        self._fin = "2022-12-20 16:40:44+00:00"
+        import datetime
+        now = datetime.datetime.now()
+        nowJ2 = now + datetime.timedelta(days=2)
+        self._deb = now.strftime("%Y-%m-%d %H:%M:%S+00:00")
+        self._fin = nowJ2.strftime("%Y-%m-%d %H:%M:%S+00:00")
+        # self._deb = "2022-12-14 03:40:44+00:00"
+        # self._fin = "2022-12-20 16:40:44+00:00"
         response = requests.get(
             'https://api.stormglass.io/v2/tide/extremes/point',
             params={
