@@ -49,55 +49,62 @@ class manageSensorState:
 
         self._LOGGER.info("tente un update  infoPort? ... %s" % (self._myPort))
         status_counts["version"] = __VERSION__
-        for n in range(2):
-            status_counts["horaire_%s_3" % n] = ""
-            status_counts["coeff_%s_3" % n] = ""
-            status_counts["etat_%s_3" % n] = ""
-            status_counts["hauteur_%s_3" % n] = ""
+        if ( self._myPort.getError()):
+            status_counts["message"] = "%s" %(self._myPort.getErrorMessage())
+            stat = ""
+            pass
+        else:
+            for n in range(2):
+                status_counts["horaire_%s_3" % n] = ""
+                status_counts["coeff_%s_3" % n] = ""
+                status_counts["etat_%s_3" % n] = ""
+                status_counts["hauteur_%s_3" % n] = ""
 
-        # probleme mauvaise variable
-        status_counts["nomPort"] = self._myPort.getnomduport()
-        status_counts["Copyright"] = self._myPort.getcopyright()
-        status_counts["dateCourante"] = self._myPort.getdatecourante()
-        nieme_horaire = 0
-        for horaireMaree in self._myPort.getinfo().keys():
-            nieme_horaire += 1
-            info = self._myPort.getinfo()[horaireMaree]
-            nieme = info["nieme"]
-            jour = info["jour"]
-            status_counts["horaire_%s_%s" % (jour, nieme)] = "%s" % (info['horaire'])
-            status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
-            status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
-            status_counts["hauteur_%s_%s" % (jour, nieme)] = "%s" % (info['hauteur'])
-            if ("nb_maree_%s" % (jour) not in status_counts):
-                status_counts["nb_maree_%s" % (jour)] = 1
-            else:
-                status_counts["nb_maree_%s" % (jour)] += 1
-        # pour avoir les 2 prochaines marées
-        for x in range(2):
-            i = x + 1
-            status_counts["next_maree_%s" % i] = "%s" % self.getnextmaree(i)["horaire"]
-            status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i)["coeff"]
-            status_counts["next_etat_%s" % i] = "%s" % self.getnextmaree(i)["etat"]
-            if (status_counts["next_coeff_%s" % i] == ""):
-                status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i + 1)["coeff"]
-        status_counts["timeLastCall"] = datetime.datetime.now()
+            # probleme mauvaise variable
+            status_counts["nomPort"] = self._myPort.getnomduport()
+            status_counts["Copyright"] = self._myPort.getcopyright()
+            status_counts["dateCourante"] = self._myPort.getdatecourante()
+            nieme_horaire = 0
+            for horaireMaree in self._myPort.getinfo().keys():
+                nieme_horaire += 1
+                info = self._myPort.getinfo()[horaireMaree]
+                nieme = info["nieme"]
+                jour = info["jour"]
+                status_counts["horaire_%s_%s" % (jour, nieme)] = "%s" % (info['horaire'])
+                status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
+                status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
+                status_counts["hauteur_%s_%s" % (jour, nieme)] = "%s" % (info['hauteur'])
+                if ("nb_maree_%s" % (jour) not in status_counts):
+                    status_counts["nb_maree_%s" % (jour)] = 1
+                else:
+                    status_counts["nb_maree_%s" % (jour)] += 1
+            # pour avoir les 2 prochaines marées
+            for x in range(2):
+                i = x + 1
+                status_counts["next_maree_%s" % i] = "%s" % self.getnextmaree(i)["horaire"]
+                status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i)["coeff"]
+                status_counts["next_etat_%s" % i] = "%s" % self.getnextmaree(i)["etat"]
+                if (status_counts["next_coeff_%s" % i] == ""):
+                    status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i + 1)["coeff"]
+            status_counts["timeLastCall"] = datetime.datetime.now()
 
-        dicoPrevis = []
-        for maDate in self._myPort.getprevis().keys():
-            if (maDate.replace(tzinfo=None) >= datetime.datetime.now()):
-                dico = {}
-                dico["datetime"] = maDate
-                for clefPrevis in self._myPort.getprevis()[maDate].keys():
-                    dico[clefPrevis] = self._myPort.getprevis()[maDate][clefPrevis]
-                dicoPrevis.append(dico)
-        status_counts["prevision"] = dicoPrevis
-        status_counts["message"] = "%s (%s/%s)" % (
-            status_counts["next_maree_1"], status_counts["next_etat_1"], status_counts["next_coeff_1"])
+            dicoPrevis = []
+            for maDate in self._myPort.getprevis().keys():
+                if (maDate.replace(tzinfo=None) >= datetime.datetime.now()):
+                    dico = {}
+                    dico["datetime"] = maDate
+                    for clefPrevis in self._myPort.getprevis()[maDate].keys():
+                        dico[clefPrevis] = self._myPort.getprevis()[maDate][clefPrevis]
+                    dicoPrevis.append(dico)
+            status_counts["prevision"] = dicoPrevis
+            status_counts["message"] = "%s (%s/%s)" % (
+                status_counts["next_maree_1"], status_counts["next_etat_1"], status_counts["next_coeff_1"])
+            stat = self.getnextmaree()["horaire"]
+
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
         self._attributes = status_counts
-        self._state = self.getnextmaree()["horaire"]
+        self._state = stat
         return self._state, self._attributes
 
     def getstatusProchainePluie(self):
