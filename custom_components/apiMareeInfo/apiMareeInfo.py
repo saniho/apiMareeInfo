@@ -41,6 +41,7 @@ class ListePorts:
             print(x["id"], x["nom"], x["lat"], x["lon"])
         return retour
 
+
 class MeteoMarine:
     def __init__(self, lat, lng):
 
@@ -72,6 +73,7 @@ class MeteoMarine:
         except requests.exceptions.HTTPError as error:
             return response.json()
         pass
+
 class stormIO:
     def __init__(self, lat, lng, storm_key):
         import requests
@@ -101,6 +103,8 @@ class stormIO:
         # Do something with response data.
         json_data = response.json()
         return json_data
+
+
 class ApiMareeInfo:
     def __init__(self):
         self._donnees = {}
@@ -113,30 +117,30 @@ class ApiMareeInfo:
         self._errorMessage = ""
         pass
 
-    def getjson(self, origine, info={}):
-        if ( origine == "MeteoMarine"):
-            mm = MeteoMarine( self._lat, self._lng)
+    def getjson(self, origine, info=None):
+        if origine == "MeteoMarine":
+            mm = MeteoMarine(self._lat, self._lng)
             return mm.getdata()
-        elif ( origine == "stormio"):
-            mm = stormIO( self._lat, self._lng, info["stormkey"])
+        elif origine == "stormio":
+            mm = stormIO(self._lat, self._lng, info["stormkey"])
             return mm.getdata()
 
     def setport(self, lat, lng):
         self._lat = lat
         self._lng = lng
 
-    def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine", info={}):
+    def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine", info=None):
         if (jsondata is None):
             jsondata = self.getjson(origine, info)
 
         if outfile is not None:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
-        if ( origine == "MeteoMarine" ):
+        if origine == "MeteoMarine":
             self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
             self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
-        elif( origine == "stormio"):
-            if ( "station" in jsondata["meta"]):
+        elif origine == "stormio":
+            if "station" in jsondata["meta"]:
                 self._nomDuPort = jsondata["meta"]["station"]['name']
                 self._errorMessage = ""
                 self._error = False
@@ -152,7 +156,7 @@ class ApiMareeInfo:
         a = {}
         myMarees = {}
         dicoPrevis = {}
-        if ( origine == "MeteoMarine") and ( not self._error):
+        if (origine == "MeteoMarine") and (not self._error):
             j = 0
             for maree in jsondata["contenu"]["marees"][:6]:
                 i = 0
@@ -189,7 +193,7 @@ class ApiMareeInfo:
                                 }
                 clef = dateComplete
                 dicoPrevis[clef] = detailPrevis
-        elif( origine == "stormio") and ( not self._error):
+        elif(origine == "stormio") and (not self._error):
             j = 0
             dateCompletePrevious = self._dateCourante
             for maree in jsondata["data"][:6]:

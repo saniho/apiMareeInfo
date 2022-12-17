@@ -24,14 +24,14 @@ class manageSensorState:
 
     def init(self, _myPort, _LOGGER=None, version=None):
         self._myPort = _myPort
-        if (_LOGGER is None):
+        if _LOGGER is None:
             _LOGGER = logging.getLogger(__name__)
         self._LOGGER = _LOGGER
         self.version = version
 
     def getnextmaree(self, indice=1, maintenant=None):
         i = 1
-        if (maintenant is None):
+        if maintenant is None:
             maintenant = datetime.datetime.now()
         prochainemaree = None
         for x in self._myPort.getinfo().keys():
@@ -47,10 +47,10 @@ class manageSensorState:
         status_counts = defaultdict(int)
         status_counts["version"] = self.version
 
-        self._LOGGER.info("tente un update  infoPort? ... %s" % (self._myPort))
+        self._LOGGER.info("tente un update  infoPort? ... %s" % self._myPort)
         status_counts["version"] = __VERSION__
-        if ( self._myPort.getError()):
-            status_counts["message"] = "%s" %(self._myPort.getErrorMessage())
+        if self._myPort.getError():
+            status_counts["message"] = "%s" % self._myPort.getErrorMessage()
             stat = ""
             pass
         else:
@@ -74,23 +74,23 @@ class manageSensorState:
                 status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
                 status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
                 status_counts["hauteur_%s_%s" % (jour, nieme)] = "%s" % (info['hauteur'])
-                if ("nb_maree_%s" % (jour) not in status_counts):
-                    status_counts["nb_maree_%s" % (jour)] = 1
+                if "nb_maree_%s" % jour not in status_counts:
+                    status_counts["nb_maree_%s" % jour] = 1
                 else:
-                    status_counts["nb_maree_%s" % (jour)] += 1
+                    status_counts["nb_maree_%s" % jour] += 1
             # pour avoir les 2 prochaines marées
             for x in range(2):
                 i = x + 1
                 status_counts["next_maree_%s" % i] = "%s" % self.getnextmaree(i)["horaire"]
                 status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i)["coeff"]
                 status_counts["next_etat_%s" % i] = "%s" % self.getnextmaree(i)["etat"]
-                if (status_counts["next_coeff_%s" % i] == ""):
+                if status_counts["next_coeff_%s" % i] == "":
                     status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i + 1)["coeff"]
             status_counts["timeLastCall"] = datetime.datetime.now()
 
             dicoPrevis = []
             for maDate in self._myPort.getprevis().keys():
-                if (maDate.replace(tzinfo=None) >= datetime.datetime.now()):
+                if maDate.replace(tzinfo=None) >= datetime.datetime.now():
                     dico = {}
                     dico["datetime"] = maDate
                     for clefPrevis in self._myPort.getprevis()[maDate].keys():
@@ -112,10 +112,10 @@ class manageSensorState:
         status_counts = defaultdict(int)
         status_counts["version"] = self.version
 
-        self._LOGGER.info("tente un update  infoPort? ... %s" % (self._myPort))
+        self._LOGGER.info("tente un update  infoPort? ... %s" % self._myPort)
         status_counts["version"] = __VERSION__
         dateNextPluie, precipitation = self._myPort.getNextPluie()
-        if dateNextPluie != None :
+        if dateNextPluie is not None:
             dateNextPluieCh = dateNextPluie.strftime("%d/%m %H:%M")
         else:
             dateNextPluieCh = ""
