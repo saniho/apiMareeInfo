@@ -23,13 +23,11 @@ from .const import (  # isort:skip
     # CONF_SCAN_INTERVAL_HTTP,
 )
 
-from .const import ( __VERSION__ )
-
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "saniho"
 ICON = "mdi:package-variant-closed"
-SCAN_INTERVAL = timedelta(seconds=60*60*3)
-SCAN_INTERVAL_http = timedelta(seconds=60*60*3)
+SCAN_INTERVAL = timedelta(seconds=60 * 60 * 3)
+SCAN_INTERVAL_http = timedelta(seconds=60 * 60 * 3)
 CONF_SCAN_INTERVAL_HTTP = SCAN_INTERVAL_http
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -62,10 +60,10 @@ class myMareeInfo:
                 ((self._lastSynchro + self._update_interval) < courant):
             _LOGGER.warning("-update possible- on lance")
             self._myMaree.setport(self._lat, self._lng)
-            if ( self._origine == "MeteoMarine"):
+            if self._origine == "MeteoMarine":
                 self._myMaree.getinformationport(origine=self._origine)
             else:
-                self._myMaree.getinformationport( origine="stormio", info={"stormkey":self._stormkey})
+                self._myMaree.getinformationport(origine="stormio", info={"stormkey": self._stormkey})
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
@@ -87,7 +85,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         idDuPort = config.get(CONF_CODE)
         lat = config.get(CONF_LATITUDE)
         lng = config.get(CONF_LONGITUDE)
-        stormkey = config.get( CONF_STORM_KEY )
+        stormkey = config.get(CONF_STORM_KEY)
         session = []
     except:
         _LOGGER.exception("Could not run my apiMaree Extension miss argument ?")
@@ -153,6 +151,7 @@ class infoMareeSensor(Entity):
     @property
     def icon(self):
         """Icon to use in the frontend."""
+
 
 class infoMareePluieSensor(Entity):
     """."""
