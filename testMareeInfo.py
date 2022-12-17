@@ -24,6 +24,7 @@ def testPortMeteoMarine():
     state, attributes = _sAM.getstatusProchainePluie()
     sensorApiMaree.logSensorState(attributes)
 
+
 def testPortStormGlass():
 
     import configparser
@@ -44,8 +45,8 @@ def testPortStormGlass():
     _myMaree.setport(lat, lng)
     # _myMaree.getinformationport( jsondata= dataJson, outfile = "file_20220726.json",
     #                             origine="stormio", info={'stormkey':thekey} )
-    _myMaree.getinformationport(jsondata= dataJson,outfile = "file_20220726.json",
-                                 origine="MeteoMarine")
+    _myMaree.getinformationport(jsondata=dataJson,outfile="file_20220726.json",
+                                origine="MeteoMarine")
 
     # _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio", info={'stormkey':thekey} )
     # print(_myMaree.getinfo())
@@ -58,6 +59,7 @@ def testPortStormGlass():
     sensorApiMaree.logSensorState(attributes)
     state, attributes = _sAM.getstatusProchainePluie()
     sensorApiMaree.logSensorState(attributes)
+
 
 def testListePorts():
     from custom_components.apiMareeInfo import apiMareeInfo
