@@ -193,7 +193,7 @@ class ApiMareeInfo:
                                 }
                 clef = dateComplete
                 dicoPrevis[clef] = detailPrevis
-        elif(origine == "stormio") and (not self._error):
+        elif (origine == "stormio") and (not self._error):
             j = 0
             dateCompletePrevious = self._dateCourante
             for maree in jsondata["data"][:6]:
@@ -207,7 +207,7 @@ class ApiMareeInfo:
                 myMarees[clef] = detailMaree
                 # print(clef, detailMaree)
                 i += 1
-                if ( dateComplete != dateCompletePrevious):
+                if (dateComplete != dateCompletePrevious):
                     j += 1
                 dateCompletePrevious = dateComplete
             self._donnees = myMarees
@@ -257,6 +257,7 @@ class ApiMareeInfo:
 
     def getError(self):
         return self._error
+
     def getErrorMessage(self):
         return self._errorMessage
 

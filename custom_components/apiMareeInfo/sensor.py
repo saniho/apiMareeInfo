@@ -152,6 +152,7 @@ class infoMareeSensor(Entity):
     def icon(self):
         """Icon to use in the frontend."""
 
+
 class infoMareePluieSensor(Entity):
     """."""
 
