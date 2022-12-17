@@ -51,6 +51,8 @@ Hauteur 0 3 ==> Hauteur de la 3ème marée du jour courant
 Horaire 1 3 ==> horaire de la 3ème marée du jour suivant
 Nb maree 3 ==> nombre de marée du jour J + 4
 etc...
+```
+```
 NomPort ==> nom du port utilisé
 Copyright ==> données fournies par SHOM
 DateCourante ==> date courante zéro
@@ -72,8 +74,11 @@ periodehoule: 9 ==> frequence de la houle
 hauteurmerv: 0.1 ==> hauteur de la merc
 periodemerv: 1 ==> periode
 hauteurvague: 0.5 ==> hauteur max de la vague
+etc ...
+```
+
+```
 Message ==> message résumé de la prochaine marée
 Last update ==> derniere mise à jour
 Last http update ==> derniere mise à jour de données fournies par le provider
-
 ```
