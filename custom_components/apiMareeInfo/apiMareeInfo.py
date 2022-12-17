@@ -74,6 +74,7 @@ class MeteoMarine:
             return response.json()
         pass
 
+
 class stormIO:
     def __init__(self, lat, lng, storm_key):
         import requests
