@@ -45,7 +45,7 @@ def testPortStormGlass():
     _myMaree.setport(lat, lng)
     # _myMaree.getinformationport( jsondata= dataJson, outfile = "file_20220726.json",
     #                             origine="stormio", info={'stormkey':thekey} )
-    _myMaree.getinformationport(jsondata=dataJson,outfile="file_20220726.json",
+    _myMaree.getinformationport(jsondata=dataJson, outfile="file_20220726.json",
                                 origine="MeteoMarine")
 
     # _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio", info={'stormkey':thekey} )

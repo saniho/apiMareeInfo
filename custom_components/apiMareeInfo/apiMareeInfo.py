@@ -150,7 +150,7 @@ class ApiMareeInfo:
                 self._error = True
             self._dateCourante = datetime.datetime.now()
         else:
-            raise "Data Origin unknow"
+            raise RuntimeError("Data Origin unknow")
         self._httptimerequest = datetime.datetime.now()
 
         a = {}
