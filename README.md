@@ -19,11 +19,26 @@ vous permetant d'obtenir ainsi ce genre de résultat :
 
 <img src="https://github.com/saniho/apiMareeInfo/raw/master/img/imgCard.png" height="300"/>
 
+Comment trouver les coordonnées GPS de votre point de marée
+
+  1/ ouvrir google maps
+  
+  2/ positionner vitre carte sur le bon endroit
+  
+  3/ faire un clic droit sur ce point et vous verez les coordonnées à utiliser..
+  
+  ![image](https://user-images.githubusercontent.com/52693545/208317316-d0cacfe9-4b6c-4105-9e02-1971147e812d.png)
+
+  
+
 Releases Notes :
 
+v 1.1.2
+retour des fonctionnalités historique ;)
 
 v 1.1.0
 
+< depreciated >
 cette nouvelle car necessite de s'inscrire sur le site de stormio( inscription gratuite )
 
 https://stormglass.io/
