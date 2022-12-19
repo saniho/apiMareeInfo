@@ -71,6 +71,8 @@ class manageSensorState:
                 nieme = info["nieme"]
                 jour = info["jour"]
                 status_counts["horaire_%s_%s" % (jour, nieme)] = "%s" % (info['horaire'])
+                if ( info['coeff'] is None):
+                    info['coeff'] = ""
                 status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
                 status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
                 status_counts["hauteur_%s_%s" % (jour, nieme)] = "%s" % (info['hauteur'])
@@ -81,11 +83,15 @@ class manageSensorState:
             # pour avoir les 2 prochaines marées
             for x in range(2):
                 i = x + 1
-                status_counts["next_maree_%s" % i] = "%s" % self.getnextmaree(i)["horaire"]
-                status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i)["coeff"]
-                status_counts["next_etat_%s" % i] = "%s" % self.getnextmaree(i)["etat"]
+                pMaree = self.getnextmaree(i)
+                if ( pMaree['coeff'] is None):
+                    pMaree['coeff'] = ""
+                status_counts["next_maree_%s" % i] = "%s" % pMaree["horaire"]
+                status_counts["next_coeff_%s" % i] = "%s" % pMaree["coeff"]
+                status_counts["next_etat_%s" % i] = "%s" % pMaree["etat"]
                 if status_counts["next_coeff_%s" % i] == "":
-                    status_counts["next_coeff_%s" % i] = "%s" % self.getnextmaree(i + 1)["coeff"]
+                    pMaree = self.getnextmaree(i + 1)
+                    status_counts["next_coeff_%s" % i] = "%s" % pMaree["coeff"]
             status_counts["timeLastCall"] = datetime.datetime.now()
 
             dicoPrevis = []
