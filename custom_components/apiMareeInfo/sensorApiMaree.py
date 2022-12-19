@@ -71,7 +71,7 @@ class manageSensorState:
                 nieme = info["nieme"]
                 jour = info["jour"]
                 status_counts["horaire_%s_%s" % (jour, nieme)] = "%s" % (info['horaire'])
-                if ( info['coeff'] is None):
+                if info['coeff'] is None:
                     info['coeff'] = ""
                 status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
                 status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
@@ -84,7 +84,7 @@ class manageSensorState:
             for x in range(2):
                 i = x + 1
                 pMaree = self.getnextmaree(i)
-                if ( pMaree['coeff'] is None):
+                if pMaree['coeff'] is None:
                     pMaree['coeff'] = ""
                 status_counts["next_maree_%s" % i] = "%s" % pMaree["horaire"]
                 status_counts["next_coeff_%s" % i] = "%s" % pMaree["coeff"]
