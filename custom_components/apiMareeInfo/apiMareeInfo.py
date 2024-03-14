@@ -34,6 +34,10 @@ class ListePorts:
             nomport)
         url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
             nomport)
+        _url = \
+            "http://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
+                nomport)
+
         print(url)
         retour = self.getjson(url)
         print(retour)
@@ -111,6 +115,7 @@ class ApiMareeInfo:
         self._donnees = {}
         self._nomDuPort = None
         self._dateCourante = None
+        self._maxhours = None
         self._lat = None
         self._lng = None
         self._message = ""
@@ -130,6 +135,9 @@ class ApiMareeInfo:
         self._lat = lat
         self._lng = lng
 
+    def setmaxhours(self, maxhours):
+        self._maxhours = maxhours
+
     def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine", info=None):
         if (jsondata is None):
             jsondata = self.getjson(origine, info)
@@ -138,8 +146,13 @@ class ApiMareeInfo:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         if origine == "MeteoMarine":
-            self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
-            self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
+            #_LOGGER.error( jsondata )
+            if len( jsondata["contenu"]["marees"]) == 0:
+                self._error = True
+            else:
+                self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
+                self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
+                self._error = False
         elif origine == "stormio":
             if "station" in jsondata["meta"]:
                 self._nomDuPort = jsondata["meta"]["station"]['name']
@@ -157,6 +170,7 @@ class ApiMareeInfo:
         a = {}
         myMarees = {}
         dicoPrevis = {}
+        #_LOGGER.error( "origine : %s / error : %s"%(origine, self._error))
         if (origine == "MeteoMarine") and (not self._error):
             j = 0
             for maree in jsondata["contenu"]["marees"][:6]:
@@ -246,6 +260,8 @@ class ApiMareeInfo:
 
     def getdatecourante(self):
         return self._dateCourante
+    def getmaxhours(self):
+        return self._maxhours
 
     def gethttptimerequest(self):
         return self._httptimerequest

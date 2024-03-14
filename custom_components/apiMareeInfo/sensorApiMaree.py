@@ -94,9 +94,11 @@ class manageSensorState:
                     status_counts["next_coeff_%s" % i] = "%s" % pMaree["coeff"]
             status_counts["timeLastCall"] = datetime.datetime.now()
 
+            maxTime = datetime.datetime.now() + datetime.timedelta( hours = self._myPort.getmaxhours() )
             dicoPrevis = []
             for maDate in self._myPort.getprevis().keys():
-                if maDate.replace(tzinfo=None) >= datetime.datetime.now():
+                if maDate.replace(tzinfo=None) >= datetime.datetime.now() and \
+                    maDate.replace(tzinfo=None) <= maxTime:
                     dico = {}
                     dico["datetime"] = maDate
                     for clefPrevis in self._myPort.getprevis()[maDate].keys():
