@@ -146,6 +146,7 @@ class ApiMareeInfo:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         if origine == "MeteoMarine":
+            _LOGGER.error( jsondata )
             self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
             self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
         elif origine == "stormio":

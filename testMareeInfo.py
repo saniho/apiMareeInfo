@@ -1,9 +1,9 @@
 def testPortMeteoMarine():
     import json
 
-    with open('./tests/json/meteomarine/SJM_20220214.json') as f:
+    with open('./file_20240314.json') as f:
         dataJson = json.load(f)
-    dataJson = None
+    #dataJson = None
     from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
 
     _myMaree = apiMareeInfo.ApiMareeInfo()
@@ -11,11 +11,12 @@ def testPortMeteoMarine():
     #lat, lng = "46.4967", "-1.79667"
     #lat, lng = "46.009313818464726", "-1.1740585688883056"
     #lat, lng = "45.0015181", "-1.1999562"
-    lat, lng = "47.19382", "-2.16449"
+    lat, lng = "46.7711", "-2.05306"
     _myMaree.setport(lat, lng)
-    _myMaree.getinformationport(outfile="file_20220726.json")
+    #_myMaree.getinformationport(jsondata =dataJson)
+    _myMaree.getinformationport(outfile="file_20240314.json")
     _myMaree.setmaxhours(6)
-    dataJson = None
+    #dataJson = None
     _myMaree.getinformationport(dataJson)
     # print(_myMaree.getinfo())
     # print(_myMaree.getnomduport())
