@@ -52,7 +52,6 @@ class myMareeInfo:
         self._lng = lng
         self._origine = "MeteoMarine"
         self._stormkey = stormkey
-        if ( maxhours is None): maxhours = 6
         self._maxhours = maxhours
         self._myMaree = apiMareeInfo.ApiMareeInfo()
         pass
@@ -95,6 +94,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     except:
         _LOGGER.exception("Could not run my apiMaree Extension miss argument ?")
         return False
+    if maxhours is None:
+        maxhours = 6
+    else:
+        maxhours = int( maxhours )
     myPort = myMareeInfo(idDuPort, lat, lng, stormkey, maxhours, update_interval_http)
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
