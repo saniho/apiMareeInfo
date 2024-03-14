@@ -1,60 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="add MakeFile&#10;add prochaine pluie sensor&#10;add messages dans les sensors&#10;add change log generator" />
+    <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/file_20220726.json" beforeDir="false" afterPath="$PROJECT_DIR$/file_20220726.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/testMareeInfo.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExportTestResults" exportFormat="Xml" outputFolder="$PROJECT_DIR$/Tests/TestResults" userTempatePath="" />
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="dev" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GithubProjectSettings">
-    <option name="CREATE_PULL_REQUEST_DEFAULT_BRANCH" value="master" />
-    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_USER" value="saniho" />
-    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_NAME" value="apiMareeInfo" />
-  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="1nfUrWIrPFAxqZqHOuHWKwBIU2K" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2K9QVL8AHyZUmV12BsDedoVHEVf" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/Tests" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
-  </component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Projets\apiMareeInfo" />
-    </key>
-  </component>
-  <component name="RunManager" selected="Python.testMareeInfo">
-    <configuration name="testMareeInfo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python tests.pytest in testMareeInfo.py.executor": "Run",
+    "Python.apiMareeInfo.executor": "Run",
+    "Python.sensorApiMaree.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "AddLimitOfHourForPrevision",
+    "last_opened_file_path": "C:/Projets/apiMareeInfo"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="apiMareeInfo" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="apiMareeInfo" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="SDK_HOME" value="C:\Python\Python310\python.exe" />
+      <option name="SDK_NAME" value="Python 3.10 (apiMareeInfo)" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testMareeInfo.py" />
@@ -66,249 +75,23 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest in test_apiMareeInfo.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
-      <module name="apiMareeInfo" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_parameters" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/Tests/test_apiMareeInfo.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
-    <list>
-      <item itemvalue="Python.testMareeInfo" />
-      <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.testMareeInfo" />
-        <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
-        <item itemvalue="Python.testMareeInfo" />
-        <item itemvalue="Python tests.pytest in test_apiMareeInfo.py" />
-        <item itemvalue="Python.testMareeInfo" />
-      </list>
-    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-5a2391486177-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.13763.11" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="ec5b8585-5c78-400c-bcc7-2c2fe6768477" name="Default Changelist" comment="" />
-      <created>1611780838887</created>
+      <changelist id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="" />
+      <created>1673384340932</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1611780838887</updated>
+      <updated>1673384340932</updated>
     </task>
-    <task id="LOCAL-00001" summary="additem in attributes">
-      <created>1611784536295</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1611784536295</updated>
-    </task>
-    <task id="LOCAL-00002" summary="additem in attributes">
-      <created>1611956810616</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1611956810617</updated>
-    </task>
-    <task id="LOCAL-00003" summary="HACS integration">
-      <created>1612646634888</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1612646634888</updated>
-    </task>
-    <task id="LOCAL-00004" summary="HACS integration">
-      <created>1612647247348</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1612647247348</updated>
-    </task>
-    <task id="LOCAL-00005" summary="HACS integration">
-      <created>1612647280906</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1612647280906</updated>
-    </task>
-    <task id="LOCAL-00006" summary="HACS integration">
-      <created>1612649358736</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1612649358736</updated>
-    </task>
-    <task id="LOCAL-00007" summary="HACS integration">
-      <created>1612651413644</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1612651413645</updated>
-    </task>
-    <task id="LOCAL-00008" summary="next marée&#10;next marée + 1">
-      <created>1612991416198</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1612991416206</updated>
-    </task>
-    <task id="LOCAL-00009" summary="next marée&#10;next marée + 1">
-      <created>1613080407025</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1613080407026</updated>
-    </task>
-    <task id="LOCAL-00010" summary="next marée&#10;next marée + 1">
-      <created>1613168514600</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1613168514600</updated>
-    </task>
-    <task id="LOCAL-00011" summary="next marée&#10;next marée + 1&#10;&#10;migration de service">
-      <created>1613944169563</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1613944169564</updated>
-    </task>
-    <task id="LOCAL-00012" summary="next marée&#10;next marée + 1&#10;&#10;migration de service">
-      <created>1614017367048</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1614017367048</updated>
-    </task>
-    <task id="LOCAL-00013" summary="next marée&#10;next marée + 1&#10;&#10;migration de service">
-      <created>1614027732966</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1614027732966</updated>
-    </task>
-    <task id="LOCAL-00014" summary="next marée&#10;next marée + 1&#10;&#10;migration de service">
-      <created>1614202261248</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1614202261248</updated>
-    </task>
-    <task id="LOCAL-00015" summary="next marée&#10;next marée + 1&#10;&#10;migration de service&#10;&#10;addSensorInformation( vent, temperature de l'eau, de l'air etc.. )">
-      <created>1614460513212</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1614460513212</updated>
-    </task>
-    <task id="LOCAL-00016" summary="next marée&#10;next marée + 1&#10;&#10;migration de service&#10;&#10;addSensorInformation( vent, temperature de l'eau, de l'air etc.. )">
-      <created>1614633394613</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1614633394613</updated>
-    </task>
-    <task id="LOCAL-00017" summary="next marée&#10;next marée + 1&#10;&#10;migration de service&#10;&#10;addSensorInformation( vent, temperature de l'eau, de l'air etc.. )">
-      <created>1614633574231</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1614633574231</updated>
-    </task>
-    <task id="LOCAL-00018" summary="addListePort dans le test">
-      <created>1615151681055</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1615151681055</updated>
-    </task>
-    <task id="LOCAL-00019" summary="addListePort dans le test">
-      <created>1615152283489</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1615152283489</updated>
-    </task>
-    <task id="LOCAL-00020" summary="addListePort dans le test">
-      <created>1615408674912</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1615408674912</updated>
-    </task>
-    <task id="LOCAL-00021" summary="addListePort dans le test">
-      <created>1615409401147</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1615409401147</updated>
-    </task>
-    <task id="LOCAL-00022" summary="addListePort dans le test">
-      <created>1615409864733</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1615409864733</updated>
-    </task>
-    <task id="LOCAL-00023" summary="add MakeFile">
-      <created>1644875068091</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1644875068091</updated>
-    <task id="LOCAL-00023" summary="addListePort dans le test">
-      <created>1621974570633</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1621974570633</updated>
-    </task>
-    <option name="localTasksCounter" value="24" />
     <servers />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="additem in attributes" />
-    <MESSAGE value="HACS integration" />
-    <MESSAGE value="next marée&#10;next marée + 1" />
-    <MESSAGE value="next marée&#10;next marée + 1&#10;&#10;migration de service" />
-    <MESSAGE value="next marée&#10;next marée + 1&#10;&#10;migration de service&#10;&#10;addSensorInformation( vent, temperature de l'eau, de l'air etc.. )" />
-    <MESSAGE value="addListePort dans le test" />
-    <MESSAGE value="add MakeFile" />
-    <MESSAGE value="add MakeFile&#10;add prochaine pluie sensor" />
-    <MESSAGE value="add MakeFile&#10;add prochaine pluie sensor&#10;add messages dans les sensors" />
-    <MESSAGE value="add MakeFile&#10;add prochaine pluie sensor&#10;add messages dans les sensors&#10;add change log generator" />
-    <option name="LAST_COMMIT_MESSAGE" value="add MakeFile&#10;add prochaine pluie sensor&#10;add messages dans les sensors&#10;add change log generator" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py</url>
-          <line>89</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

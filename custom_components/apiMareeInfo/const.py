@@ -7,7 +7,8 @@ DOMAIN = "apiMareeInfo"
 
 # delai pour l'update http, toutes les 3 heures
 CONF_SCAN_INTERVAL_HTTP = datetime.timedelta(seconds=60 * 60 * 3)
+CONF_MAXHOURS = "MAX_HOURS"
 
-__VERSION__ = "1.1.4"
+__VERSION__ = "1.1.5"
 
 __name__ = "apiMareeInfo"

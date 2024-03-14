@@ -34,6 +34,10 @@ class ListePorts:
             nomport)
         url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
             nomport)
+        _url = \
+            "http://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
+                nomport)
+
         print(url)
         retour = self.getjson(url)
         print(retour)
@@ -111,6 +115,7 @@ class ApiMareeInfo:
         self._donnees = {}
         self._nomDuPort = None
         self._dateCourante = None
+        self._maxhours = None
         self._lat = None
         self._lng = None
         self._message = ""
@@ -129,6 +134,9 @@ class ApiMareeInfo:
     def setport(self, lat, lng):
         self._lat = lat
         self._lng = lng
+
+    def setmaxhours(self, maxhours):
+        self._maxhours = maxhours
 
     def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine", info=None):
         if (jsondata is None):
@@ -246,6 +254,8 @@ class ApiMareeInfo:
 
     def getdatecourante(self):
         return self._dateCourante
+    def getmaxhours(self):
+        return self._maxhours
 
     def gethttptimerequest(self):
         return self._httptimerequest
