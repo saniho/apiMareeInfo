@@ -146,9 +146,13 @@ class ApiMareeInfo:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         if origine == "MeteoMarine":
-            _LOGGER.error( jsondata )
-            self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
-            self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
+            #_LOGGER.error( jsondata )
+            if len( jsondata["contenu"]["marees"]) == 0:
+                self._error = True
+            else:
+                self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
+                self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
+                self._error = False
         elif origine == "stormio":
             if "station" in jsondata["meta"]:
                 self._nomDuPort = jsondata["meta"]["station"]['name']
@@ -166,6 +170,7 @@ class ApiMareeInfo:
         a = {}
         myMarees = {}
         dicoPrevis = {}
+        #_LOGGER.error( "origine : %s / error : %s"%(origine, self._error))
         if (origine == "MeteoMarine") and (not self._error):
             j = 0
             for maree in jsondata["contenu"]["marees"][:6]:

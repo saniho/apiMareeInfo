@@ -67,6 +67,7 @@ class myMareeInfo:
                 self._myMaree.getinformationport(origine=self._origine)
             else:
                 self._myMaree.getinformationport(origine="stormio", info={"stormkey": self._stormkey})
+            self._myMaree.setmaxhours(self._maxhours)
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
@@ -146,6 +147,7 @@ class infoMareeSensor(Entity):
         try:
             state, status_counts = self._sAM.getstatus()
         except:
+            _LOGGER.error( "erreur dans getStatus()")
             return
         self._attributes = {ATTR_ATTRIBUTION: ""}
         self._attributes.update(status_counts)
@@ -155,7 +157,10 @@ class infoMareeSensor(Entity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         return self._attributes
-
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
     @property
     def icon(self):
         """Icon to use in the frontend."""
