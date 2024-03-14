@@ -36,7 +36,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Required(CONF_LATITUDE): cv.string,
         vol.Required(CONF_LONGITUDE): cv.string,
         vol.Optional(CONF_STORM_KEY): cv.string,
-        vol.Optional(CONF_MAXHOURS): cv.int,
+        vol.Optional(CONF_MAXHOURS): cv.string,
     }
 )
 
@@ -52,8 +52,8 @@ class myMareeInfo:
         self._lng = lng
         self._origine = "MeteoMarine"
         self._stormkey = stormkey
+        if ( maxhours is None): maxhours = 6
         self._maxhours = maxhours
-        if ( self._maxhours is None): self._maxhours = 6
         self._myMaree = apiMareeInfo.ApiMareeInfo()
         pass
 
