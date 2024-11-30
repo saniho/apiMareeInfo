@@ -37,9 +37,6 @@ class ListePorts:
         _url = \
             "http://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
                 nomport)
-        url = \
-            "http://ws.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v30/recherche.php?rech=%s&type=48" % (
-                nomport)
 
         print(url)
         retour = self.getjson(url)

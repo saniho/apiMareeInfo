@@ -21,6 +21,7 @@ from homeassistant.util import Throttle
 from .const import (  # isort:skip
     __name__,
     # CONF_SCAN_INTERVAL_HTTP,
+    CONF_MAXHOURS
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Required(CONF_LATITUDE): cv.string,
         vol.Required(CONF_LONGITUDE): cv.string,
         vol.Optional(CONF_STORM_KEY): cv.string,
+        vol.Optional(CONF_MAXHOURS): cv.string,
     }
 )
 
@@ -42,7 +44,7 @@ from . import apiMareeInfo, sensorApiMaree
 
 
 class myMareeInfo:
-    def __init__(self, idDuPort, lat, lng, stormkey, _update_interval):
+    def __init__(self, idDuPort, lat, lng, stormkey, maxhours, _update_interval):
         self._lastSynchro = None
         self._update_interval = _update_interval
         self._idDuPort = idDuPort
@@ -50,6 +52,7 @@ class myMareeInfo:
         self._lng = lng
         self._origine = "MeteoMarine"
         self._stormkey = stormkey
+        self._maxhours = maxhours
         self._myMaree = apiMareeInfo.ApiMareeInfo()
         pass
 
@@ -64,6 +67,7 @@ class myMareeInfo:
                 self._myMaree.getinformationport(origine=self._origine)
             else:
                 self._myMaree.getinformationport(origine="stormio", info={"stormkey": self._stormkey})
+            self._myMaree.setmaxhours(self._maxhours)
             self._lastSynchro = datetime.datetime.now()
 
     def getIdPort(self):
@@ -86,11 +90,16 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         lat = config.get(CONF_LATITUDE)
         lng = config.get(CONF_LONGITUDE)
         stormkey = config.get(CONF_STORM_KEY)
+        maxhours = config.get(CONF_MAXHOURS)
         session = []
     except:
         _LOGGER.exception("Could not run my apiMaree Extension miss argument ?")
         return False
-    myPort = myMareeInfo(idDuPort, lat, lng, stormkey, update_interval_http)
+    if maxhours is None:
+        maxhours = 6
+    else:
+        maxhours = int( maxhours )
+    myPort = myMareeInfo(idDuPort, lat, lng, stormkey, maxhours, update_interval_http)
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
     # add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)
@@ -138,6 +147,7 @@ class infoMareeSensor(Entity):
         try:
             state, status_counts = self._sAM.getstatus()
         except:
+            _LOGGER.error( "erreur dans getStatus()")
             return
         self._attributes = {ATTR_ATTRIBUTION: ""}
         self._attributes.update(status_counts)
@@ -147,7 +157,10 @@ class infoMareeSensor(Entity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         return self._attributes
-
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
     @property
     def icon(self):
         """Icon to use in the frontend."""

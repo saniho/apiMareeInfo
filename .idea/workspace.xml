@@ -7,6 +7,8 @@
     <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="ajout limitation nombre d'heure de prevision">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/file_20240314.json" beforeDir="false" afterPath="$PROJECT_DIR$/file_20240314.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/testMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/testMareeInfo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -22,18 +24,6 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;saniho&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/saniho/apiMareeInfo.git&quot;,
-    &quot;accountId&quot;: &quot;fd31f906-5793-48ad-9b6e-2e86541c25d0&quot;
-  }
-}</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -46,17 +36,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python tests.pytest in testMareeInfo.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.apiMareeInfo.executor&quot;: &quot;Run&quot;,
-    &quot;Python.sensorApiMaree.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;AddLimitOfHourForPrevision&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Projets/apiMareeInfo&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python tests.pytest in testMareeInfo.py.executor": "Run",
+    "Python.apiMareeInfo.executor": "Run",
+    "Python.sensorApiMaree.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "AddLimitOfHourForPrevision",
+    "last_opened_file_path": "C:/Projets/apiMareeInfo"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="apiMareeInfo" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="apiMareeInfo" />
@@ -85,7 +75,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-337b0a7a993a-31b6be0877a2-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.19416.19" />
+        <option value="bundled-python-sdk-d68999036c7f-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.14475.56" />
       </set>
     </attachedChunks>
   </component>
@@ -130,15 +120,7 @@
       <option name="project" value="LOCAL" />
       <updated>1710451097153</updated>
     </task>
-    <task id="LOCAL-00005" summary="ajout limitation nombre d'heure de prevision">
-      <option name="closed" value="true" />
-      <created>1710453040702</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1710453040702</updated>
-    </task>
-    <option name="localTasksCounter" value="6" />
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
