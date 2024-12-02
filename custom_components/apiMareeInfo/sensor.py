@@ -27,7 +27,7 @@ from .const import (  # isort:skip
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "saniho"
 ICON = "mdi:package-variant-closed"
-SCAN_INTERVAL = timedelta(seconds=60 * 60 * 3)
+SCAN_INTERVAL = timedelta(seconds=60 * 3)
 SCAN_INTERVAL_http = timedelta(seconds=60 * 60 * 3)
 CONF_SCAN_INTERVAL_HTTP = SCAN_INTERVAL_http
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -98,7 +98,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     if maxhours is None:
         maxhours = 6
     else:
-        maxhours = int( maxhours )
+        maxhours = int(maxhours)
     myPort = myMareeInfo(idDuPort, lat, lng, stormkey, maxhours, update_interval_http)
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
@@ -147,7 +147,7 @@ class infoMareeSensor(Entity):
         try:
             state, status_counts = self._sAM.getstatus()
         except:
-            _LOGGER.error( "erreur dans getStatus()")
+            _LOGGER.error("erreur dans getStatus()")
             return
         self._attributes = {ATTR_ATTRIBUTION: ""}
         self._attributes.update(status_counts)
@@ -157,10 +157,12 @@ class infoMareeSensor(Entity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         return self._attributes
+
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
         return self._attributes
+
     @property
     def icon(self):
         """Icon to use in the frontend."""

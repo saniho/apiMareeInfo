@@ -8,16 +8,16 @@ def testPortMeteoMarine():
 
     _myMaree = apiMareeInfo.ApiMareeInfo()
     lat, lng = "46.7711", "-2.05306"
-    #lat, lng = "46.4967", "-1.79667"
-    #lat, lng = "46.009313818464726", "-1.1740585688883056"
-    #lat, lng = "45.0015181", "-1.1999562"
+    # lat, lng = "46.4967", "-1.79667"
+    # lat, lng = "46.009313818464726", "-1.1740585688883056"
+    # lat, lng = "45.0015181", "-1.1999562"
     lat, lng = "46.7711", "-2.05306"
     _myMaree.setport(lat, lng)
-    #_myMaree.getinformationport(jsondata =dataJson)
-    #_myMaree.getinformationport(outfile="file_20240314.json")
+    # _myMaree.getinformationport(jsondata =dataJson)
+    # _myMaree.getinformationport(outfile="file_20240314.json")
     _myMaree.getinformationport()
     _myMaree.setmaxhours(6)
-    #dataJson = None
+    # dataJson = None
     _myMaree.getinformationport(dataJson)
     # print(_myMaree.getinfo())
     # print(_myMaree.getnomduport())
@@ -78,4 +78,4 @@ def testListePorts():
 
 testPortMeteoMarine()
 # testPortStormGlass()
-#testListePorts()
+# testListePorts()
