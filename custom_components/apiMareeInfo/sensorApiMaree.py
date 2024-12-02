@@ -97,8 +97,8 @@ class manageSensorState:
             maxTime = datetime.datetime.now() + datetime.timedelta(hours=self._myPort.getmaxhours())
             dicoPrevis = []
             for maDate in self._myPort.getprevis().keys():
-                if maDate.replace(tzinfo=None) >= datetime.datetime.now() and \
-                maDate.replace(tzinfo=None) <= maxTime:
+                if (maDate.replace(tzinfo=None) >= datetime.datetime.now() and
+                        maDate.replace(tzinfo=None) <= maxTime):
                     dico = {}
                     dico["datetime"] = maDate
                     for clefPrevis in self._myPort.getprevis()[maDate].keys():

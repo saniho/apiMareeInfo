@@ -157,8 +157,8 @@ class infoMareeSensor(Entity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         return self._attributes
-    @property
 
+    @property
     def device_state_attributes(self):
         """Return the state attributes."""
         return self._attributes
