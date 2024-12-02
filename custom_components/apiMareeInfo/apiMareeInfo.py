@@ -103,7 +103,8 @@ class stormIO:
             },
             headers={
                 'Authorization': self._storm_key
-            }
+            },
+            timeout = 600
         )
         # Do something with response data.
         json_data = response.json()
