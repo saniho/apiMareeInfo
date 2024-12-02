@@ -104,7 +104,7 @@ class stormIO:
             headers={
                 'Authorization': self._storm_key
             },
-            timeout = 600
+            timeout=600
         )
         # Do something with response data.
         json_data = response.json()
@@ -147,8 +147,8 @@ class ApiMareeInfo:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         if origine == "MeteoMarine":
-            #_LOGGER.error( jsondata )
-            if len( jsondata["contenu"]["marees"]) == 0:
+            # _LOGGER.error( jsondata )
+            if len(jsondata["contenu"]["marees"]) == 0:
                 self._error = True
             else:
                 self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
@@ -171,7 +171,7 @@ class ApiMareeInfo:
         a = {}
         myMarees = {}
         dicoPrevis = {}
-        #_LOGGER.error( "origine : %s / error : %s"%(origine, self._error))
+        # _LOGGER.error( "origine : %s / error : %s"%(origine, self._error))
         if (origine == "MeteoMarine") and (not self._error):
             j = 0
             for maree in jsondata["contenu"]["marees"][:6]:
@@ -261,6 +261,7 @@ class ApiMareeInfo:
 
     def getdatecourante(self):
         return self._dateCourante
+
     def getmaxhours(self):
         return self._maxhours
 
