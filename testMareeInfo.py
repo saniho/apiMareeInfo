@@ -15,7 +15,7 @@ def testPortMeteoMarine():
     _myMaree.setport(lat, lng)
     # _myMaree.getinformationport(jsondata =dataJson)
     # _myMaree.getinformationport(outfile="file_20240314.json")
-    _myMaree.getinformationport()
+    #_myMaree.getinformationport()
     _myMaree.setmaxhours(6)
     # dataJson = None
     _myMaree.getinformationport(dataJson)

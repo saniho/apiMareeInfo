@@ -67,8 +67,11 @@ class MeteoMarine:
         response = None
         try:
             import json
+            headers = {
+                "User-Agent": "Mozilla/5.0"
+            }
             session = requests.Session()
-            response = session.post(self._url, timeout=30)
+            response = session.post(self._url, headers=headers, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout as error:
