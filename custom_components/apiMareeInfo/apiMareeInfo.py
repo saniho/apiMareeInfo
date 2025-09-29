@@ -19,7 +19,7 @@ class ListePorts:
         try:
             import json
             session = requests.Session()
-            response = session.post(url, timeout=30)
+            response = session.get(url, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout as error:
@@ -30,12 +30,12 @@ class ListePorts:
         pass
 
     def getlisteport(self, nomport):
-        url = "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" % (
+        url = "https://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" % (
             nomport)
         url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
             nomport)
         _url = \
-            "http://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
+            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
                 nomport)
 
         print(url)
@@ -50,14 +50,14 @@ class MeteoMarine:
     def __init__(self, lat, lng):
 
         self._url = \
-            "http://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
+            "https://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
                 lat, lng)
         self._url = \
-            "http://ws.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v30/previsionsSpot.php?lat=%s&lon=%s" % (
+            "https://ws.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v30/previsionsSpot.php?lat=%s&lon=%s" % (
                 lat, lng)
         """ autre url possible
         self._url = \
-        #    "http://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
+        #    "https://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
         #    lat, lng)
         #print(self._url)
         """
@@ -67,11 +67,8 @@ class MeteoMarine:
         response = None
         try:
             import json
-            headers = {
-                "User-Agent": "Mozilla/5.0"
-            }
             session = requests.Session()
-            response = session.post(self._url, headers=headers, timeout=30)
+            response = session.get(self._url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'}, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout as error:
