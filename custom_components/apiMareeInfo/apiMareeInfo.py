@@ -68,7 +68,8 @@ class MeteoMarine:
         try:
             import json
             session = requests.Session()
-            response = session.get(self._url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'}, timeout=30)
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'}
+            response = session.get(self._url, headers=headers, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout as error:
