@@ -114,6 +114,27 @@ class manageSensorState:
         self._state = stat
         return self._state, self._attributes
 
+    def getStateNextMaree(self, PMBM=""):
+        status_counts = defaultdict(int)
+        status_counts["version"] = self.version
+        status_counts["last_update"] = datetime.datetime.now()
+        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        nextPlusUn = self.getnextmaree(1)
+        nextPlusDeux = self.getnextmaree(2)
+        if ( PMBM == "PM"):
+            if( nextPlusUn["etat"] == "PM"):
+                stat = nextPlusUn["horaire"]
+            else:
+                stat = nextPlusDeux["horaire"]
+        else:
+            if( nextPlusUn["etat"] == "BM"):
+                stat = nextPlusUn["horaire"]
+            else:
+                stat = nextPlusDeux["horaire"]
+        self._attributes = status_counts
+        self._state = stat
+        return self._state, self._attributes
+
     def getstatusProchainePluie(self):
         state = "unavailable"
         status_counts = defaultdict(int)

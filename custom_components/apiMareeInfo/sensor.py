@@ -102,6 +102,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     myPort = myMareeInfo(idDuPort, lat, lng, stormkey, maxhours, update_interval_http)
     myPort.update()
     add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
+    add_entities([infoMareeHauteSensor(session, name, update_interval, myPort)], True)
+    add_entities([infoMareeBasseSensor(session, name, update_interval, myPort)], True)
     # add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)
 
 
@@ -166,7 +168,129 @@ class infoMareeSensor(Entity):
     @property
     def icon(self):
         """Icon to use in the frontend."""
+class infoMareeHauteSensor(Entity):
+    """."""
 
+    def __init__(self, session, name, interval, myPort):
+        """Initialize the sensor."""
+        self._session = session
+        self._name = name
+        self._myPort = myPort
+        self._attributes = None
+        self._state = None
+        self.update = Throttle(interval)(self._update)
+        self._sAM = sensorApiMaree.manageSensorState()
+        self._sAM.init(self._myPort.getmyMaree())
+
+    @property
+    def unique_id(self):
+        "Return a unique_id for this entity."
+        return "myPort.%s.MareeProchaine.Haute" % self._myPort.getIdPort()
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "myPort.%s.MareeProchaine.Haute" % self._myPort.getIdPort()
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement of this entity, if any."""
+        return ""
+
+    def _update(self):
+        """Update device state."""
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._state = "unavailable"
+        self._myPort.update()
+        try:
+            state, status_counts = self._sAM.getStateNextMaree("PM")
+        except:
+            _LOGGER.error("erreur dans getStatus()")
+            return
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._attributes.update(status_counts)
+        self._state = state
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
+
+    @property
+    def icon(self):
+        """Icon to use in the frontend."""
+
+class infoMareeBasseSensor(Entity):
+    """."""
+
+    def __init__(self, session, name, interval, myPort):
+        """Initialize the sensor."""
+        self._session = session
+        self._name = name
+        self._myPort = myPort
+        self._attributes = None
+        self._state = None
+        self.update = Throttle(interval)(self._update)
+        self._sAM = sensorApiMaree.manageSensorState()
+        self._sAM.init(self._myPort.getmyMaree())
+
+    @property
+    def unique_id(self):
+        "Return a unique_id for this entity."
+        return "myPort.%s.MareeProchaine.Basse" % self._myPort.getIdPort()
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "myPort.%s.MareeProchaine.Basse" % self._myPort.getIdPort()
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement of this entity, if any."""
+        return ""
+
+    def _update(self):
+        """Update device state."""
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._state = "unavailable"
+        self._myPort.update()
+        try:
+            state, status_counts = self._sAM.getStateNextMaree("BM")
+        except:
+            _LOGGER.error("erreur dans getStatus()")
+            return
+        self._attributes = {ATTR_ATTRIBUTION: ""}
+        self._attributes.update(status_counts)
+        self._state = state
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        return self._attributes
+
+    @property
+    def icon(self):
+        """Icon to use in the frontend."""
 
 class infoMareePluieSensor(Entity):
     """."""
