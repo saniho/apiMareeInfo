@@ -27,6 +27,9 @@ def testPortMeteoMarine():
     _sAM.init(_myMaree)
     state, attributes = _sAM.getStateNextMaree( "PM")
     state, attributes = _sAM.getStateNextMaree( "BM")
+    print(state)
+    print(attributes)
+    print(1/0)
     state, attributes = _sAM.getstatus()
     sensorApiMaree.logSensorState(attributes)
     state, attributes = _sAM.getstatusProchainePluie()
@@ -74,10 +77,10 @@ def testListePorts():
 
     _myPort = apiMareeInfo.ListePorts()
     # a = _myPort.getlisteport("olonne")
-    a = _myPort.getlisteport("Brévin")
+    a = _myPort.getlisteport("Armel")
     print(a)
 
 
 testPortMeteoMarine()
 # testPortStormGlass()
-# testListePorts()
+#testListePorts()

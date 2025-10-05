@@ -124,13 +124,18 @@ class manageSensorState:
         if ( PMBM == "PM"):
             if( nextPlusUn["etat"] == "PM"):
                 stat = nextPlusUn["horaire"]
+                coeff = nextPlusUn["coeff"]
             else:
                 stat = nextPlusDeux["horaire"]
+                coeff = nextPlusDeux["coeff"]
         else:
             if( nextPlusUn["etat"] == "BM"):
                 stat = nextPlusUn["horaire"]
+                coeff = nextPlusUn["coeff"]
             else:
                 stat = nextPlusDeux["horaire"]
+                coeff = nextPlusDeux["coeff"]
+        status_counts["coeff"] = coeff
         self._attributes = status_counts
         self._state = stat
         return self._state, self._attributes
