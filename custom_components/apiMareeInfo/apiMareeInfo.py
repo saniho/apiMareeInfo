@@ -288,3 +288,10 @@ class ApiMareeInfo:
                 if self._donneesPrevis[x]["precipitation"] != 0:
                     return self._donneesPrevis[x]["dateComplete"], self._donneesPrevis[x]["precipitation"]
         return None, 0
+
+    def getTemperatureEau(self):
+        dateCourante = datetime.datetime.now()
+        for x in self._donneesPrevis.keys():
+            if self._donneesPrevis[x]["dateComplete"] > dateCourante:
+                return self._donneesPrevis[x]["dateComplete"], self._donneesPrevis[x]["teau"]
+        return None, 0

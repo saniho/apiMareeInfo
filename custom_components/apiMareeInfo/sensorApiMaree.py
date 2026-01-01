@@ -161,6 +161,27 @@ class manageSensorState:
         self._state = dateNextPluie
         return self._state, self._attributes
 
+    def getstatusTemperatureEau(self):
+        state = "unavailable"
+        status_counts = defaultdict(int)
+        status_counts["version"] = self.version
+
+        self._LOGGER.info("tente un update  infoPort? ... %s" % self._myPort)
+        status_counts["version"] = __VERSION__
+        dateTemperatureEau, teau = self._myPort.getTemperatureEau()
+        if dateTemperatureEau is not None:
+            dateTemperatureEauCh = dateTemperatureEau.strftime("%d/%m %H:%M")
+        else:
+            dateTemperatureEauCh = ""
+        status_counts["prochainePluie"] = dateTemperatureEauCh
+        status_counts["teau"] = teau
+        status_counts["message"] = "%s - %s m.m" % (status_counts["prochainePluie"], status_counts["precipitation"])
+        status_counts["last_update"] = datetime.datetime.now()
+        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        self._attributes = status_counts
+        self._state = teau
+        return self._state, self._attributes
+
 
 def logSensorState(status_counts):
     for x in status_counts.keys():

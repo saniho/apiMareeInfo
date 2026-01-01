@@ -9,6 +9,6 @@ DOMAIN = "apiMareeInfo"
 CONF_SCAN_INTERVAL_HTTP = datetime.timedelta(seconds=60 * 60 * 3)
 CONF_MAXHOURS = "MAX_HOURS"
 
-__VERSION__ = "1.3.1"
+__VERSION__ = "1.4.0"
 
 __name__ = "apiMareeInfo"
