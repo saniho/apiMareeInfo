@@ -173,7 +173,7 @@ class manageSensorState:
             dateTemperatureEauCh = dateTemperatureEau.strftime("%d/%m %H:%M")
         else:
             dateTemperatureEauCh = ""
-        status_counts["prochainePluie"] = dateTemperatureEauCh
+        status_counts["dateTemperatureEau"] = dateTemperatureEauCh
         status_counts["teau"] = teau
         status_counts["message"] = "%s - %s m.m" % (status_counts["prochainePluie"], status_counts["precipitation"])
         status_counts["last_update"] = datetime.datetime.now()

@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="version 1.3.1&#10;Ajout coeff dans nouveau sensor">
+    <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="version 1.4.0&#10;Ajout temperature de l'eau">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -18,7 +16,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="dev" />
+        <entry key="$PROJECT_DIR$" value="addSensorMareeHauteBasse" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -59,7 +57,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "addSensorMareeHauteBasse",
+    "git-widget-placeholder": "addTemperatureEau",
     "last_opened_file_path": "C:/Projets/apiMareeInfo",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
@@ -241,7 +239,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759693232107</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="version 1.4.0&#10;Ajout temperature de l'eau">
+      <option name="closed" value="true" />
+      <created>1767274928741</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1767274928741</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -262,7 +268,8 @@
     <MESSAGE value="version 1.2.0" />
     <MESSAGE value="version 1.3.0&#10;Ajout Sensor PM/BM" />
     <MESSAGE value="version 1.3.1&#10;Ajout coeff dans nouveau sensor" />
-    <option name="LAST_COMMIT_MESSAGE" value="version 1.3.1&#10;Ajout coeff dans nouveau sensor" />
+    <MESSAGE value="version 1.4.0&#10;Ajout temperature de l'eau" />
+    <option name="LAST_COMMIT_MESSAGE" value="version 1.4.0&#10;Ajout temperature de l'eau" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
