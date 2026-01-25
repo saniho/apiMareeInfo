@@ -5,7 +5,6 @@ from typing import Any, Dict
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import (
-    CONF_CODE,
     CONF_LATITUDE,
     CONF_LONGITUDE,
     CONF_NAME,
@@ -20,7 +19,6 @@ from .const import (
     PROVIDERS,
     PROVIDER_STORMGLASS,
 )
-from . import apiMareeInfo
 
 _LOGGER = logging.getLogger(__name__)
 

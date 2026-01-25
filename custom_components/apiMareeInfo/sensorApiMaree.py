@@ -2,7 +2,6 @@ import datetime
 import logging
 from collections import defaultdict
 
-from .const import __VERSION__
 
 class manageSensorState:
     def __init__(self):

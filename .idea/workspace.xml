@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="version 1.4.0&#10;Ajout temperature de l'eau">
+      <change afterPath="$PROJECT_DIR$/.github/workflows/ruff.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/config_flow.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ruff.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -13,10 +21,15 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Projets/apiMareeInfo" value="2K9QVL8AHyZUmV12BsDedoVHEVf" />
+    </persistenceIdMap>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="addSensorMareeHauteBasse" />
+        <entry key="$PROJECT_DIR$" value="addTemperatureEau" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -57,7 +70,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "addTemperatureEau",
+    "git-widget-placeholder": "Refacto",
     "last_opened_file_path": "C:/Projets/apiMareeInfo",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
@@ -77,6 +90,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testMareeInfo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -96,6 +110,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
@@ -113,6 +128,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
@@ -130,7 +146,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-07523f343e4f-968fe969f28a-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.28539.27" />
+        <option value="bundled-python-sdk-ca5e2b39c7df-6e1f45a539f7-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.29346.308" />
       </set>
     </attachedChunks>
   </component>
@@ -247,7 +263,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767274928741</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="version 1.4.0&#10;Ajout temperature de l'eau">
+      <option name="closed" value="true" />
+      <created>1769115397490</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1769115397490</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -276,7 +300,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py</url>
-          <line>49</line>
+          <line>34</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

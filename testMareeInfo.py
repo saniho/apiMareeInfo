@@ -42,7 +42,7 @@ def testPortStormGlass():
 
     mon_conteneur = configparser.ConfigParser()
     mon_conteneur.read("../myCredential/maree.txt")
-    thekey = token = mon_conteneur["MAREE"]["KEY"]
+    mon_conteneur["MAREE"]["KEY"]
     import json
 
     with open('./tests/json/stormGlass.io/SJM_20221214.json', 'r') as f:
