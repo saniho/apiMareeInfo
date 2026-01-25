@@ -129,7 +129,7 @@ class infoMareeSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"myPort.{self._id_port}.MareeDuJour"
+        return f"Maree {self.coordinator.data.getnomduport()}"
 
     @property
     def state(self):
@@ -160,7 +160,7 @@ class infoMareeHauteSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"myPort.{self._id_port}.MareeProchaine.Haute"
+        return f"Maree {self.coordinator.data.getnomduport()} Prochaine Haute"
 
     @property
     def state(self):
@@ -191,7 +191,7 @@ class infoMareeBasseSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"myPort.{self._id_port}.MareeProchaine.Basse"
+        return f"Maree {self.coordinator.data.getnomduport()} Prochaine Basse"
 
     @property
     def state(self):
@@ -222,7 +222,7 @@ class infoMareeTEauSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"myPort.{self._id_port}.TEau"
+        return f"Maree {self.coordinator.data.getnomduport()} Temperature Eau"
 
     @property
     def state(self):
