@@ -1,4 +1,5 @@
 """Config flow for apiMareeInfo."""
+
 import logging
 from typing import Any, Dict
 
@@ -40,9 +41,11 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 lat = user_input[CONF_LATITUDE]
                 lon = user_input[CONF_LONGITUDE]
                 provider = user_input[CONF_PROVIDER]
-                
+
                 # A simple check for valid coordinates
-                if user_input[CONF_PROVIDER] == PROVIDER_STORMGLASS and not user_input.get(CONF_STORM_KEY):
+                if user_input[
+                    CONF_PROVIDER
+                ] == PROVIDER_STORMGLASS and not user_input.get(CONF_STORM_KEY):
                     errors["base"] = "storm_key_required"
                 elif not (-90 <= lat <= 90 and -180 <= lon <= 180):
                     errors["base"] = "invalid_coords"

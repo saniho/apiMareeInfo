@@ -1,4 +1,5 @@
-""" Constants """
+"""Constants"""
+
 import datetime
 
 ISSUE_URL = "https://github.com/saniho/apiMareeInfo/issues"

@@ -1,4 +1,5 @@
 """Sensor for apiMareeInfo."""
+
 import logging
 from datetime import timedelta
 import async_timeout
@@ -45,7 +46,7 @@ async def async_setup_entry(
     lng = config[CONF_LONGITUDE]
     stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
     maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, 6))
-    
+
     idDuPort = entry.unique_id or f"{lat}-{lng}"
 
     session = async_get_clientsession(hass)
