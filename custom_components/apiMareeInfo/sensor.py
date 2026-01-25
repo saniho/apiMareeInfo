@@ -99,6 +99,8 @@ async def async_setup_entry(
 class BaseMareeSensor(CoordinatorEntity):
     """Base class for maree sensors."""
 
+    _attr_has_entity_name = True
+
     def __init__(self, coordinator: DataUpdateCoordinator, id_port: str):
         """Initialize the sensor."""
         super().__init__(coordinator)
@@ -129,7 +131,7 @@ class infoMareeSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"Maree {self.coordinator.data.getnomduport()}"
+        return None
 
     @property
     def state(self):
@@ -160,7 +162,7 @@ class infoMareeHauteSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"Maree {self.coordinator.data.getnomduport()} Prochaine Haute"
+        return "Prochaine Haute"
 
     @property
     def state(self):
@@ -191,7 +193,7 @@ class infoMareeBasseSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"Maree {self.coordinator.data.getnomduport()} Prochaine Basse"
+        return "Prochaine Basse"
 
     @property
     def state(self):
@@ -222,7 +224,7 @@ class infoMareeTEauSensor(BaseMareeSensor):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return f"Maree {self.coordinator.data.getnomduport()} Temperature Eau"
+        return "Temperature Eau"
 
     @property
     def state(self):
