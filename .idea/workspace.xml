@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="version 1.4.0&#10;Ajout temperature de l'eau">
-      <change afterPath="$PROJECT_DIR$/.github/workflows/ruff.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/config_flow.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ruff.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/sensorApiMaree.py" afterDir="false" />
-    </list>
+    <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="version 1.4.0&#10;Ajout temperature de l'eau" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -271,7 +260,23 @@
       <option name="project" value="LOCAL" />
       <updated>1769115397490</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="version 1.4.0&#10;Ajout temperature de l'eau">
+      <option name="closed" value="true" />
+      <created>1769372657748</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1769372657748</updated>
+    </task>
+    <task id="LOCAL-00016" summary="version 1.4.0&#10;Ajout temperature de l'eau">
+      <option name="closed" value="true" />
+      <created>1769372888119</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1769372888119</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
