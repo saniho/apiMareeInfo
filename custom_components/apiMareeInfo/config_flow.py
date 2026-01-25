@@ -32,6 +32,10 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
+    def __init__(self):
+        """Initialize."""
+        self.config_data = {}
+
     async def async_step_user(self, user_input: Dict[str, Any] = None):
         """Handle the initial step."""
         errors = {}
@@ -43,27 +47,23 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 provider = user_input[CONF_PROVIDER]
 
                 # A simple check for valid coordinates
-                if user_input[
-                    CONF_PROVIDER
-                ] == PROVIDER_STORMGLASS and not user_input.get(CONF_STORM_KEY):
-                    errors["base"] = "storm_key_required"
-                elif not (-90 <= lat <= 90 and -180 <= lon <= 180):
+                if not (-90 <= lat <= 90 and -180 <= lon <= 180):
                     errors["base"] = "invalid_coords"
                 else:
                     # Unique ID based on coordinates to prevent duplicate entries
                     await self.async_set_unique_id(f"{provider}-{lat}-{lon}")
                     self._abort_if_unique_id_configured()
 
-                    # Clean up data: remove storm key if not stormglass provider
-                    data = user_input.copy()
-                    if data[CONF_PROVIDER] != PROVIDER_STORMGLASS:
-                        data.pop(CONF_STORM_KEY, None)
+                    self.config_data = user_input
+
+                    if provider == PROVIDER_STORMGLASS:
+                        return await self.async_step_stormglass()
 
                     return self.async_create_entry(
                         title=user_input.get(
                             CONF_NAME, f"Maree {provider} {lat}, {lon}"
                         ),
-                        data=data,
+                        data=user_input,
                     )
 
             except Exception:  # pylint: disable=broad-except
@@ -86,10 +86,33 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_LONGITUDE): vol.All(
                         vol.Coerce(float), vol.Range(min=-180, max=180)
                     ),
-                    vol.Optional(CONF_STORM_KEY, default=""): str,
                     vol.Optional(CONF_MAXHOURS, default=6): int,
                 }
             ),
+            errors=errors,
+        )
+
+    async def async_step_stormglass(self, user_input: Dict[str, Any] = None):
+        """Handle the stormglass step."""
+        errors = {}
+        if user_input is not None:
+            if not user_input.get(CONF_STORM_KEY):
+                errors["base"] = "storm_key_required"
+            else:
+                self.config_data[CONF_STORM_KEY] = user_input[CONF_STORM_KEY]
+                provider = self.config_data[CONF_PROVIDER]
+                lat = self.config_data[CONF_LATITUDE]
+                lon = self.config_data[CONF_LONGITUDE]
+                return self.async_create_entry(
+                    title=self.config_data.get(
+                        CONF_NAME, f"Maree {provider} {lat}, {lon}"
+                    ),
+                    data=self.config_data,
+                )
+
+        return self.async_show_form(
+            step_id="stormglass",
+            data_schema=vol.Schema({vol.Required(CONF_STORM_KEY): str}),
             errors=errors,
         )
 
