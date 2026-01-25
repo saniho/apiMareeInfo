@@ -1,10 +1,7 @@
 import logging
 import datetime
 import json
-try:
-    import requests
-except:
-    pass
+import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -14,35 +11,23 @@ class ListePorts:
         # fonction init aucune action à réaliser
         pass
 
-    def getjson(self, url):
+    async def getjson(self, url):
         response = None
         try:
-            import json
-            session = requests.Session()
-            response = session.get(url, timeout=30)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.Timeout as error:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=30) as response:
+                    response.raise_for_status()
+                    return await response.json()
+        except aiohttp.ClientError as error:
+            _LOGGER.error("Error getting json: %s", error)
             response = {"error": "UNKERROR_001"}
             return response
-        except requests.exceptions.HTTPError as error:
-            return response.json()
-        pass
 
-    def getlisteport(self, nomport):
-        url = "https://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/recherche.php?rech=%s&type=48" % (
-            nomport)
+    async def getlisteport(self, nomport):
         url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
             nomport)
-        _url = \
-            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48" % (
-                nomport)
 
-        print(url)
-        retour = self.getjson(url)
-        print(retour)
-        for x in retour["contenu"]:
-            print(x["id"], x["nom"], x["lat"], x["lon"])
+        retour = await self.getjson(url)
         return retour
 
 
@@ -50,66 +35,51 @@ class MeteoMarine:
     def __init__(self, lat, lng):
 
         self._url = \
-            "https://webservices.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
-                lat, lng)
-        self._url = \
             "https://ws.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v30/previsionsSpot.php?lat=%s&lon=%s" % (
                 lat, lng)
-        """ autre url possible
-        self._url = \
-        #    "https://webservices.meteoconsult.fr/meteoconsultmarine/android/100/fr/v20/previsionsSpot.php?lat=%s&lon=%s" % (
-        #    lat, lng)
-        #print(self._url)
-        """
         pass
 
-    def getdata(self):
-        response = None
+    async def getdata(self, session: aiohttp.ClientSession):
+        headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'}
         try:
-            import json
-            session = requests.Session()
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'}
-            response = session.get(self._url, headers=headers, timeout=30)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.Timeout as error:
-            response = {"error": "UNKERROR_001"}
-            return response
-        except requests.exceptions.HTTPError as error:
-            return response.json()
-        pass
+            async with session.get(self._url, headers=headers, timeout=30) as response:
+                response.raise_for_status()
+                return await response.json()
+        except aiohttp.ClientError as error:
+            _LOGGER.error("Error getting data from MeteoMarine: %s", error)
+            return {"error": "UNKERROR_001"}
 
 
 class stormIO:
     def __init__(self, lat, lng, storm_key):
-        import requests
         self._lat = lat
         self._lng = lng
         self._storm_key = storm_key
 
-    def getdata(self):
+    async def getdata(self, session: aiohttp.ClientSession):
         import datetime
         now = datetime.datetime.now()
         nowJ2 = now + datetime.timedelta(days=2)
         self._deb = now.strftime("%Y-%m-%d %H:%M:%S+00:00")
         self._fin = nowJ2.strftime("%Y-%m-%d %H:%M:%S+00:00")
-        # self._deb = "2022-12-14 03:40:44+00:00"
-        # self._fin = "2022-12-20 16:40:44+00:00"
-        response = requests.get(
-            'https://api.stormglass.io/v2/tide/extremes/point',
-            params={
+        
+        params={
                 'lat': self._lat,
                 'lng': self._lng,
-                'start': self._deb, 'end': self._fin,  # Convert to UTC timestam
-            },
-            headers={
+                'start': self._deb, 'end': self._fin,
+            }
+        headers={
                 'Authorization': self._storm_key
-            },
-            timeout=600
-        )
-        # Do something with response data.
-        json_data = response.json()
-        return json_data
+            }
+        url = 'https://api.stormglass.io/v2/tide/extremes/point'
+
+        try:
+            async with session.get(url, params=params, headers=headers, timeout=600) as response:
+                response.raise_for_status()
+                return await response.json()
+        except aiohttp.ClientError as error:
+            _LOGGER.error("Error getting data from StormIO: %s", error)
+            return {"errors": {"key": f"Communication error: {error}"}}
 
 
 class ApiMareeInfo:
@@ -125,13 +95,13 @@ class ApiMareeInfo:
         self._errorMessage = ""
         pass
 
-    def getjson(self, origine, info=None):
+    async def getjson(self, origine, info=None, session=None):
         if origine == "MeteoMarine":
             mm = MeteoMarine(self._lat, self._lng)
-            return mm.getdata()
+            return await mm.getdata(session)
         elif origine == "stormio":
             mm = stormIO(self._lat, self._lng, info["stormkey"])
-            return mm.getdata()
+            return await mm.getdata(session)
 
     def setport(self, lat, lng):
         self._lat = lat
@@ -140,39 +110,37 @@ class ApiMareeInfo:
     def setmaxhours(self, maxhours):
         self._maxhours = maxhours
 
-    def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine", info=None):
+    async def getinformationport(self, jsondata=None, outfile=None, origine="MeteoMarine", info=None, session=None):
         if (jsondata is None):
-            jsondata = self.getjson(origine, info)
+            jsondata = await self.getjson(origine, info, session)
 
         if outfile is not None:
             with open(outfile, 'w') as outfilev:
                 json.dump(jsondata, outfilev)
         if origine == "MeteoMarine":
-            # _LOGGER.error( jsondata )
-            if len(jsondata["contenu"]["marees"]) == 0:
+            if not jsondata or "contenu" not in jsondata or len(jsondata["contenu"]["marees"]) == 0:
                 self._error = True
+                self._errorMessage = "No tide data available from MeteoMarine"
             else:
                 self._nomDuPort = jsondata["contenu"]["marees"][0]['lieu']
                 self._dateCourante = jsondata["contenu"]["marees"][0]['datetime']
                 self._error = False
         elif origine == "stormio":
-            if "station" in jsondata["meta"]:
+            if not jsondata or "errors" in jsondata:
+                self._nomDuPort = ""
+                self._errorMessage = jsondata.get("errors", {}).get("key", "Unknown error from StormIO")
+                self._error = True
+            elif "station" in jsondata.get("meta", {}):
                 self._nomDuPort = jsondata["meta"]["station"]['name']
                 self._errorMessage = ""
                 self._error = False
-            else:
-                self._nomDuPort = ""
-                self._errorMessage = jsondata["errors"]["key"]
-                self._error = True
             self._dateCourante = datetime.datetime.now()
         else:
-            raise RuntimeError("Data Origin unknow")
+            raise RuntimeError("Data Origin unknown")
         self._httptimerequest = datetime.datetime.now()
 
-        a = {}
         myMarees = {}
         dicoPrevis = {}
-        # _LOGGER.error( "origine : %s / error : %s"%(origine, self._error))
         if (origine == "MeteoMarine") and (not self._error):
             j = 0
             for maree in jsondata["contenu"]["marees"][:6]:
@@ -185,7 +153,6 @@ class ApiMareeInfo:
                                    "dateComplete": dateComplete.replace(tzinfo=None)}
                     clef = "horaire_%s_%s" % (j, i)
                     myMarees[clef] = detailMaree
-                    # print(clef, detailMaree)
                     i += 1
                 j += 1
             self._donnees = myMarees
@@ -222,33 +189,12 @@ class ApiMareeInfo:
                                "dateComplete": dateComplete.replace(tzinfo=None)}
                 clef = "horaire_%s_%s" % (j, i)
                 myMarees[clef] = detailMaree
-                # print(clef, detailMaree)
                 i += 1
-                if (dateComplete != dateCompletePrevious):
+                if (dateComplete.date() != dateCompletePrevious.date()):
                     j += 1
                 dateCompletePrevious = dateComplete
             self._donnees = myMarees
 
-            # for ele in jsondata["contenu"]["previs"]["detail"]:
-            #     dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
-            #     detailPrevis = {"forcevnds": ele.get("forcevnds", ""), "rafvnds": ele.get("rafvnds", ""),
-            #                     "dirvdegres": ele.get("dirvdegres", ""),
-            #                     "dateComplete": dateComplete.replace(tzinfo=None),
-            #                     "nuagecouverture": ele.get("nuagecouverture", ""),
-            #                     "precipitation": ele.get("precipitation", ""),
-            #                     "teau": ele.get("teau", ""),
-            #                     "t": ele.get("t", ""),
-            #                     "risqueorage": ele.get("risqueorage", ""),
-            #                     "dirhouledegres": ele.get("dirhouledegres", ""),
-            #                     "hauteurhoule": ele.get("hauteurhoule", ""),
-            #                     "periodehoule": ele.get("periodehoule", ""),
-            #                     "hauteurmerv": ele.get("hauteurmerv", ""),
-            #                     "periodemerv": ele.get("periodemerv", ""),
-            #                     "hauteurvague": ele.get("hauteurvague", "")
-            #
-            #                     }
-            #     clef = dateComplete
-            #     dicoPrevis[clef] = detailPrevis
         self._donneesPrevis = dicoPrevis
 
     def getnomduport(self):

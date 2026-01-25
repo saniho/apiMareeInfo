@@ -1,406 +1,246 @@
-"""Sensor for my first"""
+"""Sensor for apiMareeInfo."""
 import logging
 from datetime import timedelta
+import async_timeout
 
-import voluptuous as vol
-
-import homeassistant.helpers.config_validation as cv
-from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import (  # isort:skip
-    CONF_CODE,
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.const import (
     CONF_LATITUDE,
     CONF_LONGITUDE,
-    CONF_NAME,
-    ATTR_ATTRIBUTION,
-    CONF_SCAN_INTERVAL,
 )
-CONF_STORM_KEY = "stormio_key"
-from homeassistant.helpers.entity import Entity
-from homeassistant.util import Throttle
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 
-from .const import (  # isort:skip
+from .const import (
     __name__,
-    # CONF_SCAN_INTERVAL_HTTP,
-    CONF_MAXHOURS
+    __VERSION__,
+    CONF_MAXHOURS,
+    DOMAIN,
 )
-
-_LOGGER = logging.getLogger(__name__)
-DOMAIN = "saniho"
-ICON = "mdi:package-variant-closed"
-SCAN_INTERVAL = timedelta(seconds=60 * 3)
-SCAN_INTERVAL_http = timedelta(seconds=60 * 60 * 3)
-CONF_SCAN_INTERVAL_HTTP = SCAN_INTERVAL_http
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_CODE): cv.string,
-        vol.Required(CONF_LATITUDE): cv.string,
-        vol.Required(CONF_LONGITUDE): cv.string,
-        vol.Optional(CONF_STORM_KEY): cv.string,
-        vol.Optional(CONF_MAXHOURS): cv.string,
-    }
-)
-
 from . import apiMareeInfo, sensorApiMaree
 
+_LOGGER = logging.getLogger(__name__)
+ICON = "mdi:waves"
+DEFAULT_SCAN_INTERVAL = timedelta(hours=3)
 
-class myMareeInfo:
-    def __init__(self, idDuPort, lat, lng, stormkey, maxhours, _update_interval):
-        self._lastSynchro = None
-        self._update_interval = _update_interval
-        self._idDuPort = idDuPort
-        self._lat = lat
-        self._lng = lng
-        self._origine = "MeteoMarine"
-        self._stormkey = stormkey
-        self._maxhours = maxhours
-        self._myMaree = apiMareeInfo.ApiMareeInfo()
-        pass
-
-    def update(self, ):
-        import datetime
-        courant = datetime.datetime.now()
-        if (self._lastSynchro is None) or \
-                ((self._lastSynchro + self._update_interval) < courant):
-            _LOGGER.warning("-update possible- on lance")
-            self._myMaree.setport(self._lat, self._lng)
-            if self._origine == "MeteoMarine":
-                self._myMaree.getinformationport(origine=self._origine)
-            else:
-                self._myMaree.getinformationport(origine="stormio", info={"stormkey": self._stormkey})
-            self._myMaree.setmaxhours(self._maxhours)
-            self._lastSynchro = datetime.datetime.now()
-
-    def getIdPort(self):
-        return self._idDuPort
-
-    def getmyMaree(self):
-        return self._myMaree
-
-    def getDateCourante(self):
-        return self._myMaree.getdatecourante()
+CONF_STORM_KEY = "stormio_key"
 
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the platform."""
-    name = config.get(CONF_NAME)
-    update_interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
-    update_interval_http = config.get(CONF_SCAN_INTERVAL_HTTP, SCAN_INTERVAL_http)
-    try:
-        idDuPort = config.get(CONF_CODE)
-        lat = config.get(CONF_LATITUDE)
-        lng = config.get(CONF_LONGITUDE)
-        stormkey = config.get(CONF_STORM_KEY)
-        maxhours = config.get(CONF_MAXHOURS)
-        session = []
-    except:
-        _LOGGER.exception("Could not run my apiMaree Extension miss argument ?")
-        return False
-    if maxhours is None:
-        maxhours = 6
-    else:
-        maxhours = int(maxhours)
-    myPort = myMareeInfo(idDuPort, lat, lng, stormkey, maxhours, update_interval_http)
-    myPort.update()
-    add_entities([infoMareeSensor(session, name, update_interval, myPort)], True)
-    add_entities([infoMareeHauteSensor(session, name, update_interval, myPort)], True)
-    add_entities([infoMareeBasseSensor(session, name, update_interval, myPort)], True)
-    add_entities([infoMareeTEauSensor(session, name, update_interval, myPort)], True)
-    # add_entities([infoMareePluieSensor(session, name, update_interval, myPort)], True)
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+):
+    """Set up the sensor platform."""
+    config = entry.data
+    options = entry.options
+
+    lat = config[CONF_LATITUDE]
+    lng = config[CONF_LONGITUDE]
+    stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
+    maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, 6))
+    
+    idDuPort = entry.unique_id or f"{lat}-{lng}"
+
+    session = async_get_clientsession(hass)
+
+    maree_api = apiMareeInfo.ApiMareeInfo()
+    maree_api.setport(lat, lng)
+    maree_api.setmaxhours(maxhours)
+
+    origine = "stormio" if stormkey else "MeteoMarine"
+    info = {"stormkey": stormkey} if stormkey else None
+
+    async def async_update_data():
+        """Fetch data from API endpoint."""
+        try:
+            async with async_timeout.timeout(30):
+                await maree_api.getinformationport(
+                    origine=origine, info=info, session=session
+                )
+                return maree_api
+        except Exception as err:
+            raise UpdateFailed(f"Error communicating with API: {err}")
+
+    coordinator = DataUpdateCoordinator(
+        hass,
+        _LOGGER,
+        name=f"{DOMAIN}-{idDuPort}",
+        update_method=async_update_data,
+        update_interval=DEFAULT_SCAN_INTERVAL,
+    )
+
+    await coordinator.async_refresh()
+
+    if coordinator.data.getError():
+        _LOGGER.error(
+            "Could not fetch initial data for %s: %s",
+            idDuPort,
+            coordinator.data.getErrorMessage(),
+        )
+        return
+
+    entities = [
+        infoMareeSensor(coordinator, idDuPort),
+        infoMareeHauteSensor(coordinator, idDuPort),
+        infoMareeBasseSensor(coordinator, idDuPort),
+        infoMareeTEauSensor(coordinator, idDuPort),
+    ]
+    async_add_entities(entities, True)
 
 
-class infoMareeSensor(Entity):
-    """."""
+class BaseMareeSensor(CoordinatorEntity):
+    """Base class for maree sensors."""
 
-    def __init__(self, session, name, interval, myPort):
+    def __init__(self, coordinator: DataUpdateCoordinator, id_port: str):
         """Initialize the sensor."""
-        self._session = session
-        self._name = name
-        self._myPort = myPort
-        self._attributes = None
-        self._state = None
-        self.update = Throttle(interval)(self._update)
+        super().__init__(coordinator)
+        self._id_port = id_port
         self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init(self._myPort.getmyMaree())
+        self._sAM.init(self.coordinator.data, _LOGGER, __VERSION__)
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {(DOMAIN, self._id_port)},
+            "name": f"Maree {self.coordinator.data.getnomduport()}",
+            "manufacturer": "apiMareeInfo",
+            "model": self.coordinator.data.getcopyright(),
+            "sw_version": __VERSION__,
+            "entry_type": "service",
+        }
+
+
+class infoMareeSensor(BaseMareeSensor):
+    """Representation of the main tide sensor."""
 
     @property
     def unique_id(self):
-        "Return a unique_id for this entity."
-        return "myPort.%s.MareeDuJour" % self._myPort.getIdPort()
+        """Return a unique_id for this entity."""
+        return f"myPort.{self._id_port}.MareeDuJour"
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.MareeDuJour" % self._myPort.getIdPort()
+        return f"myPort.{self._id_port}.MareeDuJour"
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return ""
-
-    def _update(self):
-        """Update device state."""
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._state = "unavailable"
-        self._myPort.update()
-        try:
-            state, status_counts = self._sAM.getstatus()
-        except:
-            _LOGGER.error("erreur dans getStatus()")
-            return
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._attributes.update(status_counts)
-        self._state = state
+        state, _ = self._sAM.getstatus()
+        return state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return self._attributes
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        return self._attributes
+        _, attributes = self._sAM.getstatus()
+        return attributes
 
     @property
     def icon(self):
         """Icon to use in the frontend."""
-class infoMareeHauteSensor(Entity):
-    """."""
+        return ICON
 
-    def __init__(self, session, name, interval, myPort):
-        """Initialize the sensor."""
-        self._session = session
-        self._name = name
-        self._myPort = myPort
-        self._attributes = None
-        self._state = None
-        self.update = Throttle(interval)(self._update)
-        self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init(self._myPort.getmyMaree())
+
+class infoMareeHauteSensor(BaseMareeSensor):
+    """Representation of the next high tide sensor."""
 
     @property
     def unique_id(self):
-        "Return a unique_id for this entity."
-        return "myPort.%s.MareeProchaine.Haute" % self._myPort.getIdPort()
+        """Return a unique_id for this entity."""
+        return f"myPort.{self._id_port}.MareeProchaine.Haute"
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.MareeProchaine.Haute" % self._myPort.getIdPort()
+        return f"myPort.{self._id_port}.MareeProchaine.Haute"
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return ""
-
-    def _update(self):
-        """Update device state."""
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._state = "unavailable"
-        self._myPort.update()
-        try:
-            state, status_counts = self._sAM.getStateNextMaree("PM")
-        except:
-            _LOGGER.error("erreur dans getStatus()")
-            return
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._attributes.update(status_counts)
-        self._state = state
+        state, _ = self._sAM.getStateNextMaree("PM")
+        return state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return self._attributes
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        return self._attributes
+        _, attributes = self._sAM.getStateNextMaree("PM")
+        return attributes
 
     @property
     def icon(self):
         """Icon to use in the frontend."""
+        return "mdi:waves-arrow-up"
 
-class infoMareeBasseSensor(Entity):
-    """."""
 
-    def __init__(self, session, name, interval, myPort):
-        """Initialize the sensor."""
-        self._session = session
-        self._name = name
-        self._myPort = myPort
-        self._attributes = None
-        self._state = None
-        self.update = Throttle(interval)(self._update)
-        self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init(self._myPort.getmyMaree())
+class infoMareeBasseSensor(BaseMareeSensor):
+    """Representation of the next low tide sensor."""
 
     @property
     def unique_id(self):
-        "Return a unique_id for this entity."
-        return "myPort.%s.MareeProchaine.Basse" % self._myPort.getIdPort()
+        """Return a unique_id for this entity."""
+        return f"myPort.{self._id_port}.MareeProchaine.Basse"
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.MareeProchaine.Basse" % self._myPort.getIdPort()
+        return f"myPort.{self._id_port}.MareeProchaine.Basse"
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return ""
-
-    def _update(self):
-        """Update device state."""
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._state = "unavailable"
-        self._myPort.update()
-        try:
-            state, status_counts = self._sAM.getStateNextMaree("BM")
-        except:
-            _LOGGER.error("erreur dans getStatus()")
-            return
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._attributes.update(status_counts)
-        self._state = state
+        state, _ = self._sAM.getStateNextMaree("BM")
+        return state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return self._attributes
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        return self._attributes
+        _, attributes = self._sAM.getStateNextMaree("BM")
+        return attributes
 
     @property
     def icon(self):
         """Icon to use in the frontend."""
+        return "mdi:waves-arrow-down"
 
-class infoMareePluieSensor(Entity):
-    """."""
 
-    def __init__(self, session, name, interval, myPort):
-        """Initialize the sensor."""
-        self._session = session
-        self._name = name
-        self._myPort = myPort
-        self._attributes = None
-        self._state = None
-        self.update = Throttle(interval)(self._update)
-        self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init(self._myPort.getmyMaree())
+class infoMareeTEauSensor(BaseMareeSensor):
+    """Representation of the water temperature sensor."""
 
     @property
     def unique_id(self):
-        "Return a unique_id for this entity."
-        return "myPort.%s.ProchainePluie" % self._myPort.getIdPort()
+        """Return a unique_id for this entity."""
+        return f"myPort.{self._id_port}.TEau"
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "myPort.%s.ProchainePluie" % self._myPort.getIdPort()
+        return f"myPort.{self._id_port}.TEau"
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
+        state, _ = self._sAM.getstatusTemperatureEau()
+        return state
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
-        return ""
-
-    def _update(self):
-        """Update device state."""
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._state = "unavailable"
-        self._myPort.update()
-        try:
-            state, status_counts = self._sAM.getstatusProchainePluie()
-        except:
-            return
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._attributes.update(status_counts)
-        self._state = state
+        return "°C"
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return self._attributes
+        _, attributes = self._sAM.getstatusTemperatureEau()
+        return attributes
 
     @property
     def icon(self):
         """Icon to use in the frontend."""
-
-class infoMareeTEauSensor(Entity):
-    """."""
-
-    def __init__(self, session, name, interval, myPort):
-        """Initialize the sensor."""
-        self._session = session
-        self._name = name
-        self._myPort = myPort
-        self._attributes = None
-        self._state = None
-        self.update = Throttle(interval)(self._update)
-        self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init(self._myPort.getmyMaree())
-
-    @property
-    def unique_id(self):
-        "Return a unique_id for this entity."
-        return "myPort.%s.TEau" % self._myPort.getIdPort()
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "myPort.%s.TEau" % self._myPort.getIdPort()
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return ""
-
-    def _update(self):
-        """Update device state."""
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._state = "unavailable"
-        self._myPort.update()
-        try:
-            state, status_counts = self._sAM.getstatusTemperatureEau()
-        except:
-            return
-        self._attributes = {ATTR_ATTRIBUTION: ""}
-        self._attributes.update(status_counts)
-        self._state = state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        return self._attributes
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
+        return "mdi:thermometer-water"

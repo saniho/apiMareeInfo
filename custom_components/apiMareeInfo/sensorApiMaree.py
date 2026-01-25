@@ -2,25 +2,13 @@ import datetime
 import logging
 from collections import defaultdict
 
-try:
-    from .const import (
-        __VERSION__,
-        __name__,
-    )
-
-except ImportError:
-    from const import (
-        __VERSION__,
-        __name__,
-    )
-
+from .const import __VERSION__
 
 class manageSensorState:
     def __init__(self):
         self._myPort = None
         self._LOGGER = None
         self.version = None
-        pass
 
     def init(self, _myPort, _LOGGER=None, version=None):
         self._myPort = _myPort
@@ -33,156 +21,118 @@ class manageSensorState:
         i = 1
         if maintenant is None:
             maintenant = datetime.datetime.now()
-        prochainemaree = None
-        for x in self._myPort.getinfo().keys():
-            if (prochainemaree is None) and (maintenant < self._myPort.getinfo()[x]["dateComplete"]):
+        
+        sorted_marees = sorted(self._myPort.getinfo().values(), key=lambda x: x['dateComplete'])
+
+        for maree in sorted_marees:
+            if maintenant < maree["dateComplete"]:
                 if indice == i:
-                    prochainemaree = self._myPort.getinfo()[x]
-                else:
-                    i += 1
-        return prochainemaree
+                    return maree
+                i += 1
+        return None
 
     def getstatus(self):
-        state = "unavailable"
-        status_counts = defaultdict(int)
+        status_counts = defaultdict(str)
         status_counts["version"] = self.version
 
-        self._LOGGER.info("tente un update  infoPort? ... %s" % self._myPort)
-        status_counts["version"] = __VERSION__
         if self._myPort.getError():
-            status_counts["message"] = "%s" % self._myPort.getErrorMessage()
-            stat = ""
-            pass
+            status_counts["message"] = self._myPort.getErrorMessage()
+            return "unavailable", status_counts
+
+        status_counts["nomPort"] = self._myPort.getnomduport()
+        status_counts["Copyright"] = self._myPort.getcopyright()
+        status_counts["dateCourante"] = self._myPort.getdatecourante()
+
+        for info in self._myPort.getinfo().values():
+            jour = info["jour"]
+            nieme = info["nieme"]
+            status_counts[f"horaire_{jour}_{nieme}"] = info['horaire']
+            status_counts[f"coeff_{jour}_{nieme}"] = info.get('coeff', "")
+            status_counts[f"etat_{jour}_{nieme}"] = info['etat']
+            status_counts[f"hauteur_{jour}_{nieme}"] = info['hauteur']
+            status_counts[f"nb_maree_{jour}"] = status_counts.get(f"nb_maree_{jour}", 0) + 1
+
+        for i in range(1, 3):
+            pMaree = self.getnextmaree(i)
+            if pMaree:
+                status_counts[f"next_maree_{i}"] = pMaree["horaire"]
+                status_counts[f"next_coeff_{i}"] = pMaree.get("coeff", "")
+                status_counts[f"next_etat_{i}"] = pMaree["etat"]
+
+        status_counts["timeLastCall"] = datetime.datetime.now()
+
+        maxTime = datetime.datetime.now() + datetime.timedelta(hours=self._myPort.getmaxhours())
+        dicoPrevis = [
+            previs for maDate, previs in self._myPort.getprevis().items()
+            if datetime.datetime.now() <= maDate.replace(tzinfo=None) <= maxTime
+        ]
+        status_counts["prevision"] = dicoPrevis
+        
+        next_maree = self.getnextmaree(1)
+        if next_maree:
+            status_counts["message"] = f"{next_maree['horaire']} ({next_maree['etat']}/{next_maree.get('coeff', '')})"
+            state = next_maree["horaire"]
         else:
-            for n in range(2):
-                status_counts["horaire_%s_3" % n] = ""
-                status_counts["coeff_%s_3" % n] = ""
-                status_counts["etat_%s_3" % n] = ""
-                status_counts["hauteur_%s_3" % n] = ""
-
-            # probleme mauvaise variable
-            status_counts["nomPort"] = self._myPort.getnomduport()
-            status_counts["Copyright"] = self._myPort.getcopyright()
-            status_counts["dateCourante"] = self._myPort.getdatecourante()
-            nieme_horaire = 0
-            for horaireMaree in self._myPort.getinfo().keys():
-                nieme_horaire += 1
-                info = self._myPort.getinfo()[horaireMaree]
-                nieme = info["nieme"]
-                jour = info["jour"]
-                status_counts["horaire_%s_%s" % (jour, nieme)] = "%s" % (info['horaire'])
-                if info['coeff'] is None:
-                    info['coeff'] = ""
-                status_counts["coeff_%s_%s" % (jour, nieme)] = "%s" % (info['coeff'])
-                status_counts["etat_%s_%s" % (jour, nieme)] = "%s" % (info['etat'])
-                status_counts["hauteur_%s_%s" % (jour, nieme)] = "%s" % (info['hauteur'])
-                if "nb_maree_%s" % jour not in status_counts:
-                    status_counts["nb_maree_%s" % jour] = 1
-                else:
-                    status_counts["nb_maree_%s" % jour] += 1
-            # pour avoir les 2 prochaines marées
-            for x in range(2):
-                i = x + 1
-                pMaree = self.getnextmaree(i)
-                if pMaree['coeff'] is None:
-                    pMaree['coeff'] = ""
-                status_counts["next_maree_%s" % i] = "%s" % pMaree["horaire"]
-                status_counts["next_coeff_%s" % i] = "%s" % pMaree["coeff"]
-                status_counts["next_etat_%s" % i] = "%s" % pMaree["etat"]
-                if status_counts["next_coeff_%s" % i] == "":
-                    pMaree = self.getnextmaree(i + 1)
-                    status_counts["next_coeff_%s" % i] = "%s" % pMaree["coeff"]
-            status_counts["timeLastCall"] = datetime.datetime.now()
-
-            maxTime = datetime.datetime.now() + datetime.timedelta(hours=self._myPort.getmaxhours())
-            dicoPrevis = []
-            for maDate in self._myPort.getprevis().keys():
-                if (maDate.replace(tzinfo=None) >= datetime.datetime.now() and maDate.replace(tzinfo=None) <= maxTime):
-                    dico = {}
-                    dico["datetime"] = maDate
-                    for clefPrevis in self._myPort.getprevis()[maDate].keys():
-                        dico[clefPrevis] = self._myPort.getprevis()[maDate][clefPrevis]
-                    dicoPrevis.append(dico)
-            status_counts["prevision"] = dicoPrevis
-            status_counts["message"] = "%s (%s/%s)" % (
-                status_counts["next_maree_1"], status_counts["next_etat_1"], status_counts["next_coeff_1"])
-            stat = self.getnextmaree()["horaire"]
+            state = "unavailable"
 
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
-        self._attributes = status_counts
-        self._state = stat
-        return self._state, self._attributes
+        
+        return state, status_counts
 
-    def getStateNextMaree(self, PMBM=""):
-        status_counts = defaultdict(int)
+    def getStateNextMaree(self, pmbm=""):
+        status_counts = defaultdict(str)
         status_counts["version"] = self.version
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
-        nextPlusUn = self.getnextmaree(1)
-        nextPlusDeux = self.getnextmaree(2)
-        if ( PMBM == "PM"):
-            if( nextPlusUn["etat"] == "PM"):
-                stat = nextPlusUn["horaire"]
-                coeff = nextPlusUn["coeff"]
-            else:
-                stat = nextPlusDeux["horaire"]
-                coeff = nextPlusDeux["coeff"]
+
+        next_maree = self.getnextmaree(1)
+        if next_maree and next_maree["etat"] == pmbm:
+            maree = next_maree
         else:
-            if( nextPlusUn["etat"] == "BM"):
-                stat = nextPlusUn["horaire"]
-                coeff = nextPlusUn["coeff"]
-            else:
-                stat = nextPlusDeux["horaire"]
-                coeff = nextPlusDeux["coeff"]
-        status_counts["coeff"] = coeff
-        self._attributes = status_counts
-        self._state = stat
-        return self._state, self._attributes
+            maree = self.getnextmaree(2)
+
+        if maree and maree["etat"] == pmbm:
+            state = maree["horaire"]
+            status_counts["coeff"] = maree.get("coeff", "")
+        else:
+            state = "unavailable"
+
+        return state, status_counts
 
     def getstatusProchainePluie(self):
-        state = "unavailable"
-        status_counts = defaultdict(int)
+        status_counts = defaultdict(str)
         status_counts["version"] = self.version
 
-        self._LOGGER.info("tente un update  infoPort? ... %s" % self._myPort)
-        status_counts["version"] = __VERSION__
         dateNextPluie, precipitation = self._myPort.getNextPluie()
-        if dateNextPluie is not None:
+        if dateNextPluie:
             dateNextPluieCh = dateNextPluie.strftime("%d/%m %H:%M")
+            state = dateNextPluie
         else:
             dateNextPluieCh = ""
+            state = "unavailable"
+            
         status_counts["prochainePluie"] = dateNextPluieCh
         status_counts["precipitation"] = precipitation
-        status_counts["message"] = "%s - %s m.m" % (status_counts["prochainePluie"], status_counts["precipitation"])
+        status_counts["message"] = f"{dateNextPluieCh} - {precipitation} mm"
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
-        self._attributes = status_counts
-        self._state = dateNextPluie
-        return self._state, self._attributes
+        
+        return state, status_counts
 
     def getstatusTemperatureEau(self):
-        state = "unavailable"
-        status_counts = defaultdict(int)
+        status_counts = defaultdict(str)
         status_counts["version"] = self.version
 
-        self._LOGGER.info("tente un update  infoPort? ... %s" % self._myPort)
-        status_counts["version"] = __VERSION__
         dateTemperatureEau, teau = self._myPort.getTemperatureEau()
-        if dateTemperatureEau is not None:
-            dateTemperatureEauCh = dateTemperatureEau.strftime("%d/%m %H:%M")
+        if dateTemperatureEau:
+            state = teau
         else:
-            dateTemperatureEauCh = ""
-        status_counts["dateTemperatureEau"] = dateTemperatureEauCh
+            state = "unavailable"
+
+        status_counts["dateTemperatureEau"] = dateTemperatureEau.strftime("%d/%m %H:%M") if dateTemperatureEau else ""
         status_counts["teau"] = teau
-        status_counts["message"] = "%s - %s m.m" % (status_counts["prochainePluie"], status_counts["precipitation"])
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
-        self._attributes = status_counts
-        self._state = teau
-        return self._state, self._attributes
-
-
-def logSensorState(status_counts):
-    for x in status_counts.keys():
-        print(" %s : %s" % (x, status_counts[x]))
+        
+        return state, status_counts

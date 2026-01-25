@@ -1,0 +1,9 @@
+# Set a line-length of 88, same as Black.
+line-length = 88
+
+[lint]
+# Enable Pyflakes (F) and pycodestyle (E) rules.
+select = ["E", "F"]
+# Ignore E501 (line too long) as the formatter handles it.
+[lint.per-file-ignores]
+"**/*.py" = ["E501"]
