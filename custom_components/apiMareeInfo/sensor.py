@@ -6,6 +6,7 @@ import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.const import (
     CONF_LATITUDE,
@@ -96,7 +97,7 @@ async def async_setup_entry(
     async_add_entities(entities, True)
 
 
-class BaseMareeSensor(CoordinatorEntity):
+class BaseMareeSensor(CoordinatorEntity, SensorEntity):
     """Base class for maree sensors."""
 
     _attr_has_entity_name = True
@@ -123,15 +124,11 @@ class BaseMareeSensor(CoordinatorEntity):
 class infoMareeSensor(BaseMareeSensor):
     """Representation of the main tide sensor."""
 
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"myPort.{self._id_port}.MareeDuJour"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return None
+    def __init__(self, coordinator, id_port):
+        super().__init__(coordinator, id_port)
+        self._attr_unique_id = f"myPort.{self._id_port}.MareeDuJour"
+        self._attr_name = None  # Le capteur principal porte le nom de l'appareil
+        self._attr_icon = ICON
 
     @property
     def state(self):
@@ -145,24 +142,15 @@ class infoMareeSensor(BaseMareeSensor):
         _, attributes = self._sAM.getstatus()
         return attributes
 
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return ICON
-
 
 class infoMareeHauteSensor(BaseMareeSensor):
     """Representation of the next high tide sensor."""
 
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"myPort.{self._id_port}.MareeProchaine.Haute"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Prochaine Haute"
+    def __init__(self, coordinator, id_port):
+        super().__init__(coordinator, id_port)
+        self._attr_unique_id = f"myPort.{self._id_port}.MareeProchaine.Haute"
+        self._attr_name = "Prochaine Haute"
+        self._attr_icon = "mdi:waves-arrow-up"
 
     @property
     def state(self):
@@ -176,24 +164,15 @@ class infoMareeHauteSensor(BaseMareeSensor):
         _, attributes = self._sAM.getStateNextMaree("PM")
         return attributes
 
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:waves-arrow-up"
-
 
 class infoMareeBasseSensor(BaseMareeSensor):
     """Representation of the next low tide sensor."""
 
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"myPort.{self._id_port}.MareeProchaine.Basse"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Prochaine Basse"
+    def __init__(self, coordinator, id_port):
+        super().__init__(coordinator, id_port)
+        self._attr_unique_id = f"myPort.{self._id_port}.MareeProchaine.Basse"
+        self._attr_name = "Prochaine Basse"
+        self._attr_icon = "mdi:waves-arrow-down"
 
     @property
     def state(self):
@@ -207,24 +186,16 @@ class infoMareeBasseSensor(BaseMareeSensor):
         _, attributes = self._sAM.getStateNextMaree("BM")
         return attributes
 
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:waves-arrow-down"
-
 
 class infoMareeTEauSensor(BaseMareeSensor):
     """Representation of the water temperature sensor."""
 
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"myPort.{self._id_port}.TEau"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Temperature Eau"
+    def __init__(self, coordinator, id_port):
+        super().__init__(coordinator, id_port)
+        self._attr_unique_id = f"myPort.{self._id_port}.TEau"
+        self._attr_name = "Temperature Eau"
+        self._attr_native_unit_of_measurement = "°C"
+        self._attr_icon = "mdi:thermometer-water"
 
     @property
     def state(self):
@@ -233,17 +204,7 @@ class infoMareeTEauSensor(BaseMareeSensor):
         return state
 
     @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return "°C"
-
-    @property
     def extra_state_attributes(self):
         """Return the state attributes."""
         _, attributes = self._sAM.getstatusTemperatureEau()
         return attributes
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:thermometer-water"

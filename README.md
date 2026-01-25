@@ -1,99 +1,53 @@
-# apimareeInfo
+# apiMareeInfo
 
-Objectif, recuperer le contenu les informations de marée, exemple ici le port de SGXV( Saint Gilles Croix de Vie ).
+Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
-pour declarer le sensor dans HA : 
-un code pour le port, et ces coordonnées GPS
+## Installation
 
-```yaml
-- platform: apiMareeInfo
-  code: 124
-  latitude: 46.7711
-  longitude: -2.05306
-  scan_interval: 120
-  stormio_key: kdjsqhdksqhjk
-```
-Pour information, ce sensor est compatible avec la card
+1. Copiez le dossier `custom_components/apiMareeInfo` dans votre dossier `config/custom_components/`.
+2. Redémarrez Home Assistant.
 
-vous permetant d'obtenir ainsi ce genre de résultat :
+## Configuration
 
-<img src="https://github.com/saniho/apiMareeInfo/raw/master/img/imgCard.png" height="300"/>
+⚠️ **La configuration via le fichier `configuration.yaml` n'est plus supportée.** Tout se fait désormais via l'interface utilisateur.
 
-Comment trouver les coordonnées GPS de votre point de marée
+1. Allez dans **Paramètres** -> **Appareils et services**.
+2. Cliquez sur le bouton **Ajouter une intégration** en bas à droite.
+3. Recherchez **apiMareeInfo**.
+4. Remplissez le formulaire :
+   - **Provider** : Choisissez votre source de données.
+     - *Maree Info* : Utilise les données de Météo Consult (recommandé pour la France).
+     - *Stormglass.io* : Couverture mondiale (nécessite une clé API).
+   - **Latitude / Longitude** : Les coordonnées géographiques du port souhaité.
+   - **Nom (Optionnel)** : Un nom personnalisé pour l'intégration.
 
-  1/ ouvrir google maps
-  
-  2/ positionner vitre carte sur le bon endroit
-  
-  3/ faire un clic droit sur ce point et vous verez les coordonnées à utiliser..
-  
-  ![image](https://user-images.githubusercontent.com/52693545/208317316-d0cacfe9-4b6c-4105-9e02-1971147e812d.png)
+Si vous choisissez **Stormglass.io**, une seconde étape vous demandera votre clé API.
 
-  
+## Capteurs (Sensors)
 
-Releases Notes :
+Cette intégration utilise les standards de nommage récents de Home Assistant. Un appareil (Device) est créé pour chaque port configuré (ex: `Maree Saint-Malo`), et les capteurs sont associés à cet appareil.
 
-v 1.1.2
-retour des fonctionnalités historique ;)
+Voici les entités disponibles (exemple pour le port de Saint-Malo) :
 
-v 1.1.0
+| Entité | ID (exemple) | Description |
+| :--- | :--- | :--- |
+| **Marée** | `sensor.maree_saint_malo` | Capteur principal. L'état indique le statut actuel. Contient tous les détails en attributs. |
+| **Prochaine Haute** | `sensor.maree_saint_malo_prochaine_haute` | Heure et hauteur de la prochaine marée haute. |
+| **Prochaine Basse** | `sensor.maree_saint_malo_prochaine_basse` | Heure et hauteur de la prochaine marée basse. |
+| **Température Eau** | `sensor.maree_saint_malo_temperature_eau` | Température de l'eau (si disponible). |
 
-< depreciated >
-cette nouvelle car necessite de s'inscrire sur le site de stormio( inscription gratuite )
+### Migration depuis une ancienne version
 
-https://stormglass.io/
+Si vous utilisiez une version précédente configurée en YAML :
+1. Supprimez les lignes correspondantes dans votre `configuration.yaml`.
+2. Redémarrez Home Assistant.
+3. Ajoutez l'intégration via l'interface comme décrit ci-dessus.
+4. Pensez à mettre à jour vos cartes Lovelace avec les nouveaux noms d'entités (les anciens noms du type `sensor.myport_...` ne sont plus utilisés par défaut).
 
-v 1.0.1.1
+## Crédits
 
-ajout de nouvelles informations, vitesse du vent, temperature de l'eau, de l'air
+Données fournies par Météo Consult ou Stormglass.io selon la configuration.
 
-v 1.0.1.0
+## Avertissement
 
-Warning : changement service, dans le sensor il faut ajouter maintenant les coordonnées GPS du port
-
-
-
-Detail des attributs 
-
-
-```
-Attributs
-Version 1.1.1 ==> version de l'applciation
-Horaire 0 3 ==> horaire de la 3ème marée du jour courant
-Coeff 0 3 => coéfficient de la 3ème marée du jour courant
-Etat 0 3 ==> BM/PM de la 3ème marée du jour courant
-Hauteur 0 3 ==> Hauteur de la 3ème marée du jour courant
-Horaire 1 3 ==> horaire de la 3ème marée du jour suivant
-Nb maree 3 ==> nombre de marée du jour J + 4
-etc...
-```
-```
-NomPort ==> nom du port utilisé
-Copyright ==> données fournies par SHOM
-DateCourante ==> date courante zéro
-TimeLastCall ==> dernier mis à jour
-Prevision
-- datetime: '2022-12-17T22:00:00+01:00' ==> prevision à 22 le 17/12
-forcevnds: 8 ==> force du vent en noeuds
-rafvnds: 12 ==> rafale de vent
-dirvdegres: 105 ==> direction du vents
-dateComplete: '2022-12-17T22:00:00'
-nuagecouverture: 5 ==> couverture nuageuses 
-precipitation: 0 ==> precipitation prévue en mm
-teau: 9 ==> températeur de l'eau
-t: -3 ==> température de l'air
-risqueorage: 0 ==> risque d'orage
-dirhouledegres: 195 ==> direction de la houle
-hauteurhoule: 0.4 ==> hauteur de la houle
-periodehoule: 9 ==> frequence de la houle 
-hauteurmerv: 0.1 ==> hauteur de la merc
-periodemerv: 1 ==> periode
-hauteurvague: 0.5 ==> hauteur max de la vague
-etc ...
-```
-
-```
-Message ==> message résumé de la prochaine marée
-Last update ==> derniere mise à jour
-Last http update ==> derniere mise à jour de données fournies par le provider
-```
+Cette intégration est développée de manière indépendante et n'est affiliée ni à Météo Consult, ni à Stormglass.io.
