@@ -75,7 +75,7 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Optional(
-                        CONF_NAME, default=self.hass.config.get(CONF_NAME, "")
+                        CONF_NAME, default=""
                     ): str,
                     vol.Required(CONF_PROVIDER, default=DEFAULT_PROVIDER): vol.In(
                         PROVIDERS
