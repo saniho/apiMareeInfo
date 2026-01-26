@@ -7,6 +7,7 @@ import async_timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.const import (
     CONF_LATITUDE,
@@ -110,15 +111,15 @@ class BaseMareeSensor(CoordinatorEntity, SensorEntity):
         self._sAM.init(self.coordinator.data, _LOGGER, __VERSION__)
 
     @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self._id_port)},
-            "name": f"Maree {self.coordinator.data.getnomduport()}",
-            "manufacturer": "apiMareeInfo",
-            "model": self.coordinator.data.getcopyright(),
-            "sw_version": __VERSION__,
-            "entry_type": "service",
-        }
+    def device_info(self) -> DeviceInfo:
+        """Return the device info."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._id_port)},
+            name=f"Maree {self.coordinator.data.getnomduport()}",
+            manufacturer="apiMareeInfo",
+            model=self.coordinator.data.getcopyright(),
+            sw_version=__VERSION__,
+        )
 
 
 class infoMareeSensor(BaseMareeSensor):
