@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Rechercher un port",
+        "data": {
+          "port_search": "Nom de la ville ou du port"
+        }
+      },
+      "select_port": {
+        "title": "Sélectionner le port",
+        "data": {
+          "port_select": "Port",
+          "name": "Nom de l'équipement",
+          "MAX_HOURS": "Heures de prévisions"
+        }
+      }
+    },
+    "error": {
+      "no_ports_found": "Aucun port trouvé pour ce terme de recherche.",
+      "cannot_connect": "Impossible de contacter l'API de recherche."
+    },
+    "abort": {
+      "already_configured": "Ce port est déjà configuré."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_high_tide": {
+        "name": "Prochaine marée haute"
+      },
+      "next_low_tide": {
+        "name": "Prochaine marée basse"
+      },
+      "water_temp": {
+        "name": "Température de l'eau"
+      }
+    }
+  }
+}

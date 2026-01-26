@@ -11,25 +11,24 @@ class ListePorts:
         # fonction init aucune action à réaliser
         pass
 
-    async def getjson(self, url):
+    async def getjson(self, url, session: aiohttp.ClientSession):
         response = None
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=30) as response:
-                    response.raise_for_status()
-                    return await response.json()
+            async with session.get(url, timeout=30) as response:
+                response.raise_for_status()
+                return await response.json()
         except aiohttp.ClientError as error:
             _LOGGER.error("Error getting json: %s", error)
             response = {"error": "UNKERROR_001"}
             return response
 
-    async def getlisteport(self, nomport):
+    async def getlisteport(self, nomport, session: aiohttp.ClientSession):
         url = (
             "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48"
             % (nomport)
         )
 
-        retour = await self.getjson(url)
+        retour = await self.getjson(url, session)
         return retour
 
 
@@ -54,40 +53,6 @@ class MeteoMarine:
             return {"error": "UNKERROR_001"}
 
 
-class stormIO:
-    def __init__(self, lat, lng, storm_key):
-        self._lat = lat
-        self._lng = lng
-        self._storm_key = storm_key
-
-    async def getdata(self, session: aiohttp.ClientSession):
-        import datetime
-
-        now = datetime.datetime.now()
-        nowJ2 = now + datetime.timedelta(days=2)
-        self._deb = now.strftime("%Y-%m-%d %H:%M:%S+00:00")
-        self._fin = nowJ2.strftime("%Y-%m-%d %H:%M:%S+00:00")
-
-        params = {
-            "lat": self._lat,
-            "lng": self._lng,
-            "start": self._deb,
-            "end": self._fin,
-        }
-        headers = {"Authorization": self._storm_key}
-        url = "https://api.stormglass.io/v2/tide/extremes/point"
-
-        try:
-            async with session.get(
-                url, params=params, headers=headers, timeout=600
-            ) as response:
-                response.raise_for_status()
-                return await response.json()
-        except aiohttp.ClientError as error:
-            _LOGGER.error("Error getting data from StormIO: %s", error)
-            return {"errors": {"key": f"Communication error: {error}"}}
-
-
 class ApiMareeInfo:
     def __init__(self):
         self._donnees = {}
@@ -105,9 +70,6 @@ class ApiMareeInfo:
         if origine == "MeteoMarine":
             mm = MeteoMarine(self._lat, self._lng)
             return await mm.getdata(session)
-        elif origine == "stormio":
-            mm = stormIO(self._lat, self._lng, info["stormkey"])
-            return await mm.getdata(session)
 
     def setport(self, lat, lng):
         self._lat = lat
@@ -119,7 +81,6 @@ class ApiMareeInfo:
     async def getinformationport(
         self,
         jsondata=None,
-        outfile=None,
         origine="MeteoMarine",
         info=None,
         session=None,
@@ -127,9 +88,6 @@ class ApiMareeInfo:
         if jsondata is None:
             jsondata = await self.getjson(origine, info, session)
 
-        if outfile is not None:
-            with open(outfile, "w") as outfilev:
-                json.dump(jsondata, outfilev)
         if origine == "MeteoMarine":
             if (
                 not jsondata
@@ -142,18 +100,6 @@ class ApiMareeInfo:
                 self._nomDuPort = jsondata["contenu"]["marees"][0]["lieu"]
                 self._dateCourante = jsondata["contenu"]["marees"][0]["datetime"]
                 self._error = False
-        elif origine == "stormio":
-            if not jsondata or "errors" in jsondata:
-                self._nomDuPort = ""
-                self._errorMessage = jsondata.get("errors", {}).get(
-                    "key", "Unknown error from StormIO"
-                )
-                self._error = True
-            elif "station" in jsondata.get("meta", {}):
-                self._nomDuPort = jsondata["meta"]["station"]["name"]
-                self._errorMessage = ""
-                self._error = False
-            self._dateCourante = datetime.datetime.now()
         else:
             raise RuntimeError("Data Origin unknown")
         self._httptimerequest = datetime.datetime.now()
@@ -203,29 +149,6 @@ class ApiMareeInfo:
                 }
                 clef = dateComplete
                 dicoPrevis[clef] = detailPrevis
-        elif (origine == "stormio") and (not self._error):
-            j = 0
-            dateCompletePrevious = self._dateCourante
-            for maree in jsondata["data"][:6]:
-                i = 0
-                dateComplete = datetime.datetime.fromisoformat(maree["time"])
-                detailMaree = {
-                    "coeff": maree.get("coef", ""),
-                    "hauteur": maree.get("height", ""),
-                    "horaire": dateComplete.strftime("%H:%M"),
-                    "etat": maree["type"],
-                    "nieme": i,
-                    "jour": j,
-                    "date": maree["time"],
-                    "dateComplete": dateComplete.replace(tzinfo=None),
-                }
-                clef = "horaire_%s_%s" % (j, i)
-                myMarees[clef] = detailMaree
-                i += 1
-                if dateComplete.date() != dateCompletePrevious.date():
-                    j += 1
-                dateCompletePrevious = dateComplete
-            self._donnees = myMarees
 
         self._donneesPrevis = dicoPrevis
 
@@ -243,6 +166,12 @@ class ApiMareeInfo:
 
     def getmaxhours(self):
         return self._maxhours
+
+    def getlat(self):
+        return self._lat
+
+    def getlng(self):
+        return self._lng
 
     def gethttptimerequest(self):
         return self._httptimerequest

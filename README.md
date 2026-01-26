@@ -13,15 +13,9 @@ Intégration Home Assistant pour récupérer les informations de marée et de m�
 
 1. Allez dans **Paramètres** -> **Appareils et services**.
 2. Cliquez sur le bouton **Ajouter une intégration** en bas à droite.
-3. Recherchez **apiMareeInfo**.
-4. Remplissez le formulaire :
-   - **Provider** : Choisissez votre source de données.
-     - *Maree Info* : Utilise les données de Météo Consult (recommandé pour la France).
-     - *Stormglass.io* : Couverture mondiale (nécessite une clé API).
-   - **Latitude / Longitude** : Les coordonnées géographiques du port souhaité.
-   - **Nom (Optionnel)** : Un nom personnalisé pour l'intégration.
-
-Si vous choisissez **Stormglass.io**, une seconde étape vous demandera votre clé API.
+3. Recherchez et sélectionnez **apiMareeInfo**.
+4. **Étape 1 : Recherche** - Entrez le nom de la ville ou du port que vous souhaitez suivre (ex: "Saint-Malo").
+5. **Étape 2 : Sélection** - Choisissez le port exact dans la liste déroulante qui s'affiche, puis validez.
 
 ## Capteurs (Sensors)
 
@@ -46,8 +40,8 @@ Si vous utilisiez une version précédente configurée en YAML :
 
 ## Crédits
 
-Données fournies par Météo Consult ou Stormglass.io selon la configuration.
+Données fournies par Météo Consult.
 
 ## Avertissement
 
-Cette intégration est développée de manière indépendante et n'est affiliée ni à Météo Consult, ni à Stormglass.io.
+Cette intégration est développée de manière indépendante et n'est affiliée ni à Météo Consult.
