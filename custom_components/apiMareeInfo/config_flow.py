@@ -56,9 +56,9 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "no_ports_found"
                 else:
                     self.ports = {
-                        f"{port['ville']} ({port['departement']})": {
-                            "lat": port["latitude"],
-                            "lon": port["longitude"],
+                        f"{port['nom']} ({port.get('pays', port.get('departement', 'Inconnu'))})": {
+                            "lat": port["lat"],
+                            "lon": port["lon"],
                         }
                         for port in found_ports["contenu"]
                     }
