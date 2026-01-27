@@ -83,4 +83,6 @@ def testListePorts():
 
 testPortMeteoMarine()
 # testPortStormGlass()
+#testListePortstestPortMeteoMarine()
+# testPortStormGlass()
 #testListePorts()
