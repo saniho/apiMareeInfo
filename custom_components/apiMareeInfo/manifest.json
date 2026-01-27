@@ -1,10 +1,11 @@
 {
     "domain": "apiMareeInfo",
     "name": "apiMareeInfo sensor",
-    "documentation": "",
-    "version": "1.0.2.3",
-    "requirements": [
-    ],
+    "documentation": "https://github.com/saniho/apiMareeInfo#readme",
+    "issue_tracker": "https://github.com/saniho/apiMareeInfo/issues",
+    "version": "1.5.0",
+    "config_flow": true,
+    "requirements": [],
     "dependencies": [],
-    "codeowners": []
+    "codeowners": ["@saniho"]
 }

@@ -1,4 +1,6 @@
 {
-  "name": "apiMareeInfo sensor",
-  "render_readme": true
+  "name": "apiMareeInfo",
+    "content_in_root": false,
+    "domains": ["sensor"],
+    "country": "FR"
 }

@@ -1,29 +1,47 @@
-# apimareeInfo
+# apiMareeInfo
 
-Objectif, recuperer le contenu les informations de marée, exemple ici le port de SGXV( Saint Gilles Croix de Vie ).
+Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
-pour declarer le sensor dans HA : 
-un code pour le port, et ces coordonnées GPS
+## Installation
 
-```yaml
-- platform: apiMareeInfo
-  code: 124
-  latitude: 46.7711
-  longitude: -2.05306
-  scan_interval: 120
-```
-Pour information, ce sensor est compatible avec la card
+1. Copiez le dossier `custom_components/apiMareeInfo` dans votre dossier `config/custom_components/`.
+2. Redémarrez Home Assistant.
 
-vous permetant d'obtenir ainsi ce genre de résultat :
+## Configuration
 
-<img src="https://github.com/saniho/apiMareeInfo/raw/master/img/imgCard.png" height="300"/>
+⚠️ **La configuration via le fichier `configuration.yaml` n'est plus supportée.** Tout se fait désormais via l'interface utilisateur.
 
-Releases Notes :
+1. Allez dans **Paramètres** -> **Appareils et services**.
+2. Cliquez sur le bouton **Ajouter une intégration** en bas à droite.
+3. Recherchez et sélectionnez **apiMareeInfo**.
+4. **Étape 1 : Recherche** - Entrez le nom de la ville ou du port que vous souhaitez suivre (ex: "Saint-Malo").
+5. **Étape 2 : Sélection** - Choisissez le port exact dans la liste déroulante qui s'affiche, puis validez.
 
-v 1.0.1.1
+## Capteurs (Sensors)
 
-ajout de nouvelles informations, vitesse du vent, temperature de l'eau, de l'air
+Cette intégration utilise les standards de nommage récents de Home Assistant. Un appareil (Device) est créé pour chaque port configuré (ex: `Maree Saint-Malo`), et les capteurs sont associés à cet appareil.
 
-v 1.0.1.0
+Voici les entités disponibles (exemple pour le port de Saint-Malo) :
 
-Warning : changement service, dans le sensor il faut ajouter maintenant les coordonnées GPS du port
+| Entité | ID (exemple) | Description |
+| :--- | :--- | :--- |
+| **Marée** | `sensor.maree_saint_malo` | Capteur principal. L'état indique le statut actuel. Contient tous les détails en attributs. |
+| **Prochaine Haute** | `sensor.maree_saint_malo_prochaine_haute` | Heure et hauteur de la prochaine marée haute. |
+| **Prochaine Basse** | `sensor.maree_saint_malo_prochaine_basse` | Heure et hauteur de la prochaine marée basse. |
+| **Température Eau** | `sensor.maree_saint_malo_temperature_eau` | Température de l'eau (si disponible). |
+
+### Migration depuis une ancienne version
+
+Si vous utilisiez une version précédente configurée en YAML :
+1. Supprimez les lignes correspondantes dans votre `configuration.yaml`.
+2. Redémarrez Home Assistant.
+3. Ajoutez l'intégration via l'interface comme décrit ci-dessus.
+4. Pensez à mettre à jour vos cartes Lovelace avec les nouveaux noms d'entités (les anciens noms du type `sensor.myport_...` ne sont plus utilisés par défaut).
+
+## Crédits
+
+Données fournies par Météo Consult.
+
+## Avertissement
+
+Cette intégration est développée de manière indépendante et n'est affiliée ni à Météo Consult.
