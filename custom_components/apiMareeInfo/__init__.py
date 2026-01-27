@@ -15,7 +15,6 @@ from .const import (
     DOMAIN,
     PLATFORMS,
     CONF_MAXHOURS,
-    CONF_PROVIDER,
     CONF_SCAN_INTERVAL_HTTP,
 )
 from . import apiMareeInfo

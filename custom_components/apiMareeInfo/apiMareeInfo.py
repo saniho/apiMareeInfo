@@ -1,6 +1,5 @@
 import logging
 import datetime
-import json
 import aiohttp
 
 _LOGGER = logging.getLogger(__name__)

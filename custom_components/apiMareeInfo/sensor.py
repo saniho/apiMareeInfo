@@ -7,10 +7,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.const import (
-    CONF_LATITUDE, # Gardé si besoin pour debug, sinon peut être retiré
-    CONF_LONGITUDE,
-)
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
