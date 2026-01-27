@@ -11,24 +11,25 @@ class ListePorts:
         # fonction init aucune action à réaliser
         pass
 
-    async def getjson(self, url, session: aiohttp.ClientSession):
+    async def getjson(self, url, session: aiohttp.ClientSession, params=None):
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/html, */*"
+        }
         response = None
         try:
-            async with session.get(url, timeout=30) as response:
+            async with session.get(url, params=params, headers=headers, timeout=30) as response:
                 response.raise_for_status()
-                return await response.json()
+                return await response.json(content_type=None)
         except aiohttp.ClientError as error:
             _LOGGER.error("Error getting json: %s", error)
             response = {"error": "UNKERROR_001"}
             return response
 
     async def getlisteport(self, nomport, session: aiohttp.ClientSession):
-        url = (
-            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php?rech=%s&type=48"
-            % (nomport)
-        )
-
-        retour = await self.getjson(url, session)
+        url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php"
+        params = {"rech": nomport, "type": "48"}
+        retour = await self.getjson(url, session, params=params)
         return retour
 
 
@@ -42,12 +43,13 @@ class MeteoMarine:
 
     async def getdata(self, session: aiohttp.ClientSession):
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/html, */*"
         }
         try:
             async with session.get(self._url, headers=headers, timeout=30) as response:
                 response.raise_for_status()
-                return await response.json()
+                return await response.json(content_type=None)
         except aiohttp.ClientError as error:
             _LOGGER.error("Error getting data from MeteoMarine: %s", error)
             return {"error": "UNKERROR_001"}
