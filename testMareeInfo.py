@@ -1,4 +1,4 @@
-def testPortMeteoMarine():
+async def testPortMeteoMarine():
     import json
 
     with open('./file_20240314.json') as f:
@@ -13,12 +13,12 @@ def testPortMeteoMarine():
     # lat, lng = "45.0015181", "-1.1999562"
     lat, lng = "46.7711", "-2.05306"
     _myMaree.setport(lat, lng)
-    # _myMaree.getinformationport(jsondata =dataJson)
-    # _myMaree.getinformationport(outfile="file_20240314.json")
-    #_myMaree.getinformationport()
+    # await _myMaree.getinformationport(jsondata =dataJson)
+    # await _myMaree.getinformationport(outfile="file_20240314.json")
+    #await _myMaree.getinformationport()
     _myMaree.setmaxhours(6)
     # dataJson = None
-    _myMaree.getinformationport(dataJson)
+    await _myMaree.getinformationport(dataJson)
     # print(_myMaree.getinfo())
     # print(_myMaree.getnomduport())
     # print(_myMaree.getdatecourante())
@@ -29,14 +29,13 @@ def testPortMeteoMarine():
     state, attributes = _sAM.getStateNextMaree( "BM")
     print(state)
     print(attributes)
-    print(1/0)
     state, attributes = _sAM.getstatus()
-    sensorApiMaree.logSensorState(attributes)
+    # sensorApiMaree.logSensorState(attributes)
     state, attributes = _sAM.getstatusProchainePluie()
-    sensorApiMaree.logSensorState(attributes)
+    # sensorApiMaree.logSensorState(attributes)
 
 
-def testPortStormGlass():
+async def testPortStormGlass():
 
     import configparser
 
@@ -54,12 +53,12 @@ def testPortStormGlass():
     # lat, lng = "46.7711", "-2.05306"
     lat, lng = "46.4967", "-1.79667"
     _myMaree.setport(lat, lng)
-    # _myMaree.getinformationport( jsondata= dataJson, outfile = "file_20220726.json",
+    # await _myMaree.getinformationport( jsondata= dataJson, outfile = "file_20220726.json",
     #                             origine="stormio", info={'stormkey':thekey} )
-    _myMaree.getinformationport(jsondata=dataJson, outfile="file_20220726.json",
+    await _myMaree.getinformationport(jsondata=dataJson, outfile="file_20220726.json",
                                 origine="MeteoMarine")
 
-    # _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio", info={'stormkey':thekey} )
+    # await _myMaree.getinformationport( outfile = "file_20220726.json", origine="stormio", info={'stormkey':thekey} )
     # print(_myMaree.getinfo())
     # print(_myMaree.getnomduport())
     # print(_myMaree.getdatecourante())
@@ -67,9 +66,9 @@ def testPortStormGlass():
     _sAM = sensorApiMaree.manageSensorState()
     _sAM.init(_myMaree)
     state, attributes = _sAM.getstatus()
-    sensorApiMaree.logSensorState(attributes)
+    # sensorApiMaree.logSensorState(attributes)
     state, attributes = _sAM.getstatusProchainePluie()
-    sensorApiMaree.logSensorState(attributes)
+    # sensorApiMaree.logSensorState(attributes)
 
 
 def testListePorts():
@@ -81,8 +80,8 @@ def testListePorts():
     print(a)
 
 
-testPortMeteoMarine()
-# testPortStormGlass()
-#testListePortstestPortMeteoMarine()
-# testPortStormGlass()
-#testListePorts()
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(testPortMeteoMarine())
+    # asyncio.run(testPortStormGlass())
+    #asyncio.run(testListePorts())
