@@ -2,6 +2,20 @@
 
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
+## Version actuelle
+**v1.5.2** - Amélioration de la compatibilité avec l'API MeteoMarine
+
+## 📝 Changelog
+
+### v1.5.2
+- ✅ **Correction de l'erreur 403** : Résolution des problèmes de requête à l'API MeteoMarine
+- ✅ **Headers HTTP optimisés** : Ajout des headers de sécurité (sec-*) et User-Agent Chrome à jour
+- ✅ **Gestion SSL améliorée** : Support SSL désactivé pour plus de compatibilité
+- ✅ **Support async/await** : Gestion correcte des coroutines asyncio pour les tests
+
+### Versions antérieures
+Consultez l'historique git pour les détails des versions précédentes.
+
 ## Installation
 
 1. Copiez le dossier `custom_components/apiMareeInfo` dans votre dossier `config/custom_components/`.

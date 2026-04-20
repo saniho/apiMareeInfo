@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="version 1.4.0&#10;Ajout temperature de l'eau" />
+    <list default="true" id="daef663c-3da6-456b-a5ff-6d3817a4982d" name="Changes" comment="version 1.4.0&#10;Ajout temperature de l'eau">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/const.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/custom_components/apiMareeInfo/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testMareeInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/testMareeInfo.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,10 +23,16 @@
       <entry key="_C:/Projets/apiMareeInfo" value="2K9QVL8AHyZUmV12BsDedoVHEVf" />
     </persistenceIdMap>
   </component>
+  <component name="CopilotUserSelectedModel">
+    <selectedModels>
+      <entry key="agent-panel" value="Claude Haiku 4.5" />
+      <entry key="chat-panel" value="Claude Haiku 4.5" />
+    </selectedModels>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="addTemperatureEau" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -31,8 +45,18 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/saniho/apiMareeInfo&quot;,
+    &quot;url&quot;: &quot;https://github.com/saniho/apiMareeInfo/&quot;,
     &quot;accountId&quot;: &quot;fd31f906-5793-48ad-9b6e-2e86541c25d0&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;saniho&quot;,
+    &quot;repository&quot;: &quot;apiMareeInfo&quot;
   }
 }</component>
   <component name="MarkdownSettingsMigration">
@@ -52,19 +76,23 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Python tests.pytest for testMareeInfo.testPortMeteoMarine.executor": "Run",
     "Python tests.pytest in testMareeInfo.py.executor": "Debug",
-    "Python.apiMareeInfo.executor": "Debug",
+    "Python.__init__.executor": "Run",
+    "Python.apiMareeInfo.executor": "Run",
     "Python.sensorApiMaree.executor": "Run",
+    "Python.testMareeInfo.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "Refacto",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "defectGetData",
     "last_opened_file_path": "C:/Projets/apiMareeInfo",
+    "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.apiMareeInfo">
+  <component name="RunManager">
     <configuration name="apiMareeInfo" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="apiMareeInfo" />
       <option name="ENV_FILES" value="" />
@@ -79,6 +107,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="true" />
       <option name="RUN_TOOL" value="" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testMareeInfo.py" />
       <option name="PARAMETERS" value="" />
@@ -99,6 +128,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="true" />
       <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
@@ -117,6 +147,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="true" />
       <option name="RUN_TOOL" value="" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
@@ -127,15 +158,18 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.pytest in testMareeInfo.py" />
         <item itemvalue="Python tests.pytest for testMareeInfo.testPortMeteoMarine" />
         <item itemvalue="Python tests.pytest in testMareeInfo.py" />
+        <item itemvalue="Python tests.pytest for testMareeInfo.testPortMeteoMarine" />
+        <item itemvalue="Python tests.pytest for testMareeInfo.testPortMeteoMarine" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-ca5e2b39c7df-6e1f45a539f7-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.29346.308" />
+        <option value="bundled-python-sdk-b63d5a1f7c97-b61e75351b1f-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.22158.340" />
       </set>
     </attachedChunks>
   </component>
@@ -276,8 +310,27 @@
       <option name="project" value="LOCAL" />
       <updated>1769372888119</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="version 1.4.0&#10;Ajout temperature de l'eau">
+      <option name="closed" value="true" />
+      <created>1769548997142</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1769548997142</updated>
+    </task>
+    <task id="LOCAL-00018" summary="version 1.4.0&#10;Ajout temperature de l'eau">
+      <option name="closed" value="true" />
+      <created>1769549407550</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1769549407550</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -299,17 +352,6 @@
     <MESSAGE value="version 1.3.1&#10;Ajout coeff dans nouveau sensor" />
     <MESSAGE value="version 1.4.0&#10;Ajout temperature de l'eau" />
     <option name="LAST_COMMIT_MESSAGE" value="version 1.4.0&#10;Ajout temperature de l'eau" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/custom_components/apiMareeInfo/apiMareeInfo.py</url>
-          <line>34</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
