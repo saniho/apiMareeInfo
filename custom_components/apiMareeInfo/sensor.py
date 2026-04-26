@@ -22,6 +22,7 @@ from .const import (
     __VERSION__,
     CONF_MAXHOURS,
     DOMAIN,
+    CONF_METEOFRANCE_ENTITY_ID,
 )
 from . import apiMareeInfo, sensorApiMaree
 
@@ -45,6 +46,7 @@ async def async_setup_entry(
     lng = config[CONF_LONGITUDE]
     stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
     maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, 6))
+    meteofrance_entity_id = options.get(CONF_METEOFRANCE_ENTITY_ID, config.get(CONF_METEOFRANCE_ENTITY_ID))
     
     # Use entry_id as the base for unique IDs to ensure uniqueness per config entry
     idDuPort = entry.entry_id
@@ -65,6 +67,17 @@ async def async_setup_entry(
                 await maree_api.getinformationport(
                     origine=origine, info=info, session=session
                 )
+                
+                # Fetch Météo-France data if entity_id is provided
+                if meteofrance_entity_id:
+                    state = hass.states.get(meteofrance_entity_id)
+                    if state and state.state not in ["unknown", "unavailable"]:
+                        try:
+                            value = float(state.state)
+                            maree_api.set_meteofrance_precipitation(value)
+                        except (ValueError, TypeError):
+                            _LOGGER.warning("Could not parse Météo-France precipitation value: %s", state.state)
+                
                 return maree_api
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}")
@@ -94,6 +107,9 @@ async def async_setup_entry(
         infoMareeBasseSensor(coordinator, idDuPort),
         infoMareeTEauSensor(coordinator, idDuPort),
     ]
+    if meteofrance_entity_id:
+        entities.append(infoMareePluieMeteoFranceSensor(coordinator, idDuPort))
+        
     async_add_entities(entities, True)
 
 
@@ -248,3 +264,39 @@ class infoMareeTEauSensor(BaseMareeSensor):
     def icon(self):
         """Icon to use in the frontend."""
         return "mdi:thermometer-water"
+
+
+class infoMareePluieMeteoFranceSensor(BaseMareeSensor):
+    """Representation of the 1h precipitation sensor from Météo-France."""
+
+    @property
+    def unique_id(self):
+        """Return a unique_id for this entity."""
+        return f"{self._id_port}_precipitation_meteofrance"
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "Précipitations 1h (Météo-France)"
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        state, _ = self._sAM.getstatusMeteoFrance()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement of this entity, if any."""
+        return "mm"
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        _, attributes = self._sAM.getstatusMeteoFrance()
+        return attributes
+
+    @property
+    def icon(self):
+        """Icon to use in the frontend."""
+        return "mdi:weather-rainy"

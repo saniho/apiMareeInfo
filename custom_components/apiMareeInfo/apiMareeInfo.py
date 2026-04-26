@@ -142,6 +142,7 @@ class ApiMareeInfo:
         self._error = False
         self._errorMessage = ""
         self._httptimerequest = datetime.datetime.now()
+        self._meteofrance_precipitation = 0
         pass
 
     async def getjson(self, origine, info=None, session=None):
@@ -323,3 +324,9 @@ class ApiMareeInfo:
                     "teau"
                 ]
         return None, 0
+
+    def set_meteofrance_precipitation(self, precipitation):
+        self._meteofrance_precipitation = precipitation
+
+    def get_meteofrance_precipitation(self):
+        return self._meteofrance_precipitation

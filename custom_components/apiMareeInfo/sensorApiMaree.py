@@ -146,3 +146,16 @@ class manageSensorState:
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
 
         return state, status_counts
+
+    def getstatusMeteoFrance(self):
+        status_counts = defaultdict(str)
+        status_counts["version"] = self.version
+
+        precipitation = self._myPort.get_meteofrance_precipitation()
+        state = precipitation
+
+        status_counts["precipitation"] = precipitation
+        status_counts["last_update"] = datetime.datetime.now()
+        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+
+        return state, status_counts

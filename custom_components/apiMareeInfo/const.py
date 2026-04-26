@@ -11,6 +11,7 @@ PLATFORMS = ["sensor"]
 CONF_SCAN_INTERVAL_HTTP = datetime.timedelta(seconds=60 * 60 * 3)
 CONF_MAXHOURS = "MAX_HOURS"
 CONF_PROVIDER = "provider"
+CONF_METEOFRANCE_ENTITY_ID = "meteofrance_entity_id"
 
 PROVIDER_MAREEINFO = "Maree Info"
 PROVIDER_STORMGLASS = "Stormglass.io"
