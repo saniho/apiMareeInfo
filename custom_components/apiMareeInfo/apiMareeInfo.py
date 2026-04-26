@@ -325,8 +325,31 @@ class ApiMareeInfo:
                 ]
         return None, 0
 
-    def set_meteofrance_precipitation(self, precipitation):
-        self._meteofrance_precipitation = precipitation
+    def get_1h_forecast(self):
+        dateCourante = datetime.datetime.now()
+        forecast = {}
+        # On cherche la prévision pour l'heure en cours et la suivante
+        current_hour = dateCourante.replace(minute=0, second=0, microsecond=0)
+        next_hour = current_hour + datetime.timedelta(hours=1)
+        
+        precip_current = 0
+        precip_next = 0
+        
+        for dt, data in self._donneesPrevis.items():
+            if dt.replace(tzinfo=None) == current_hour:
+                precip_current = data.get("precipitation", 0)
+            elif dt.replace(tzinfo=None) == next_hour:
+                precip_next = data.get("precipitation", 0)
 
-    def get_meteofrance_precipitation(self):
-        return self._meteofrance_precipitation
+        def get_label(mm):
+            if mm == 0: return "Temps sec"
+            if mm <= 1: return "Pluie faible"
+            if mm <= 4: return "Pluie modérée"
+            return "Pluie forte"
+
+        # Interpolation simple : on utilise la valeur de l'heure entamée
+        # ou on pourrait faire une transition. Ici on va rester simple.
+        for i in range(0, 65, 5):
+            forecast[f"{i} min"] = get_label(precip_current if i + dateCourante.minute < 60 else precip_next)
+            
+        return current_hour, forecast

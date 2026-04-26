@@ -151,10 +151,13 @@ class manageSensorState:
         status_counts = defaultdict(str)
         status_counts["version"] = self.version
 
-        precipitation = self._myPort.get_meteofrance_precipitation()
-        state = precipitation
+        forecast_time_ref, forecast = self._myPort.get_1h_forecast()
+        
+        # L'état est la prévision immédiate (0 min)
+        state = forecast.get("0 min", "Temps sec")
 
-        status_counts["precipitation"] = precipitation
+        status_counts["forecast_time_ref"] = forecast_time_ref.isoformat()
+        status_counts["1_hour_forecast"] = forecast
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
 

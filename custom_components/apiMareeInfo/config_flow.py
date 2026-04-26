@@ -19,7 +19,6 @@ from .const import (
     CONF_MAXHOURS,
     CONF_PROVIDER,
     DEFAULT_PROVIDER,
-    CONF_METEOFRANCE_ENTITY_ID,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -130,16 +129,12 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         current_max_hours = self.config_entry.options.get(
             CONF_MAXHOURS, self.config_entry.data.get(CONF_MAXHOURS, 6)
         )
-        current_meteofrance_id = self.config_entry.options.get(
-            CONF_METEOFRANCE_ENTITY_ID, self.config_entry.data.get(CONF_METEOFRANCE_ENTITY_ID, "")
-        )
 
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Optional(CONF_MAXHOURS, default=current_max_hours): int,
-                    vol.Optional(CONF_METEOFRANCE_ENTITY_ID, default=current_meteofrance_id): str,
                 }
             ),
         )

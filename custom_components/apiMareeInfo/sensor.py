@@ -46,7 +46,6 @@ async def async_setup_entry(
     lng = config[CONF_LONGITUDE]
     stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
     maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, 6))
-    meteofrance_entity_id = options.get(CONF_METEOFRANCE_ENTITY_ID, config.get(CONF_METEOFRANCE_ENTITY_ID))
     
     # Use entry_id as the base for unique IDs to ensure uniqueness per config entry
     idDuPort = entry.entry_id
@@ -67,17 +66,6 @@ async def async_setup_entry(
                 await maree_api.getinformationport(
                     origine=origine, info=info, session=session
                 )
-                
-                # Fetch Météo-France data if entity_id is provided
-                if meteofrance_entity_id:
-                    state = hass.states.get(meteofrance_entity_id)
-                    if state and state.state not in ["unknown", "unavailable"]:
-                        try:
-                            value = float(state.state)
-                            maree_api.set_meteofrance_precipitation(value)
-                        except (ValueError, TypeError):
-                            _LOGGER.warning("Could not parse Météo-France precipitation value: %s", state.state)
-                
                 return maree_api
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}")
@@ -106,10 +94,8 @@ async def async_setup_entry(
         infoMareeHauteSensor(coordinator, idDuPort),
         infoMareeBasseSensor(coordinator, idDuPort),
         infoMareeTEauSensor(coordinator, idDuPort),
+        infoMareePluieMeteoFranceSensor(coordinator, idDuPort),
     ]
-    if meteofrance_entity_id:
-        entities.append(infoMareePluieMeteoFranceSensor(coordinator, idDuPort))
-        
     async_add_entities(entities, True)
 
 

@@ -12,8 +12,7 @@
         "data": {
           "port_select": "Port",
           "name": "Nom de l'équipement",
-          "MAX_HOURS": "Heures de prévisions",
-          "meteofrance_entity_id": "ID entité Météo-France (sensor.xxx_next_rain)"
+          "MAX_HOURS": "Heures de prévisions"
         }
       }
     },
@@ -29,8 +28,7 @@
     "step": {
       "init": {
         "data": {
-          "MAX_HOURS": "Heures de prévisions",
-          "meteofrance_entity_id": "ID entité Météo-France (sensor.xxx_next_rain)"
+          "MAX_HOURS": "Heures de prévisions"
         }
       }
     }
@@ -47,7 +45,7 @@
         "name": "Température de l'eau"
       },
       "precipitation_meteofrance": {
-        "name": "Précipitations 1h (Météo-France)"
+        "name": "Précipitations 1h (via MeteoMarine)"
       }
     }
   }
