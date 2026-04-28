@@ -71,17 +71,23 @@ async def testPortStormGlass():
     # sensorApiMaree.logSensorState(attributes)
 
 
-def testListePorts():
+async def testListePorts():
     from custom_components.apiMareeInfo import apiMareeInfo
 
     _myPort = apiMareeInfo.ListePorts()
-    # a = _myPort.getlisteport("olonne")
-    a = _myPort.getlisteport("Armel")
+    a = await _myPort.getlisteport("Saint Gilles Croix")
+    # a = await _myPort.getlisteport("Armel")
     print(a)
 
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(testPortMeteoMarine())
+    import sys
+
+    # Fix asyncio on Windows
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+    #asyncio.run(testPortMeteoMarine())
     # asyncio.run(testPortStormGlass())
-    #asyncio.run(testListePorts())
+    asyncio.run(testListePorts())

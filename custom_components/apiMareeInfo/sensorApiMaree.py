@@ -41,6 +41,7 @@ class manageSensorState:
             return "unavailable", status_counts
 
         status_counts["nomPort"] = self._myPort.getnomduport()
+        status_counts["idPort"] = self._myPort.getid()
         status_counts["Copyright"] = self._myPort.getcopyright()
         status_counts["dateCourante"] = self._myPort.getdatecourante()
 
@@ -151,13 +152,14 @@ class manageSensorState:
         status_counts = defaultdict(str)
         status_counts["version"] = self.version
 
-        forecast_time_ref, forecast = self._myPort.get_1h_forecast()
+        forecast_time_ref, forecast, source = self._myPort.get_1h_forecast()
         
         # L'état est la prévision immédiate (0 min)
         state = forecast.get("0 min", "Temps sec")
 
         status_counts["forecast_time_ref"] = forecast_time_ref.isoformat()
         status_counts["1_hour_forecast"] = forecast
+        status_counts["data_source"] = source
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
 

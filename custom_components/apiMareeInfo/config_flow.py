@@ -18,6 +18,7 @@ from .const import (
     DOMAIN,
     CONF_MAXHOURS,
     CONF_PROVIDER,
+    CONF_ID,
     DEFAULT_PROVIDER,
 )
 
@@ -59,6 +60,7 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         f"{port['nom']} ({port.get('pays', port.get('departement', 'Inconnu'))})": {
                             "lat": port["lat"],
                             "lon": port["lon"],
+                            "id": port.get("id"),
                         }
                         for port in found_ports["contenu"]
                     }
@@ -90,6 +92,7 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_PROVIDER: DEFAULT_PROVIDER,
                 CONF_LATITUDE: lat,
                 CONF_LONGITUDE: lon,
+                CONF_ID: port_details.get("id"),
                 CONF_NAME: user_input.get(CONF_NAME, selected_port_name),
                 CONF_MAXHOURS: user_input[CONF_MAXHOURS],
             }

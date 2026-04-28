@@ -91,6 +91,52 @@ class MeteoMarine:
                 return await _fetch(local_session)
 
 
+class MeteoMarineLive:
+    def __init__(self, id_port):
+        self._id_port = id_port
+
+    async def getdata(self, session=None):
+        import datetime
+
+        now = datetime.datetime.now()
+        day = now.strftime("%Y-%m-%d")
+        url = (
+            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/en/v40/forecasts/live?id=%s&day=%s&limit=1&type_string=beaches"
+            % (self._id_port, day)
+        )
+        headers = {
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-language": "fr,en-US;q=0.9,en;q=0.8",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "priority": "u=0, i",
+            "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "none",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        }
+
+        async def _fetch(s):
+            try:
+                async with s.get(
+                    url, headers=headers, timeout=30, ssl=False
+                ) as response:
+                    response.raise_for_status()
+                    return await response.json(content_type=None)
+            except aiohttp.ClientError as error:
+                _LOGGER.error(
+                    "Error getting data from MeteoMarineLive (%s): %s", url, error
+                )
+                return {"error": "UNKERROR_001"}
+
+        if session:
+            return await _fetch(session)
+        else:
+            async with aiohttp.ClientSession() as local_session:
+                return await _fetch(local_session)
+
+
 class stormIO:
     def __init__(self, lat, lng, storm_key):
         self._lat = lat
@@ -138,16 +184,22 @@ class ApiMareeInfo:
         self._maxhours = None
         self._lat = None
         self._lng = None
+        self._id = None
         self._message = ""
         self._error = False
         self._errorMessage = ""
         self._httptimerequest = datetime.datetime.now()
         self._meteofrance_precipitation = 0
+        self._donneesPrevis = {}
+        self._donneesPrevisLive = {}
         pass
 
     async def getjson(self, origine, info=None, session=None):
         if origine == "MeteoMarine":
             mm = MeteoMarine(self._lat, self._lng)
+            return await mm.getdata(session)
+        elif origine == "MeteoMarineLive":
+            mm = MeteoMarineLive(self._id)
             return await mm.getdata(session)
         elif origine == "stormio":
             mm = stormIO(self._lat, self._lng, info["stormkey"])
@@ -156,6 +208,9 @@ class ApiMareeInfo:
     def setport(self, lat, lng):
         self._lat = lat
         self._lng = lng
+
+    def setid(self, id):
+        self._id = id
 
     def setmaxhours(self, maxhours):
         self._maxhours = maxhours
@@ -183,6 +238,16 @@ class ApiMareeInfo:
                 self._nomDuPort = jsondata["contenu"]["marees"][0]["lieu"]
                 self._dateCourante = jsondata["contenu"]["marees"][0]["datetime"]
                 self._error = False
+            
+            # Fetch live data if id is available
+            if self._id:
+                live_jsondata = await self.getjson("MeteoMarineLive", session=session)
+                self._donneesPrevisLive = {}
+                if live_jsondata and "content" in live_jsondata and "forecasts" in live_jsondata["content"]:
+                    for f in live_jsondata["content"]["forecasts"]:
+                        dt = datetime.datetime.fromisoformat(f["datetime"])
+                        self._donneesPrevisLive[dt.replace(tzinfo=None)] = f.get("precip_risk", 0)
+
         elif origine == "stormio":
             if not jsondata or "errors" in jsondata:
                 self._nomDuPort = ""
@@ -291,6 +356,9 @@ class ApiMareeInfo:
     def getlng(self):
         return self._lng
 
+    def getid(self):
+        return self._id
+
     def gethttptimerequest(self):
         return self._httptimerequest
 
@@ -328,6 +396,28 @@ class ApiMareeInfo:
     def get_1h_forecast(self):
         dateCourante = datetime.datetime.now()
         forecast = {}
+        
+        if self._donneesPrevisLive:
+            def get_label_risk(risk):
+                if risk == 0: return "Temps sec"
+                if risk <= 20: return "Risque très faible"
+                if risk <= 50: return "Risque faible"
+                if risk <= 80: return "Risque modéré"
+                return "Risque élevé"
+
+            # Use live data (5-min steps)
+            # Find the starting point (closest 5-min before now)
+            start_time = dateCourante.replace(second=0, microsecond=0)
+            start_time -= datetime.timedelta(minutes=start_time.minute % 5)
+            
+            for i in range(0, 65, 5):
+                target_dt = start_time + datetime.timedelta(minutes=i)
+                risk = self._donneesPrevisLive.get(target_dt, 0)
+                forecast[f"{i} min"] = get_label_risk(risk)
+            
+            return start_time, forecast, "MeteoConsult Live"
+
+        # Fallback to hourly data if live data not available
         # On cherche la prévision pour l'heure en cours et la suivante
         current_hour = dateCourante.replace(minute=0, second=0, microsecond=0)
         next_hour = current_hour + datetime.timedelta(hours=1)
@@ -352,4 +442,4 @@ class ApiMareeInfo:
         for i in range(0, 65, 5):
             forecast[f"{i} min"] = get_label(precip_current if i + dateCourante.minute < 60 else precip_next)
             
-        return current_hour, forecast
+        return current_hour, forecast, "MeteoConsult Forecast (Interpolated)"

@@ -22,6 +22,7 @@ from .const import (
     __VERSION__,
     CONF_MAXHOURS,
     DOMAIN,
+    CONF_ID,
     CONF_METEOFRANCE_ENTITY_ID,
 )
 from . import apiMareeInfo, sensorApiMaree
@@ -54,6 +55,7 @@ async def async_setup_entry(
 
     maree_api = apiMareeInfo.ApiMareeInfo()
     maree_api.setport(lat, lng)
+    maree_api.setid(config.get(CONF_ID))
     maree_api.setmaxhours(maxhours)
 
     origine = "stormio" if stormkey else "MeteoMarine"

@@ -11,12 +11,13 @@ PLATFORMS = ["sensor"]
 CONF_SCAN_INTERVAL_HTTP = datetime.timedelta(seconds=60 * 60 * 3)
 CONF_MAXHOURS = "MAX_HOURS"
 CONF_PROVIDER = "provider"
+CONF_ID = "id"
 
 PROVIDER_MAREEINFO = "Maree Info"
 PROVIDER_STORMGLASS = "Stormglass.io"
 DEFAULT_PROVIDER = PROVIDER_MAREEINFO
 PROVIDERS = [PROVIDER_MAREEINFO]
 
-__VERSION__ = "1.6.0-beta.1"
+__VERSION__ = "1.6.0-beta.2"
 
 __name__ = "apiMareeInfo"
