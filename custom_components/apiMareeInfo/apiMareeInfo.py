@@ -400,10 +400,9 @@ class ApiMareeInfo:
         if self._donneesPrevisLive:
             def get_label_risk(risk):
                 if risk == 0: return "Temps sec"
-                if risk <= 20: return "Risque très faible"
-                if risk <= 50: return "Risque faible"
-                if risk <= 80: return "Risque modéré"
-                return "Risque élevé"
+                if risk <= 40: return "Pluie faible"
+                if risk <= 70: return "Pluie modérée"
+                return "Pluie forte"
 
             # Use live data (5-min steps)
             # Find the starting point (closest 5-min before now)

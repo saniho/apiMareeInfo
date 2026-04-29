@@ -160,6 +160,7 @@ class manageSensorState:
         status_counts["forecast_time_ref"] = forecast_time_ref.isoformat()
         status_counts["1_hour_forecast"] = forecast
         status_counts["data_source"] = source
+        status_counts["attribution"] = "Data provided by Météo-France"
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
 

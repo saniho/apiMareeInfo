@@ -273,11 +273,6 @@ class infoMareePluieMeteoFranceSensor(BaseMareeSensor):
         return state
 
     @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return "mm"
-
-    @property
     def extra_state_attributes(self):
         """Return the state attributes."""
         _, attributes = self._sAM.getstatusMeteoFrance()
