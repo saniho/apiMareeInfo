@@ -45,7 +45,7 @@ class ListePorts:
 
     async def getlisteport(self, nomport, session=None):
         url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php"
-        params = {"rech": nomport, "type": "48"}
+        params = {"rech": nomport}
         retour = await self.getjson(url, session, params=params)
         return retour
 
