@@ -23,7 +23,6 @@ from .const import (
     CONF_MAXHOURS,
     DOMAIN,
     CONF_ID,
-    CONF_METEOFRANCE_ENTITY_ID,
 )
 from . import apiMareeInfo, sensorApiMaree
 
