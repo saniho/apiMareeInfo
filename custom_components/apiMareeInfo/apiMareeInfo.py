@@ -101,8 +101,8 @@ class MeteoMarineLive:
         now = datetime.datetime.now()
         day = now.strftime("%Y-%m-%d")
         url = (
-            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/en/v40/forecasts/live?id=%s&day=%s&limit=1&type_string=beaches"
-            % (self._id_port, day)
+            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/en/v40/forecasts/live?day=%s&id=%s&limit=1&type_string=beaches"
+            % (day, self._id_port)
         )
         headers = {
             "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
