@@ -3,7 +3,7 @@
     "name": "apiMareeInfo sensor",
     "documentation": "https://github.com/saniho/apiMareeInfo#readme",
     "issue_tracker": "https://github.com/saniho/apiMareeInfo/issues",
-    "version": "1.6.0-beta.1",
+    "version": "1.6.0-beta.7",
     "config_flow": true,
     "requirements": [],
     "dependencies": [],
