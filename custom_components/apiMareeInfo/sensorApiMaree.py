@@ -165,3 +165,24 @@ class manageSensorState:
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
 
         return state, status_counts
+
+    def getstatusRainChance(self):
+        status_counts = defaultdict(str)
+        status_counts["version"] = self.version
+        state = self._myPort.get_rain_chance()
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusCloudCover(self):
+        status_counts = defaultdict(str)
+        status_counts["version"] = self.version
+        state = self._myPort.get_cloud_cover()
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusWeatherAlert(self):
+        status_counts = defaultdict(str)
+        status_counts["version"] = self.version
+        state = self._myPort.get_weather_alert()
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts

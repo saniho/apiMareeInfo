@@ -1,6 +1,6 @@
 """Sensor for apiMareeInfo."""
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
@@ -96,6 +96,13 @@ async def async_setup_entry(
         infoMareeBasseSensor(coordinator, idDuPort),
         infoMareeTEauSensor(coordinator, idDuPort),
         infoMareePluieMeteoFranceSensor(coordinator, idDuPort),
+        MareeRainChanceSensor(coordinator, idDuPort),
+        MareeCloudCoverSensor(coordinator, idDuPort),
+        MareeWeatherAlertSensor(coordinator, idDuPort),
+        MareeNextRainSensor(coordinator, idDuPort),
+        MareeFreezeChanceSensor(coordinator, idDuPort),
+        MareeSnowChanceSensor(coordinator, idDuPort),
+        MareeUVSensor(coordinator, idDuPort),
     ]
     async_add_entities(entities, True)
 
@@ -282,3 +289,170 @@ class infoMareePluieMeteoFranceSensor(BaseMareeSensor):
     def icon(self):
         """Icon to use in the frontend."""
         return "mdi:weather-rainy"
+
+
+class MareeRainChanceSensor(BaseMareeSensor):
+    """Representation of the rain chance sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_rain_chance"
+
+    @property
+    def name(self):
+        return "Météo Rain Chance"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusRainChance()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "%"
+
+    @property
+    def icon(self):
+        return "mdi:weather-rainy"
+
+
+class MareeCloudCoverSensor(BaseMareeSensor):
+    """Representation of the cloud cover sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_cloud_cover"
+
+    @property
+    def name(self):
+        return "Météo Cloud Cover"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusCloudCover()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "%"
+
+    @property
+    def icon(self):
+        return "mdi:cloud-percent"
+
+
+class MareeWeatherAlertSensor(BaseMareeSensor):
+    """Representation of the weather alert sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_weather_alert"
+
+    @property
+    def name(self):
+        return "Météo Weather Alert"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusWeatherAlert()
+        return state
+
+    @property
+    def icon(self):
+        return "mdi:alert"
+
+
+class MareeNextRainSensor(BaseMareeSensor):
+    """Representation of the next rain sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_next_rain"
+
+    @property
+    def name(self):
+        return "Météo Next Rain"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusProchainePluie()
+        if isinstance(state, datetime):
+             return state.strftime("%d/%m %H:%M")
+        return state
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusProchainePluie()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:weather-pouring"
+
+
+class MareeFreezeChanceSensor(BaseMareeSensor):
+    """Representation of the freeze chance sensor (dummy)."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_freeze_chance"
+
+    @property
+    def name(self):
+        return "Météo Freeze Chance"
+
+    @property
+    def state(self):
+        return 0
+
+    @property
+    def unit_of_measurement(self):
+        return "%"
+
+    @property
+    def icon(self):
+        return "mdi:snowflake"
+
+
+class MareeSnowChanceSensor(BaseMareeSensor):
+    """Representation of the snow chance sensor (dummy)."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_snow_chance"
+
+    @property
+    def name(self):
+        return "Météo Snow Chance"
+
+    @property
+    def state(self):
+        return 0
+
+    @property
+    def unit_of_measurement(self):
+        return "%"
+
+    @property
+    def icon(self):
+        return "mdi:weather-snowy"
+
+
+class MareeUVSensor(BaseMareeSensor):
+    """Representation of the UV sensor (dummy)."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_uv"
+
+    @property
+    def name(self):
+        return "Météo UV"
+
+    @property
+    def state(self):
+        return 0
+
+    @property
+    def icon(self):
+        return "mdi:weather-sunny-alert"

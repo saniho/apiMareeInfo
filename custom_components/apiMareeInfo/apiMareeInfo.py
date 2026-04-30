@@ -192,6 +192,7 @@ class ApiMareeInfo:
         self._meteofrance_precipitation = 0
         self._donneesPrevis = {}
         self._donneesPrevisLive = {}
+        self._avis = []
         pass
 
     async def getjson(self, origine, info=None, session=None):
@@ -238,6 +239,7 @@ class ApiMareeInfo:
                 self._nomDuPort = jsondata["contenu"]["marees"][0]["lieu"]
                 self._dateCourante = jsondata["contenu"]["marees"][0]["datetime"]
                 self._error = False
+                self._avis = jsondata["contenu"].get("avis", [])
             
             # Fetch live data if id is available
             if self._id:
@@ -293,6 +295,7 @@ class ApiMareeInfo:
                     "rafvnds": ele.get("rafvnds", ""),
                     "dirvdegres": ele.get("dirvdegres", ""),
                     "dateComplete": dateComplete.replace(tzinfo=None),
+                    "nebu": ele.get("nebu", ""),
                     "nuagecouverture": ele.get("nuagecouverture", ""),
                     "precipitation": ele.get("precipitation", ""),
                     "teau": ele.get("teau", ""),
@@ -442,3 +445,27 @@ class ApiMareeInfo:
             forecast[f"{i} min"] = get_label(precip_current if i + dateCourante.minute < 60 else precip_next)
             
         return current_hour, forecast, "MeteoConsult Forecast (Interpolated)"
+
+    def get_rain_chance(self):
+        dateCourante = datetime.datetime.now()
+        # On cherche la prévision la plus proche dans le futur
+        for x in sorted(self._donneesPrevisLive.keys()):
+            if x > dateCourante:
+                return self._donneesPrevisLive[x]
+        return 0
+
+    def get_cloud_cover(self):
+        dateCourante = datetime.datetime.now()
+        for x in sorted(self._donneesPrevis.keys()):
+            if x > dateCourante:
+                return self._donneesPrevis[x].get("nuagecouverture", 0)
+        return 0
+
+    def get_weather_alert(self):
+        if not self._avis:
+            return "Aucun"
+        # On prend le premier avis pertinent (niveau > 0)
+        for avis in self._avis:
+            if avis.get("niveau", 0) > 0:
+                return avis.get("phrase", "Alerte météo")
+        return "Aucun"
