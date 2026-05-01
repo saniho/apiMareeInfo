@@ -223,6 +223,8 @@ class ApiMareeInfo:
         info=None,
         session=None,
     ):
+        self._donneesPrevisLive = {}
+        self._donneesPrevis = {}
         if jsondata is None:
             jsondata = await self.getjson(origine, info, session)
 
