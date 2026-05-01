@@ -18,7 +18,7 @@ from .const import DOMAIN, __VERSION__
 _LOGGER = logging.getLogger(__name__)
 
 CONDITION_MAP = {
-    "c0000": "clear-night",
+    "c0000": "sunny",
     "c0010": "sunny",
     "c0020": "partlycloudy",
     "c0023": "partlycloudy",
@@ -107,6 +107,21 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
             return previs[closest_dt]
         return list(previs.values())[0] if previs else None
 
+    def _map_condition(self, nebu, target_dt=None):
+        """Map the condition code to a Home Assistant weather condition."""
+        cond = CONDITION_MAP.get(nebu, "cloudy")
+        if cond == "sunny":
+            if target_dt is None:
+                # Use sun.sun for current condition
+                sun = self.hass.states.get("sun.sun")
+                if sun and sun.state == "below_horizon":
+                    return "clear-night"
+            else:
+                # For forecast, simple hour check as a fallback
+                if target_dt.hour < 6 or target_dt.hour > 21:
+                    return "clear-night"
+        return cond
+
     @property
     def native_temperature(self):
         """Return the temperature."""
@@ -155,8 +170,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
         """Return the current condition."""
         data = self._get_current_data()
         if data:
-            nebu = data.get("nebu")
-            return CONDITION_MAP.get(nebu, "cloudy")
+            return self._map_condition(data.get("nebu"))
         return "cloudy"
 
     async def async_forecast_hourly(self) -> list[Forecast]:
@@ -174,7 +188,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
                 native_wind_speed=data.get("forcevnds"),
                 wind_bearing=data.get("dirvdegres"),
                 native_precipitation=data.get("precipitation"),
-                condition=CONDITION_MAP.get(data.get("nebu"), "cloudy"),
+                condition=self._map_condition(data.get("nebu"), dt),
                 cloud_coverage=data.get("nuagecouverture"),
             )
             forecasts.append(forecast)
