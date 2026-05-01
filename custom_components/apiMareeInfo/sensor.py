@@ -300,7 +300,7 @@ class MareeRainChanceSensor(BaseMareeSensor):
 
     @property
     def name(self):
-        return "Météo Rain Chance"
+        return "Rain chance"
 
     @property
     def state(self):
@@ -310,6 +310,11 @@ class MareeRainChanceSensor(BaseMareeSensor):
     @property
     def unit_of_measurement(self):
         return "%"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusRainChance()
+        return attributes
 
     @property
     def icon(self):
@@ -325,7 +330,7 @@ class MareeCloudCoverSensor(BaseMareeSensor):
 
     @property
     def name(self):
-        return "Météo Cloud Cover"
+        return "Cloud cover"
 
     @property
     def state(self):
@@ -335,6 +340,11 @@ class MareeCloudCoverSensor(BaseMareeSensor):
     @property
     def unit_of_measurement(self):
         return "%"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusCloudCover()
+        return attributes
 
     @property
     def icon(self):
@@ -350,12 +360,17 @@ class MareeWeatherAlertSensor(BaseMareeSensor):
 
     @property
     def name(self):
-        return "Météo Weather Alert"
+        return "Weather alert"
 
     @property
     def state(self):
         state, _ = self._sAM.getstatusWeatherAlert()
         return state
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusWeatherAlert()
+        return attributes
 
     @property
     def icon(self):
@@ -371,7 +386,7 @@ class MareeNextRainSensor(BaseMareeSensor):
 
     @property
     def name(self):
-        return "Météo Next Rain"
+        return "Next rain"
 
     @property
     def state(self):
@@ -383,6 +398,8 @@ class MareeNextRainSensor(BaseMareeSensor):
     @property
     def extra_state_attributes(self):
         _, attributes = self._sAM.getstatusProchainePluie()
+        # Add attribution for next rain as well
+        attributes["attribution"] = "Data provided by Météo-France"
         return attributes
 
     @property
@@ -399,7 +416,7 @@ class MareeFreezeChanceSensor(BaseMareeSensor):
 
     @property
     def name(self):
-        return "Météo Freeze Chance"
+        return "Freeze chance"
 
     @property
     def state(self):
@@ -408,6 +425,10 @@ class MareeFreezeChanceSensor(BaseMareeSensor):
     @property
     def unit_of_measurement(self):
         return "%"
+
+    @property
+    def extra_state_attributes(self):
+        return {"attribution": "Data provided by Météo-France"}
 
     @property
     def icon(self):
@@ -423,7 +444,7 @@ class MareeSnowChanceSensor(BaseMareeSensor):
 
     @property
     def name(self):
-        return "Météo Snow Chance"
+        return "Snow chance"
 
     @property
     def state(self):
@@ -432,6 +453,10 @@ class MareeSnowChanceSensor(BaseMareeSensor):
     @property
     def unit_of_measurement(self):
         return "%"
+
+    @property
+    def extra_state_attributes(self):
+        return {"attribution": "Data provided by Météo-France"}
 
     @property
     def icon(self):
@@ -447,11 +472,15 @@ class MareeUVSensor(BaseMareeSensor):
 
     @property
     def name(self):
-        return "Météo UV"
+        return "UV"
 
     @property
     def state(self):
         return 0
+
+    @property
+    def extra_state_attributes(self):
+        return {"attribution": "Data provided by Météo-France"}
 
     @property
     def icon(self):

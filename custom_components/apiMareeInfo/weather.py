@@ -146,6 +146,11 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
         return None
 
     @property
+    def attribution(self):
+        """Return the attribution."""
+        return "Data provided by Météo-France"
+
+    @property
     def condition(self):
         """Return the current condition."""
         data = self._get_current_data()

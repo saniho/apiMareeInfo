@@ -169,6 +169,7 @@ class manageSensorState:
     def getstatusRainChance(self):
         status_counts = defaultdict(str)
         status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by Météo-France"
         state = self._myPort.get_rain_chance()
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
@@ -176,6 +177,7 @@ class manageSensorState:
     def getstatusCloudCover(self):
         status_counts = defaultdict(str)
         status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by Météo-France"
         state = self._myPort.get_cloud_cover()
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
@@ -183,6 +185,7 @@ class manageSensorState:
     def getstatusWeatherAlert(self):
         status_counts = defaultdict(str)
         status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by Météo-France"
         state = self._myPort.get_weather_alert()
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
