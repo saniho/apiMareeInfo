@@ -124,7 +124,7 @@ class manageSensorState:
         status_counts["prochainePluie"] = dateNextPluieCh
         status_counts["precipitation"] = precipitation
         status_counts["message"] = f"{dateNextPluieCh} - {precipitation} mm"
-        status_counts["attribution"] = "Data provided by Météo-France"
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
         
@@ -165,7 +165,7 @@ class manageSensorState:
         status_counts["forecast_time_ref"] = forecast_time_ref.isoformat()
         status_counts["1_hour_forecast"] = forecast
         status_counts["data_source"] = source
-        status_counts["attribution"] = "Data provided by Météo-France"
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
 
@@ -174,7 +174,7 @@ class manageSensorState:
     def getstatusRainChance(self):
         status_counts = {}
         status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by Météo-France"
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
         state = self._myPort.get_rain_chance()
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
@@ -182,7 +182,7 @@ class manageSensorState:
     def getstatusCloudCover(self):
         status_counts = {}
         status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by Météo-France"
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
         state = self._myPort.get_cloud_cover()
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
@@ -190,7 +190,7 @@ class manageSensorState:
     def getstatusWeatherAlert(self):
         status_counts = {}
         status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by Météo-France"
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
         state = self._myPort.get_weather_alert()
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts

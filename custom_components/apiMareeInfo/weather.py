@@ -148,7 +148,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
     @property
     def attribution(self):
         """Return the attribution."""
-        return "Data provided by Météo-France"
+        return "Data provided by apiMareeInfo"
 
     @property
     def condition(self):

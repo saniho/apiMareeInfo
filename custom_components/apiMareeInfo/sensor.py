@@ -426,7 +426,7 @@ class MareeFreezeChanceSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        return {"attribution": "Data provided by Météo-France"}
+        return {"attribution": "Data provided by apiMareeInfo"}
 
     @property
     def icon(self):
@@ -454,7 +454,7 @@ class MareeSnowChanceSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        return {"attribution": "Data provided by Météo-France"}
+        return {"attribution": "Data provided by apiMareeInfo"}
 
     @property
     def icon(self):
@@ -478,7 +478,7 @@ class MareeUVSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        return {"attribution": "Data provided by Météo-France"}
+        return {"attribution": "Data provided by apiMareeInfo"}
 
     @property
     def icon(self):
