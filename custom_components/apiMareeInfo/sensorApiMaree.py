@@ -33,7 +33,7 @@ class manageSensorState:
         return None
 
     def getstatus(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
 
         if self._myPort.getError():
@@ -90,7 +90,7 @@ class manageSensorState:
         return state, status_counts
 
     def getStateNextMaree(self, pmbm=""):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
@@ -110,7 +110,7 @@ class manageSensorState:
         return state, status_counts
 
     def getstatusProchainePluie(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
 
         dateNextPluie, precipitation = self._myPort.getNextPluie()
@@ -124,13 +124,18 @@ class manageSensorState:
         status_counts["prochainePluie"] = dateNextPluieCh
         status_counts["precipitation"] = precipitation
         status_counts["message"] = f"{dateNextPluieCh} - {precipitation} mm"
+        status_counts["attribution"] = "Data provided by Météo-France"
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        
+        # Fallback for 1_hour_forecast to prevent JS errors
+        _, forecast, _ = self._myPort.get_1h_forecast()
+        status_counts["1_hour_forecast"] = forecast
 
         return state, status_counts
 
     def getstatusTemperatureEau(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
 
         dateTemperatureEau, teau = self._myPort.getTemperatureEau()
@@ -149,7 +154,7 @@ class manageSensorState:
         return state, status_counts
 
     def getstatusMeteoFrance(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
 
         forecast_time_ref, forecast, source = self._myPort.get_1h_forecast()
@@ -167,7 +172,7 @@ class manageSensorState:
         return state, status_counts
 
     def getstatusRainChance(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
         status_counts["attribution"] = "Data provided by Météo-France"
         state = self._myPort.get_rain_chance()
@@ -175,7 +180,7 @@ class manageSensorState:
         return state, status_counts
 
     def getstatusCloudCover(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
         status_counts["attribution"] = "Data provided by Météo-France"
         state = self._myPort.get_cloud_cover()
@@ -183,7 +188,7 @@ class manageSensorState:
         return state, status_counts
 
     def getstatusWeatherAlert(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
         status_counts["attribution"] = "Data provided by Météo-France"
         state = self._myPort.get_weather_alert()

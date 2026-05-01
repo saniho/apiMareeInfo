@@ -95,11 +95,11 @@ async def async_setup_entry(
         infoMareeHauteSensor(coordinator, idDuPort),
         infoMareeBasseSensor(coordinator, idDuPort),
         infoMareeTEauSensor(coordinator, idDuPort),
-        infoMareePluieMeteoFranceSensor(coordinator, idDuPort),
+        MareeNextRainForecastSensor(coordinator, idDuPort),
         MareeRainChanceSensor(coordinator, idDuPort),
         MareeCloudCoverSensor(coordinator, idDuPort),
         MareeWeatherAlertSensor(coordinator, idDuPort),
-        MareeNextRainSensor(coordinator, idDuPort),
+        MareeNextRainTimeSensor(coordinator, idDuPort),
         MareeFreezeChanceSensor(coordinator, idDuPort),
         MareeSnowChanceSensor(coordinator, idDuPort),
         MareeUVSensor(coordinator, idDuPort),
@@ -260,18 +260,18 @@ class infoMareeTEauSensor(BaseMareeSensor):
         return "mdi:thermometer-water"
 
 
-class infoMareePluieMeteoFranceSensor(BaseMareeSensor):
+class MareeNextRainForecastSensor(BaseMareeSensor):
     """Representation of the 1h precipitation sensor from Météo-France."""
 
     @property
     def unique_id(self):
         """Return a unique_id for this entity."""
-        return f"{self._id_port}_precipitation_meteofrance"
+        return f"{self._id_port}_next_rain"
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Précipitations 1h (Météo-France)"
+        return "Next rain"
 
     @property
     def state(self):
@@ -377,16 +377,16 @@ class MareeWeatherAlertSensor(BaseMareeSensor):
         return "mdi:alert"
 
 
-class MareeNextRainSensor(BaseMareeSensor):
-    """Representation of the next rain sensor."""
+class MareeNextRainTimeSensor(BaseMareeSensor):
+    """Representation of the next rain time sensor."""
 
     @property
     def unique_id(self):
-        return f"{self._id_port}_next_rain"
+        return f"{self._id_port}_next_rain_time"
 
     @property
     def name(self):
-        return "Next rain"
+        return "Next rain time"
 
     @property
     def state(self):
@@ -398,8 +398,6 @@ class MareeNextRainSensor(BaseMareeSensor):
     @property
     def extra_state_attributes(self):
         _, attributes = self._sAM.getstatusProchainePluie()
-        # Add attribution for next rain as well
-        attributes["attribution"] = "Data provided by Météo-France"
         return attributes
 
     @property
