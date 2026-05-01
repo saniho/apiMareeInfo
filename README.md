@@ -3,9 +3,18 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v1.5.2** - Amélioration de la compatibilité avec l'API MeteoMarine
+**v2.0.0** - Refonte majeure avec support météo complet
 
 ## 📝 Changelog
+
+### v2.0.0
+- 🚀 **Entité Weather** : Ajout d'une plateforme météo complète (`weather`) native pour Home Assistant.
+- 🎨 **Compatibilité Carte Météo-France** : Capteurs harmonisés pour fonctionner avec la carte Lovelace personnalisée Météo-France.
+- 📈 **Prévisions de pluie** : Support de la pluie dans l'heure avec graphique et détection de la prochaine pluie.
+- 🌬️ **Pression atmosphérique** : Ajout d'un capteur de pression et de ses prévisions (hPa).
+- 🌓 **Gestion Jour/Nuit** : Icônes dynamiques basées sur la position du soleil (`sun.sun`).
+- ⚡ **Rafraîchissement optimisé** : Passage à un intervalle de mise à jour de 15 minutes pour plus de précision sur les prévisions.
+- 🛠️ **Refonte technique** : Migration vers des dictionnaires standards pour les attributs et nettoyage complet du code.
 
 ### v1.5.2
 - ✅ **Correction de l'erreur 403** : Résolution des problèmes de requête à l'API MeteoMarine
