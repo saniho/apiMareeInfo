@@ -16,6 +16,7 @@ try:
         DOMAIN,
         PLATFORMS,
         CONF_MAXHOURS,
+        CONF_ID,
         CONF_SCAN_INTERVAL_HTTP,
     )
     _HOMEASSISTANT_AVAILABLE = True
@@ -43,6 +44,7 @@ if _HOMEASSISTANT_AVAILABLE:
 
         maree_api = apiMareeInfo.ApiMareeInfo()
         maree_api.setport(lat, lng)
+        maree_api.setid(config.get(CONF_ID))
         maree_api.setmaxhours(maxhours)
 
         session = async_get_clientsession(hass)

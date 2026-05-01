@@ -2,15 +2,17 @@ import datetime
 
 from custom_components.apiMareeInfo import apiMareeInfo, sensorApiMaree
 import json
+import asyncio
 
 
 def test_getinformation_port():
-    with open("tests/json/SJM.json") as f:
+    with open("tests/json/meteomarine/SJM.json") as f:
         dataJson = json.load(f)
     _myMaree = apiMareeInfo.ApiMareeInfo()
     lat, lng = "1", "1"
     _myMaree.setport(lat, lng)
-    _myMaree.getinformationport(dataJson)
+    _myMaree.setmaxhours(6)
+    asyncio.run(_myMaree.getinformationport(dataJson))
 
     _sam = sensorApiMaree.manageSensorState()
     _sam.init(_myMaree)

@@ -1,6 +1,6 @@
 {
   "name": "apiMareeInfo",
     "content_in_root": false,
-    "domains": ["sensor"],
+    "domains": ["sensor", "weather"],
     "country": "FR"
 }

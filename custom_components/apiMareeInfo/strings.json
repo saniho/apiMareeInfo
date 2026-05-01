@@ -24,6 +24,15 @@
       "already_configured": "Ce port est déjà configuré."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "MAX_HOURS": "Heures de prévisions"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "next_high_tide": {
@@ -34,6 +43,9 @@
       },
       "water_temp": {
         "name": "Température de l'eau"
+      },
+      "precipitation_meteofrance": {
+        "name": "Précipitations 1h (via MeteoMarine)"
       }
     }
   }

@@ -45,7 +45,7 @@ class ListePorts:
 
     async def getlisteport(self, nomport, session=None):
         url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php"
-        params = {"rech": nomport, "type": "48"}
+        params = {"rech": nomport}
         retour = await self.getjson(url, session, params=params)
         return retour
 
@@ -82,6 +82,52 @@ class MeteoMarine:
                     return await response.json(content_type=None)
             except aiohttp.ClientError as error:
                 _LOGGER.error("Error getting data from MeteoMarine (%s): %s", self._url, error)
+                return {"error": "UNKERROR_001"}
+
+        if session:
+            return await _fetch(session)
+        else:
+            async with aiohttp.ClientSession() as local_session:
+                return await _fetch(local_session)
+
+
+class MeteoMarineLive:
+    def __init__(self, id_port):
+        self._id_port = id_port
+
+    async def getdata(self, session=None):
+        import datetime
+
+        now = datetime.datetime.now()
+        day = now.strftime("%Y-%m-%d")
+        url = (
+            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/en/v40/forecasts/live?day=%s&id=%s&limit=1&type_string=beaches"
+            % (day, self._id_port)
+        )
+        headers = {
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-language": "fr,en-US;q=0.9,en;q=0.8",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "priority": "u=0, i",
+            "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "none",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        }
+
+        async def _fetch(s):
+            try:
+                async with s.get(
+                    url, headers=headers, timeout=30, ssl=False
+                ) as response:
+                    response.raise_for_status()
+                    return await response.json(content_type=None)
+            except aiohttp.ClientError as error:
+                _LOGGER.error(
+                    "Error getting data from MeteoMarineLive (%s): %s", url, error
+                )
                 return {"error": "UNKERROR_001"}
 
         if session:
@@ -138,15 +184,23 @@ class ApiMareeInfo:
         self._maxhours = None
         self._lat = None
         self._lng = None
+        self._id = None
         self._message = ""
         self._error = False
         self._errorMessage = ""
         self._httptimerequest = datetime.datetime.now()
+        self._meteofrance_precipitation = 0
+        self._donneesPrevis = {}
+        self._donneesPrevisLive = {}
+        self._avis = []
         pass
 
     async def getjson(self, origine, info=None, session=None):
         if origine == "MeteoMarine":
             mm = MeteoMarine(self._lat, self._lng)
+            return await mm.getdata(session)
+        elif origine == "MeteoMarineLive":
+            mm = MeteoMarineLive(self._id)
             return await mm.getdata(session)
         elif origine == "stormio":
             mm = stormIO(self._lat, self._lng, info["stormkey"])
@@ -155,6 +209,9 @@ class ApiMareeInfo:
     def setport(self, lat, lng):
         self._lat = lat
         self._lng = lng
+
+    def setid(self, id):
+        self._id = id
 
     def setmaxhours(self, maxhours):
         self._maxhours = maxhours
@@ -182,6 +239,17 @@ class ApiMareeInfo:
                 self._nomDuPort = jsondata["contenu"]["marees"][0]["lieu"]
                 self._dateCourante = jsondata["contenu"]["marees"][0]["datetime"]
                 self._error = False
+                self._avis = jsondata["contenu"].get("avis", [])
+            
+            # Fetch live data if id is available
+            if self._id:
+                live_jsondata = await self.getjson("MeteoMarineLive", session=session)
+                self._donneesPrevisLive = {}
+                if live_jsondata and "content" in live_jsondata and "forecasts" in live_jsondata["content"]:
+                    for f in live_jsondata["content"]["forecasts"]:
+                        dt = datetime.datetime.fromisoformat(f["datetime"])
+                        self._donneesPrevisLive[dt.replace(tzinfo=None)] = f
+
         elif origine == "stormio":
             if not jsondata or "errors" in jsondata:
                 self._nomDuPort = ""
@@ -227,8 +295,10 @@ class ApiMareeInfo:
                     "rafvnds": ele.get("rafvnds", ""),
                     "dirvdegres": ele.get("dirvdegres", ""),
                     "dateComplete": dateComplete.replace(tzinfo=None),
+                    "nebu": ele.get("nebu", ""),
                     "nuagecouverture": ele.get("nuagecouverture", ""),
                     "precipitation": ele.get("precipitation", ""),
+                    "pressure": ele.get("pressure") or ele.get("pression", ""),
                     "teau": ele.get("teau", ""),
                     "t": ele.get("t", ""),
                     "risqueorage": ele.get("risqueorage", ""),
@@ -239,7 +309,7 @@ class ApiMareeInfo:
                     "periodemerv": ele.get("periodemerv", ""),
                     "hauteurvague": ele.get("hauteurvague", ""),
                 }
-                clef = dateComplete
+                clef = dateComplete.replace(tzinfo=None)
                 dicoPrevis[clef] = detailPrevis
         elif (origine == "stormio") and (not self._error):
             j = 0
@@ -290,6 +360,9 @@ class ApiMareeInfo:
     def getlng(self):
         return self._lng
 
+    def getid(self):
+        return self._id
+
     def gethttptimerequest(self):
         return self._httptimerequest
 
@@ -323,3 +396,111 @@ class ApiMareeInfo:
                     "teau"
                 ]
         return None, 0
+
+    def get_1h_forecast(self):
+        dateCourante = datetime.datetime.now()
+        forecast = {}
+        
+        if self._donneesPrevisLive:
+            def get_label_risk(risk):
+                if risk == 0: return "Temps sec"
+                if risk <= 40: return "Pluie faible"
+                if risk <= 70: return "Pluie modérée"
+                return "Pluie forte"
+
+            # Use live data (5-min steps)
+            # Find the starting point (closest available data around now)
+            sorted_keys = sorted(self._donneesPrevisLive.keys())
+            start_time = None
+            # We look for the first data point that is not older than 5 minutes
+            for k in sorted_keys:
+                if k >= dateCourante - datetime.timedelta(minutes=4, seconds=59):
+                    start_time = k
+                    break
+            
+            if start_time:
+                for i in range(0, 65, 5):
+                    target_dt = start_time + datetime.timedelta(minutes=i)
+                    if target_dt in self._donneesPrevisLive:
+                        risk = self._donneesPrevisLive[target_dt].get("precip_risk", 0)
+                        forecast[f"{i} min"] = get_label_risk(risk)
+                    else:
+                        forecast[f"{i} min"] = "Indisponible"
+                
+                return start_time, forecast, "MeteoConsult Live"
+
+        # Fallback to hourly data if live data not available
+        # On cherche la prévision pour l'heure en cours et la suivante
+        current_hour = dateCourante.replace(minute=0, second=0, microsecond=0)
+        next_hour = current_hour + datetime.timedelta(hours=1)
+        
+        precip_current = 0
+        precip_next = 0
+        
+        for dt, data in self._donneesPrevis.items():
+            if dt.replace(tzinfo=None) == current_hour:
+                precip_current = data.get("precipitation", 0)
+            elif dt.replace(tzinfo=None) == next_hour:
+                precip_next = data.get("precipitation", 0)
+
+        def get_label(mm):
+            if mm == 0: return "Temps sec"
+            if mm <= 1: return "Pluie faible"
+            if mm <= 4: return "Pluie modérée"
+            return "Pluie forte"
+
+        # Interpolation simple : on utilise la valeur de l'heure entamée
+        # ou on pourrait faire une transition. Ici on va rester simple.
+        for i in range(0, 65, 5):
+            forecast[f"{i} min"] = get_label(precip_current if i + dateCourante.minute < 60 else precip_next)
+            
+        return current_hour, forecast, "MeteoConsult Forecast (Interpolated)"
+
+    def get_rain_chance(self):
+        dateCourante = datetime.datetime.now()
+        # On cherche la prévision la plus proche dans le futur
+        for x in sorted(self._donneesPrevisLive.keys()):
+            if x > dateCourante:
+                return self._donneesPrevisLive[x].get("precip_risk", 0)
+        return 0
+
+    def get_cloud_cover(self):
+        dateCourante = datetime.datetime.now()
+        for x in sorted(self._donneesPrevis.keys()):
+            if x > dateCourante:
+                return self._donneesPrevis[x].get("nuagecouverture", 0)
+        return 0
+
+    def get_weather_alert(self):
+        if not self._avis:
+            return "Aucun"
+        # On prend le premier avis pertinent (niveau > 0)
+        for avis in self._avis:
+            if avis.get("niveau", 0) > 0:
+                return avis.get("phrase", "Alerte météo")
+        return "Aucun"
+
+    def get_pressure_forecast(self):
+        dateCourante = datetime.datetime.now()
+        forecast = {}
+        current_pressure = None
+        
+        # We combine live and hourly data for the best forecast
+        all_data = {**self._donneesPrevis}
+        for dt, data in self._donneesPrevisLive.items():
+            if "pressure" in data or "pression" in data:
+                all_data[dt] = {**all_data.get(dt, {}), "pressure": data.get("pressure") or data.get("pression")}
+        
+        sorted_keys = sorted(all_data.keys())
+        for k in sorted_keys:
+            val = all_data[k].get("pressure") or all_data[k].get("pression")
+            if val:
+                if k <= dateCourante:
+                    current_pressure = val
+                else:
+                    forecast[k.isoformat()] = val
+                    
+        if current_pressure is None and sorted_keys:
+             current_pressure = all_data[sorted_keys[0]].get("pressure") or all_data[sorted_keys[0]].get("pression")
+             
+        return current_pressure, forecast

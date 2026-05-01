@@ -33,7 +33,7 @@ class manageSensorState:
         return None
 
     def getstatus(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
 
         if self._myPort.getError():
@@ -41,6 +41,7 @@ class manageSensorState:
             return "unavailable", status_counts
 
         status_counts["nomPort"] = self._myPort.getnomduport()
+        status_counts["idPort"] = self._myPort.getid()
         status_counts["Copyright"] = self._myPort.getcopyright()
         status_counts["dateCourante"] = self._myPort.getdatecourante()
 
@@ -89,7 +90,7 @@ class manageSensorState:
         return state, status_counts
 
     def getStateNextMaree(self, pmbm=""):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
@@ -109,7 +110,7 @@ class manageSensorState:
         return state, status_counts
 
     def getstatusProchainePluie(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
 
         dateNextPluie, precipitation = self._myPort.getNextPluie()
@@ -123,13 +124,18 @@ class manageSensorState:
         status_counts["prochainePluie"] = dateNextPluieCh
         status_counts["precipitation"] = precipitation
         status_counts["message"] = f"{dateNextPluieCh} - {precipitation} mm"
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        
+        # Fallback for 1_hour_forecast to prevent JS errors
+        _, forecast, _ = self._myPort.get_1h_forecast()
+        status_counts["1_hour_forecast"] = forecast
 
         return state, status_counts
 
     def getstatusTemperatureEau(self):
-        status_counts = defaultdict(str)
+        status_counts = {}
         status_counts["version"] = self.version
 
         dateTemperatureEau, teau = self._myPort.getTemperatureEau()
@@ -145,4 +151,55 @@ class manageSensorState:
         status_counts["last_update"] = datetime.datetime.now()
         status_counts["last_http_update"] = self._myPort.gethttptimerequest()
 
+        return state, status_counts
+
+    def getstatusMeteoFrance(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+
+        forecast_time_ref, forecast, source = self._myPort.get_1h_forecast()
+        
+        # L'état est la prévision immédiate (0 min)
+        state = forecast.get("0 min", "Temps sec")
+
+        status_counts["forecast_time_ref"] = forecast_time_ref.isoformat()
+        status_counts["1_hour_forecast"] = forecast
+        status_counts["data_source"] = source
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        status_counts["last_update"] = datetime.datetime.now()
+        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+
+        return state, status_counts
+
+    def getstatusRainChance(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        state = self._myPort.get_rain_chance()
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusCloudCover(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        state = self._myPort.get_cloud_cover()
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusWeatherAlert(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        state = self._myPort.get_weather_alert()
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusPressure(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        state, forecast = self._myPort.get_pressure_forecast()
+        status_counts["pressure_forecast"] = forecast
+        status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
