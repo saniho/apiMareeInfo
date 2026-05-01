@@ -18,6 +18,6 @@ PROVIDER_STORMGLASS = "Stormglass.io"
 DEFAULT_PROVIDER = PROVIDER_MAREEINFO
 PROVIDERS = [PROVIDER_MAREEINFO]
 
-__VERSION__ = "1.6.0-beta.13"
+__VERSION__ = "1.6.0-beta.14"
 
 __name__ = "apiMareeInfo"

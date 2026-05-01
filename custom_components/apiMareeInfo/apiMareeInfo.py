@@ -408,19 +408,25 @@ class ApiMareeInfo:
                 return "Pluie forte"
 
             # Use live data (5-min steps)
-            # Find the starting point (closest 5-min before now)
-            start_time = dateCourante.replace(second=0, microsecond=0)
-            start_time -= datetime.timedelta(minutes=start_time.minute % 5)
+            # Find the starting point (closest available data around now)
+            sorted_keys = sorted(self._donneesPrevisLive.keys())
+            start_time = None
+            # We look for the first data point that is not older than 5 minutes
+            for k in sorted_keys:
+                if k >= dateCourante - datetime.timedelta(minutes=4, seconds=59):
+                    start_time = k
+                    break
             
-            for i in range(0, 65, 5):
-                target_dt = start_time + datetime.timedelta(minutes=i)
-                if target_dt in self._donneesPrevisLive:
-                    risk = self._donneesPrevisLive[target_dt]
-                    forecast[f"{i} min"] = get_label_risk(risk)
-                else:
-                    forecast[f"{i} min"] = "Indisponible"
-            
-            return start_time, forecast, "MeteoConsult Live"
+            if start_time:
+                for i in range(0, 65, 5):
+                    target_dt = start_time + datetime.timedelta(minutes=i)
+                    if target_dt in self._donneesPrevisLive:
+                        risk = self._donneesPrevisLive[target_dt]
+                        forecast[f"{i} min"] = get_label_risk(risk)
+                    else:
+                        forecast[f"{i} min"] = "Indisponible"
+                
+                return start_time, forecast, "MeteoConsult Live"
 
         # Fallback to hourly data if live data not available
         # On cherche la prévision pour l'heure en cours et la suivante
