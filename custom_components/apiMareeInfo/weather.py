@@ -148,8 +148,6 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
     @property
     def condition(self):
         """Return the current condition."""
-        # We need the 'nebu' field which is not yet in dicoPrevis
-        # I need to update ApiMareeInfo.getinformationport to include it
         data = self._get_current_data()
         if data:
             nebu = data.get("nebu")
@@ -160,8 +158,9 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
         """Return the hourly forecast."""
         previs = self.coordinator.data.getprevis()
         forecasts = []
+        now = datetime.now()
         for dt, data in previs.items():
-            if dt < datetime.now():
+            if dt < now:
                 continue
             
             forecast = Forecast(

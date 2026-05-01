@@ -308,7 +308,7 @@ class ApiMareeInfo:
                     "periodemerv": ele.get("periodemerv", ""),
                     "hauteurvague": ele.get("hauteurvague", ""),
                 }
-                clef = dateComplete
+                clef = dateComplete.replace(tzinfo=None)
                 dicoPrevis[clef] = detailPrevis
         elif (origine == "stormio") and (not self._error):
             j = 0
