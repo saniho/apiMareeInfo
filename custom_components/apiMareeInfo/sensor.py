@@ -99,6 +99,7 @@ async def async_setup_entry(
         MareeRainChanceSensor(coordinator, idDuPort),
         MareeCloudCoverSensor(coordinator, idDuPort),
         MareeWeatherAlertSensor(coordinator, idDuPort),
+        MareePressureSensor(coordinator, idDuPort),
         MareeNextRainTimeSensor(coordinator, idDuPort),
         MareeFreezeChanceSensor(coordinator, idDuPort),
         MareeSnowChanceSensor(coordinator, idDuPort),
@@ -375,6 +376,36 @@ class MareeWeatherAlertSensor(BaseMareeSensor):
     @property
     def icon(self):
         return "mdi:alert"
+
+
+class MareePressureSensor(BaseMareeSensor):
+    """Representation of the atmospheric pressure sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_pressure"
+
+    @property
+    def name(self):
+        return "Pressure"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusPressure()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "hPa"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusPressure()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:gauge"
 
 
 class MareeNextRainTimeSensor(BaseMareeSensor):

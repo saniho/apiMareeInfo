@@ -161,6 +161,14 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
         return None
 
     @property
+    def native_pressure(self):
+        """Return the pressure."""
+        data = self._get_current_data()
+        if data:
+            return data.get("pressure") or data.get("pression")
+        return None
+
+    @property
     def attribution(self):
         """Return the attribution."""
         return "Data provided by apiMareeInfo"
@@ -188,6 +196,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
                 native_wind_speed=data.get("forcevnds"),
                 wind_bearing=data.get("dirvdegres"),
                 native_precipitation=data.get("precipitation"),
+                native_pressure=data.get("pressure") or data.get("pression"),
                 condition=self._map_condition(data.get("nebu"), dt),
                 cloud_coverage=data.get("nuagecouverture"),
             )

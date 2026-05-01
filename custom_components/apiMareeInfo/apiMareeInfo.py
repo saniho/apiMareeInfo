@@ -248,7 +248,7 @@ class ApiMareeInfo:
                 if live_jsondata and "content" in live_jsondata and "forecasts" in live_jsondata["content"]:
                     for f in live_jsondata["content"]["forecasts"]:
                         dt = datetime.datetime.fromisoformat(f["datetime"])
-                        self._donneesPrevisLive[dt.replace(tzinfo=None)] = f.get("precip_risk", 0)
+                        self._donneesPrevisLive[dt.replace(tzinfo=None)] = f
 
         elif origine == "stormio":
             if not jsondata or "errors" in jsondata:
@@ -298,6 +298,7 @@ class ApiMareeInfo:
                     "nebu": ele.get("nebu", ""),
                     "nuagecouverture": ele.get("nuagecouverture", ""),
                     "precipitation": ele.get("precipitation", ""),
+                    "pressure": ele.get("pressure") or ele.get("pression", ""),
                     "teau": ele.get("teau", ""),
                     "t": ele.get("t", ""),
                     "risqueorage": ele.get("risqueorage", ""),
@@ -421,7 +422,7 @@ class ApiMareeInfo:
                 for i in range(0, 65, 5):
                     target_dt = start_time + datetime.timedelta(minutes=i)
                     if target_dt in self._donneesPrevisLive:
-                        risk = self._donneesPrevisLive[target_dt]
+                        risk = self._donneesPrevisLive[target_dt].get("precip_risk", 0)
                         forecast[f"{i} min"] = get_label_risk(risk)
                     else:
                         forecast[f"{i} min"] = "Indisponible"
@@ -460,7 +461,7 @@ class ApiMareeInfo:
         # On cherche la prévision la plus proche dans le futur
         for x in sorted(self._donneesPrevisLive.keys()):
             if x > dateCourante:
-                return self._donneesPrevisLive[x]
+                return self._donneesPrevisLive[x].get("precip_risk", 0)
         return 0
 
     def get_cloud_cover(self):
@@ -478,3 +479,28 @@ class ApiMareeInfo:
             if avis.get("niveau", 0) > 0:
                 return avis.get("phrase", "Alerte météo")
         return "Aucun"
+
+    def get_pressure_forecast(self):
+        dateCourante = datetime.datetime.now()
+        forecast = {}
+        current_pressure = None
+        
+        # We combine live and hourly data for the best forecast
+        all_data = {**self._donneesPrevis}
+        for dt, data in self._donneesPrevisLive.items():
+            if "pressure" in data or "pression" in data:
+                all_data[dt] = {**all_data.get(dt, {}), "pressure": data.get("pressure") or data.get("pression")}
+        
+        sorted_keys = sorted(all_data.keys())
+        for k in sorted_keys:
+            val = all_data[k].get("pressure") or all_data[k].get("pression")
+            if val:
+                if k <= dateCourante:
+                    current_pressure = val
+                else:
+                    forecast[k.isoformat()] = val
+                    
+        if current_pressure is None and sorted_keys:
+             current_pressure = all_data[sorted_keys[0]].get("pressure") or all_data[sorted_keys[0]].get("pression")
+             
+        return current_pressure, forecast

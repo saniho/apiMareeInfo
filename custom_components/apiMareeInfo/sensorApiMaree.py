@@ -194,3 +194,12 @@ class manageSensorState:
         state = self._myPort.get_weather_alert()
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
+
+    def getstatusPressure(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        state, forecast = self._myPort.get_pressure_forecast()
+        status_counts["pressure_forecast"] = forecast
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
