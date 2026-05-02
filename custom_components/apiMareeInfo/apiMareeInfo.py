@@ -464,10 +464,23 @@ class ApiMareeInfo:
 
     def get_cloud_cover(self):
         dateCourante = datetime.datetime.now()
+        # Try live data first if available (though cloud cover might not be in live data, 
+        # checking based on the provided JSON it's not there, but for consistency...)
         for x in sorted(self._donneesPrevis.keys()):
             if x > dateCourante:
                 return self._donneesPrevis[x].get("nuagecouverture", 0)
         return 0
+
+    def get_current_live_data(self):
+        if not self._donneesPrevisLive:
+            return None
+        now = datetime.datetime.now()
+        # Find the closest forecast to "now"
+        closest_dt = min(self._donneesPrevisLive.keys(), key=lambda x: abs(x - now))
+        # Ensure the data is not too old (e.g., more than 15 minutes)
+        if abs(closest_dt - now) > datetime.timedelta(minutes=15):
+            return None
+        return self._donneesPrevisLive[closest_dt]
 
     def get_weather_alert(self):
         if not self._avis:

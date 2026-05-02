@@ -203,3 +203,59 @@ class manageSensorState:
         status_counts["pressure_forecast"] = forecast
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
+
+    def getstatusVagues(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        data = self._myPort.get_current_live_data()
+        if data:
+            state = data.get("wave_height")
+            status_counts["wave_height_max"] = data.get("wave_height_max")
+            status_counts["wave_direction"] = data.get("wave_direction")
+            status_counts["swell_height"] = data.get("swell_height")
+            status_counts["sea_code"] = data.get("sea_code")
+            status_counts["wave_direction_deg"] = data.get("wave_direction")
+        else:
+            state = "unavailable"
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusVentLive(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        data = self._myPort.get_current_live_data()
+        if data:
+            state = data.get("wind_speed")
+            status_counts["wind_gust"] = data.get("wind_gust")
+            status_counts["wind_direction"] = data.get("wind_direction")
+        else:
+            state = "unavailable"
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusAirTemp(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        data = self._myPort.get_current_live_data()
+        if data:
+            state = data.get("tempe")
+            status_counts["tempe_felt"] = data.get("tempe_felt")
+        else:
+            state = "unavailable"
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
+
+    def getstatusVisibility(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        data = self._myPort.get_current_live_data()
+        if data:
+            state = data.get("visibility")
+        else:
+            state = "unavailable"
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts

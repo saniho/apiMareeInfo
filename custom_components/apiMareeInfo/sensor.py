@@ -104,6 +104,10 @@ async def async_setup_entry(
         MareeFreezeChanceSensor(coordinator, idDuPort),
         MareeSnowChanceSensor(coordinator, idDuPort),
         MareeUVSensor(coordinator, idDuPort),
+        MareeWaveSensor(coordinator, idDuPort),
+        MareeWindSensor(coordinator, idDuPort),
+        MareeAirTempSensor(coordinator, idDuPort),
+        MareeVisibilitySensor(coordinator, idDuPort),
     ]
     async_add_entities(entities, True)
 
@@ -514,3 +518,123 @@ class MareeUVSensor(BaseMareeSensor):
     @property
     def icon(self):
         return "mdi:weather-sunny-alert"
+
+
+class MareeWaveSensor(BaseMareeSensor):
+    """Representation of the wave and sea state sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_waves"
+
+    @property
+    def name(self):
+        return "Waves"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusVagues()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "m"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusVagues()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:waves"
+
+
+class MareeWindSensor(BaseMareeSensor):
+    """Representation of the live wind sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_wind_live"
+
+    @property
+    def name(self):
+        return "Wind Live"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusVentLive()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "km/h"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusVentLive()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:wind"
+
+
+class MareeAirTempSensor(BaseMareeSensor):
+    """Representation of the air temperature sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_air_temp"
+
+    @property
+    def name(self):
+        return "Air Temperature"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusAirTemp()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "°C"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusAirTemp()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:thermometer"
+
+
+class MareeVisibilitySensor(BaseMareeSensor):
+    """Representation of the visibility sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_visibility"
+
+    @property
+    def name(self):
+        return "Visibility"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusVisibility()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "m"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusVisibility()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:eye"
