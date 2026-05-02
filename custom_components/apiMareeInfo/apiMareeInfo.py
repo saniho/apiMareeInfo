@@ -432,18 +432,9 @@ class ApiMareeInfo:
                 return start_time, forecast, "MeteoConsult Live"
 
         # Fallback to hourly data if live data not available
-        # On cherche la prévision pour l'heure en cours et la suivante
-        current_hour = dateCourante.replace(minute=0, second=0, microsecond=0)
-        next_hour = current_hour + datetime.timedelta(hours=1)
-        
-        precip_current = 0
-        precip_next = 0
-        
-        for dt, data in self._donneesPrevis.items():
-            if dt.replace(tzinfo=None) == current_hour:
-                precip_current = data.get("precipitation", 0)
-            elif dt.replace(tzinfo=None) == next_hour:
-                precip_next = data.get("precipitation", 0)
+        # On cherche la prévision pour l'heure en cours et les suivantes de manière glissante
+        start_time = dateCourante.replace(second=0, microsecond=0)
+        start_time -= datetime.timedelta(minutes=start_time.minute % 5)
 
         def get_label(mm):
             if mm == 0: return "Temps sec"
@@ -451,12 +442,17 @@ class ApiMareeInfo:
             if mm <= 4: return "Pluie modérée"
             return "Pluie forte"
 
-        # Interpolation simple : on utilise la valeur de l'heure entamée
-        # ou on pourrait faire une transition. Ici on va rester simple.
         for i in range(0, 65, 5):
-            forecast[f"{i} min"] = get_label(precip_current if i + dateCourante.minute < 60 else precip_next)
+            target_dt = start_time + datetime.timedelta(minutes=i)
+            target_hour = target_dt.replace(minute=0, second=0, microsecond=0)
             
-        return current_hour, forecast, "MeteoConsult Forecast (Interpolated)"
+            if target_hour in self._donneesPrevis:
+                mm = self._donneesPrevis[target_hour].get("precipitation", 0)
+                forecast[f"{i} min"] = get_label(mm)
+            else:
+                forecast[f"{i} min"] = "Indisponible"
+            
+        return start_time, forecast, "MeteoConsult Forecast (Hourly Sliding)"
 
     def get_rain_chance(self):
         dateCourante = datetime.datetime.now()
