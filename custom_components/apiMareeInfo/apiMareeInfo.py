@@ -414,9 +414,9 @@ class ApiMareeInfo:
             # Find the starting point (closest available data around now)
             sorted_keys = sorted(self._donneesPrevisLive.keys())
             start_time = None
-            # We look for the first data point that is not older than 5 minutes
+            # We look for the first data point that is not older than 2 minutes
             for k in sorted_keys:
-                if k >= dateCourante - datetime.timedelta(minutes=4, seconds=59):
+                if k >= dateCourante - datetime.timedelta(seconds=120):
                     start_time = k
                     break
             

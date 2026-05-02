@@ -28,7 +28,7 @@ from . import apiMareeInfo, sensorApiMaree
 
 _LOGGER = logging.getLogger(__name__)
 ICON = "mdi:waves"
-DEFAULT_SCAN_INTERVAL = timedelta(minutes=15)
+DEFAULT_SCAN_INTERVAL = timedelta(minutes=5)
 
 CONF_STORM_KEY = "stormio_key"
 
