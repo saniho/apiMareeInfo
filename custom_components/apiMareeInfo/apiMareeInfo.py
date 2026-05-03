@@ -482,6 +482,48 @@ class ApiMareeInfo:
             return None
         return self._donneesPrevisLive[closest_dt]
 
+    def get_current_water_level(self):
+        import math
+        now = datetime.datetime.now()
+        
+        # Get all tides sorted by date
+        sorted_marees = sorted(
+            self._donnees.values(), key=lambda x: x["dateComplete"]
+        )
+        
+        if not sorted_marees:
+            return None, None
+            
+        # Find the tide before and after now
+        previous_tide = None
+        next_tide = None
+        
+        for maree in sorted_marees:
+            if maree["dateComplete"] <= now:
+                previous_tide = maree
+            elif maree["dateComplete"] > now:
+                next_tide = maree
+                break
+                
+        if not previous_tide or not next_tide:
+            return None, None
+            
+        # Calculate duration and time elapsed
+        duration = (next_tide["dateComplete"] - previous_tide["dateComplete"]).total_seconds()
+        elapsed = (now - previous_tide["dateComplete"]).total_seconds()
+        
+        # Heights
+        h_prev = previous_tide["hauteur"]
+        h_next = next_tide["hauteur"]
+        
+        # Sinusoidal interpolation
+        # Height = h_prev + (h_next - h_prev) * (1 - cos(pi * elapsed / duration)) / 2
+        level = h_prev + (h_next - h_prev) * (1 - math.cos(math.pi * elapsed / duration)) / 2
+        
+        status = "Montante" if next_tide["etat"] == "PM" else "Descendante"
+        
+        return round(level, 2), status
+
     def get_weather_alert(self):
         if not self._avis:
             return "Aucun"

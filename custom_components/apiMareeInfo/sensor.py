@@ -108,6 +108,7 @@ async def async_setup_entry(
         MareeWindSensor(coordinator, idDuPort),
         MareeAirTempSensor(coordinator, idDuPort),
         MareeVisibilitySensor(coordinator, idDuPort),
+        MareeWaterLevelSensor(coordinator, idDuPort),
     ]
     async_add_entities(entities, True)
 
@@ -638,3 +639,33 @@ class MareeVisibilitySensor(BaseMareeSensor):
     @property
     def icon(self):
         return "mdi:eye"
+
+
+class MareeWaterLevelSensor(BaseMareeSensor):
+    """Representation of the real-time water level sensor."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_water_level"
+
+    @property
+    def name(self):
+        return "Water Level"
+
+    @property
+    def state(self):
+        state, _ = self._sAM.getstatusWaterLevel()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "m"
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sAM.getstatusWaterLevel()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:water-percent"

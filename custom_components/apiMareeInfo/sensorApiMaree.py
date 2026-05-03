@@ -301,3 +301,16 @@ class manageSensorState:
             
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
+
+    def getstatusWaterLevel(self):
+        status_counts = {}
+        status_counts["version"] = self.version
+        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        level, status = self._myPort.get_current_water_level()
+        if level is not None:
+            state = level
+            status_counts["tide_status"] = status
+        else:
+            state = "unavailable"
+        status_counts["last_update"] = datetime.datetime.now()
+        return state, status_counts
