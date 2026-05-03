@@ -216,8 +216,22 @@ class manageSensorState:
             status_counts["swell_height"] = data.get("swell_height")
             status_counts["sea_code"] = data.get("sea_code")
             status_counts["wave_direction_deg"] = data.get("wave_direction")
+            status_counts["source"] = "MeteoConsult Live"
         else:
-            state = "unavailable"
+            # Fallback to hourly forecast
+            dateCourante = datetime.datetime.now()
+            for x in sorted(self._myPort.getprevis().keys()):
+                if x > dateCourante:
+                    previs = self._myPort.getprevis()[x]
+                    state = previs.get("hauteurvague")
+                    status_counts["wave_height_max"] = previs.get("hauteurmerv") # Approximation
+                    status_counts["wave_direction"] = previs.get("dirhouledegres")
+                    status_counts["swell_height"] = previs.get("hauteurhoule")
+                    status_counts["source"] = "MeteoConsult Forecast (Hourly)"
+                    break
+            else:
+                state = "unavailable"
+        
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
 
@@ -230,8 +244,21 @@ class manageSensorState:
             state = data.get("wind_speed")
             status_counts["wind_gust"] = data.get("wind_gust")
             status_counts["wind_direction"] = data.get("wind_direction")
+            status_counts["source"] = "MeteoConsult Live"
         else:
-            state = "unavailable"
+            # Fallback to hourly forecast
+            dateCourante = datetime.datetime.now()
+            for x in sorted(self._myPort.getprevis().keys()):
+                if x > dateCourante:
+                    previs = self._myPort.getprevis()[x]
+                    state = previs.get("forcevnds")
+                    status_counts["wind_gust"] = previs.get("rafvnds")
+                    status_counts["wind_direction"] = previs.get("dirvdegres")
+                    status_counts["source"] = "MeteoConsult Forecast (Hourly)"
+                    break
+            else:
+                state = "unavailable"
+
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
 
@@ -243,8 +270,19 @@ class manageSensorState:
         if data:
             state = data.get("tempe")
             status_counts["tempe_felt"] = data.get("tempe_felt")
+            status_counts["source"] = "MeteoConsult Live"
         else:
-            state = "unavailable"
+            # Fallback to hourly forecast
+            dateCourante = datetime.datetime.now()
+            for x in sorted(self._myPort.getprevis().keys()):
+                if x > dateCourante:
+                    previs = self._myPort.getprevis()[x]
+                    state = previs.get("t")
+                    status_counts["source"] = "MeteoConsult Forecast (Hourly)"
+                    break
+            else:
+                state = "unavailable"
+
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
 
@@ -255,7 +293,10 @@ class manageSensorState:
         data = self._myPort.get_current_live_data()
         if data:
             state = data.get("visibility")
+            status_counts["source"] = "MeteoConsult Live"
         else:
+            # No easy fallback for visibility in standard hourly previs
             state = "unavailable"
+            
         status_counts["last_update"] = datetime.datetime.now()
         return state, status_counts
