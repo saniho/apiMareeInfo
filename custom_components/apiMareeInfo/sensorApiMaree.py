@@ -104,6 +104,7 @@ class manageSensorState:
         if maree and maree["etat"] == pmbm:
             state = maree["horaire"]
             status_counts["coeff"] = maree.get("coeff", "")
+            status_counts["hauteur"] = maree.get("hauteur", "")
         else:
             state = "unavailable"
 
