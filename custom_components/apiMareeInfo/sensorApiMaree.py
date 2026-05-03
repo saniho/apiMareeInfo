@@ -44,6 +44,7 @@ class manageSensorState:
         status_counts["idPort"] = self._myPort.getid()
         status_counts["Copyright"] = self._myPort.getcopyright()
         status_counts["dateCourante"] = self._myPort.getdatecourante()
+        status_counts["idPort"] = self._myPort.getid()
 
         for info in self._myPort.getinfo().values():
             jour = info["jour"]
