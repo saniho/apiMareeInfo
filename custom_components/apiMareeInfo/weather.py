@@ -90,6 +90,18 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
 
     def _get_current_data(self):
         """Get the current weather data."""
+        # Try live data first
+        live_data = self.coordinator.data.get_current_live_data()
+        if live_data:
+            return {
+                "t": live_data.get("tempe"),
+                "forcevnds": live_data.get("wind_speed"),
+                "dirvdegres": live_data.get("wind_direction"),
+                "pressure": live_data.get("pressure"),
+                "nebu": live_data.get("weather_icon"),
+                "visibility": live_data.get("visibility"),
+            }
+
         previs = self.coordinator.data.getprevis()
         if not previs:
             return None

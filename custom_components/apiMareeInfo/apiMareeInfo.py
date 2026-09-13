@@ -223,6 +223,8 @@ class ApiMareeInfo:
         info=None,
         session=None,
     ):
+        self._donneesPrevisLive = {}
+        self._donneesPrevis = {}
         if jsondata is None:
             jsondata = await self.getjson(origine, info, session)
 
@@ -404,17 +406,18 @@ class ApiMareeInfo:
         if self._donneesPrevisLive:
             def get_label_risk(risk):
                 if risk == 0: return "Temps sec"
-                if risk <= 40: return "Pluie faible"
-                if risk <= 70: return "Pluie modérée"
-                return "Pluie forte"
+                if risk <= 25: return "Pluie faible"
+                if risk <= 50: return "Pluie modérée"
+                if risk <= 75: return "Pluie forte"
+                return "Pluie très forte"
 
             # Use live data (5-min steps)
             # Find the starting point (closest available data around now)
             sorted_keys = sorted(self._donneesPrevisLive.keys())
             start_time = None
-            # We look for the first data point that is not older than 5 minutes
+            # We look for the first data point that is not older than 2 minutes
             for k in sorted_keys:
-                if k >= dateCourante - datetime.timedelta(minutes=4, seconds=59):
+                if k >= dateCourante - datetime.timedelta(seconds=120):
                     start_time = k
                     break
             
@@ -430,18 +433,9 @@ class ApiMareeInfo:
                 return start_time, forecast, "MeteoConsult Live"
 
         # Fallback to hourly data if live data not available
-        # On cherche la prévision pour l'heure en cours et la suivante
-        current_hour = dateCourante.replace(minute=0, second=0, microsecond=0)
-        next_hour = current_hour + datetime.timedelta(hours=1)
-        
-        precip_current = 0
-        precip_next = 0
-        
-        for dt, data in self._donneesPrevis.items():
-            if dt.replace(tzinfo=None) == current_hour:
-                precip_current = data.get("precipitation", 0)
-            elif dt.replace(tzinfo=None) == next_hour:
-                precip_next = data.get("precipitation", 0)
+        # On cherche la prévision pour l'heure en cours et les suivantes de manière glissante
+        start_time = dateCourante.replace(second=0, microsecond=0)
+        start_time -= datetime.timedelta(minutes=start_time.minute % 5)
 
         def get_label(mm):
             if mm == 0: return "Temps sec"
@@ -449,12 +443,17 @@ class ApiMareeInfo:
             if mm <= 4: return "Pluie modérée"
             return "Pluie forte"
 
-        # Interpolation simple : on utilise la valeur de l'heure entamée
-        # ou on pourrait faire une transition. Ici on va rester simple.
         for i in range(0, 65, 5):
-            forecast[f"{i} min"] = get_label(precip_current if i + dateCourante.minute < 60 else precip_next)
+            target_dt = start_time + datetime.timedelta(minutes=i)
+            target_hour = target_dt.replace(minute=0, second=0, microsecond=0)
             
-        return current_hour, forecast, "MeteoConsult Forecast (Interpolated)"
+            if target_hour in self._donneesPrevis:
+                mm = self._donneesPrevis[target_hour].get("precipitation", 0)
+                forecast[f"{i} min"] = get_label(mm)
+            else:
+                forecast[f"{i} min"] = "Indisponible"
+            
+        return start_time, forecast, "MeteoConsult Forecast (Hourly Sliding)"
 
     def get_rain_chance(self):
         dateCourante = datetime.datetime.now()
@@ -466,10 +465,65 @@ class ApiMareeInfo:
 
     def get_cloud_cover(self):
         dateCourante = datetime.datetime.now()
+        # Try live data first if available (though cloud cover might not be in live data, 
+        # checking based on the provided JSON it's not there, but for consistency...)
         for x in sorted(self._donneesPrevis.keys()):
             if x > dateCourante:
                 return self._donneesPrevis[x].get("nuagecouverture", 0)
         return 0
+
+    def get_current_live_data(self):
+        if not self._donneesPrevisLive:
+            return None
+        now = datetime.datetime.now()
+        # Find the closest forecast to "now"
+        closest_dt = min(self._donneesPrevisLive.keys(), key=lambda x: abs(x - now))
+        # Ensure the data is not too old (e.g., more than 15 minutes)
+        if abs(closest_dt - now) > datetime.timedelta(minutes=15):
+            return None
+        return self._donneesPrevisLive[closest_dt]
+
+    def get_current_water_level(self):
+        import math
+        now = datetime.datetime.now()
+        
+        # Get all tides sorted by date
+        sorted_marees = sorted(
+            self._donnees.values(), key=lambda x: x["dateComplete"]
+        )
+        
+        if not sorted_marees:
+            return None, None
+            
+        # Find the tide before and after now
+        previous_tide = None
+        next_tide = None
+        
+        for maree in sorted_marees:
+            if maree["dateComplete"] <= now:
+                previous_tide = maree
+            elif maree["dateComplete"] > now:
+                next_tide = maree
+                break
+                
+        if not previous_tide or not next_tide:
+            return None, None
+            
+        # Calculate duration and time elapsed
+        duration = (next_tide["dateComplete"] - previous_tide["dateComplete"]).total_seconds()
+        elapsed = (now - previous_tide["dateComplete"]).total_seconds()
+        
+        # Heights
+        h_prev = previous_tide["hauteur"]
+        h_next = next_tide["hauteur"]
+        
+        # Sinusoidal interpolation
+        # Height = h_prev + (h_next - h_prev) * (1 - cos(pi * elapsed / duration)) / 2
+        level = h_prev + (h_next - h_prev) * (1 - math.cos(math.pi * elapsed / duration)) / 2
+        
+        status = "Montante" if next_tide["etat"] == "PM" else "Descendante"
+        
+        return round(level, 2), status
 
     def get_weather_alert(self):
         if not self._avis:
