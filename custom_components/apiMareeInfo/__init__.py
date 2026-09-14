@@ -56,8 +56,8 @@ if _HOMEASSISTANT_AVAILABLE:
                     await maree_api.getinformationport(
                         origine="MeteoMarine", info=None, session=session
                     )
-                    if maree_api.getError():
-                        raise UpdateFailed(f"API Error: {maree_api.getErrorMessage()}")
+                    if maree_api.has_error():
+                        raise UpdateFailed(f"API Error: {maree_api.get_error_message()}")
                     return maree_api
             except Exception as err:
                 raise UpdateFailed(f"Error communicating with API: {err}") from err

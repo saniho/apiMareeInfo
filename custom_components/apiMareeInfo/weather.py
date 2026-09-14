@@ -71,7 +71,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
     def device_info(self):
         return {
             "identifiers": {(DOMAIN, self._id_port)},
-            "name": f"Maree {self.coordinator.data.getnomduport()}",
+            "name": f"Maree {self.coordinator.data.get_port_name()}",
             "manufacturer": "apiMareeInfo",
             "model": self.coordinator.data.getcopyright(),
             "sw_version": __VERSION__,
@@ -102,7 +102,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
                 "visibility": live_data.get("visibility"),
             }
 
-        previs = self.coordinator.data.getprevis()
+        previs = self.coordinator.data.get_forecast_data()
         if not previs:
             return None
         
@@ -195,7 +195,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
 
     async def async_forecast_hourly(self) -> list[Forecast]:
         """Return the hourly forecast."""
-        previs = self.coordinator.data.getprevis()
+        previs = self.coordinator.data.get_forecast_data()
         forecasts = []
         now = datetime.now()
         for dt, data in previs.items():

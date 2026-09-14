@@ -278,7 +278,7 @@ class ApiMareeInfo:
 
         self._donneesPrevis = dicoPrevis
 
-    def getnomduport(self) -> str:
+    def get_port_name(self) -> str:
         if self._nomDuPort:
             return self._nomDuPort.split("©")[0].strip()
         return "Unknown"
@@ -286,40 +286,40 @@ class ApiMareeInfo:
     def getcopyright(self) -> str:
         return "©SHOM"
 
-    def getnomcompletduport(self) -> str | None:
+    def get_full_port_name(self) -> str | None:
         return self._nomDuPort
 
-    def getdatecourante(self) -> datetime.datetime | None:
+    def get_current_date(self) -> datetime.datetime | None:
         return self._dateCourante
 
-    def getmaxhours(self) -> int | None:
+    def get_max_hours(self) -> int | None:
         return self._maxhours
 
-    def getlat(self) -> float | None:
+    def get_lat(self) -> float | None:
         return self._lat
 
-    def getlng(self) -> float | None:
+    def get_lng(self) -> float | None:
         return self._lng
 
     def getid(self) -> str | None:
         return self._id
 
-    def gethttptimerequest(self) -> datetime.datetime:
+    def get_http_request_time(self) -> datetime.datetime:
         return self._httptimerequest
 
-    def getinfo(self) -> dict[str, TideData]:
+    def get_tide_data(self) -> dict[str, TideData]:
         return self._donnees
 
-    def getprevis(self) -> dict[datetime.datetime, ForecastData]:
+    def get_forecast_data(self) -> dict[datetime.datetime, ForecastData]:
         return self._donneesPrevis
 
-    def getError(self) -> bool:
+    def has_error(self) -> bool:
         return self._error
 
-    def getErrorMessage(self) -> str:
+    def get_error_message(self) -> str:
         return self._errorMessage
 
-    def getNextPluie(self) -> tuple[datetime.datetime | None, float]:
+    def get_next_rain(self) -> tuple[datetime.datetime | None, float]:
         dateCourante = datetime.datetime.now()
         for x in self._donneesPrevis.keys():
             if self._donneesPrevis[x]["dateComplete"] > dateCourante:
@@ -329,7 +329,7 @@ class ApiMareeInfo:
                     ]["precipitation"]
         return None, 0
 
-    def getTemperatureEau(self) -> tuple[datetime.datetime | None, str]:
+    def get_water_temperature(self) -> tuple[datetime.datetime | None, str]:
         dateCourante = datetime.datetime.now()
         for x in self._donneesPrevis.keys():
             if self._donneesPrevis[x]["dateComplete"] > dateCourante:
