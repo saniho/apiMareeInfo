@@ -359,3 +359,40 @@ class SensorStateManager:
         else:
             state = "unavailable"
         return state, sc
+
+    # ------------------------------------------------------------------
+    # get_prochaine_grande_maree_status
+    # ------------------------------------------------------------------
+
+    def get_prochaine_grande_maree_status(
+        self,
+    ) -> tuple[str, dict[str, Any]]:
+        sc = self._init_status(with_http_update=True)
+
+        if self._myPort.has_error():
+            return "unavailable", sc
+
+        maree = self._myPort.get_prochaine_grande_maree()
+        if maree is None:
+            return "unavailable", sc
+
+        dt = maree["dateComplete"]
+        now = datetime.datetime.now()
+        delta = dt - now
+        days = delta.days
+        hours, remainder = divmod(delta.seconds, 3600)
+        minutes = remainder // 60
+        if days > 0:
+            delai = f"{days}j {hours}h {minutes}min"
+        else:
+            delai = f"{hours}h {minutes}min"
+
+        state = dt.strftime("%Y-%m-%dT%H:%M:%S")
+        sc["coefficient"] = maree.get("coeff", "")
+        sc["type"] = "haute"
+        sc["hauteur"] = maree.get("hauteur", "")
+        sc["delai"] = delai
+        sc["horaire"] = maree["horaire"]
+        sc["data_source"] = "MeteoConsult"
+
+        return state, sc

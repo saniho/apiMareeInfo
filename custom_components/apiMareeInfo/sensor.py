@@ -114,6 +114,7 @@ async def async_setup_entry(
         MareeAirTempSensor(coordinator, idDuPort),
         MareeVisibilitySensor(coordinator, idDuPort),
         MareeWaterLevelSensor(coordinator, idDuPort),
+        MareeProchaineGrandeMareeSensor(coordinator, idDuPort),
     ]
     async_add_entities(entities, True)
 
@@ -674,3 +675,29 @@ class MareeWaterLevelSensor(BaseMareeSensor):
     @property
     def icon(self):
         return "mdi:water-percent"
+
+
+class MareeProchaineGrandeMareeSensor(BaseMareeSensor):
+    """Representation of the next high tide with coefficient >= 100."""
+
+    @property
+    def unique_id(self):
+        return f"{self._id_port}_prochaine_grande_maree"
+
+    @property
+    def name(self):
+        return "Prochaine grande maree"
+
+    @property
+    def state(self):
+        state, _ = self._sensor_manager.get_prochaine_grande_maree_status()
+        return state
+
+    @property
+    def extra_state_attributes(self):
+        _, attributes = self._sensor_manager.get_prochaine_grande_maree_status()
+        return attributes
+
+    @property
+    def icon(self):
+        return "mdi:waves-arrow-up"

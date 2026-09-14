@@ -209,7 +209,7 @@ class ApiMareeInfo:
         dicoPrevis: dict[datetime.datetime, ForecastData] = {}
         if (origine == "MeteoMarine") and (not self._error):
             j = 0
-            for maree in jsondata["contenu"]["marees"][:6]:
+            for maree in jsondata["contenu"]["marees"]:
                 i = 0
                 for ele in maree["etales"]:
                     dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
@@ -501,3 +501,27 @@ class ApiMareeInfo:
              current_pressure = all_data[sorted_keys[0]].get("pressure") or all_data[sorted_keys[0]].get("pression")
 
         return current_pressure, forecast
+
+    def get_prochaine_grande_maree(
+        self,
+    ) -> TideData | None:
+        """Return the next tide with coefficient >= 100, or None."""
+        now = datetime.datetime.now()
+        sorted_marees = sorted(
+            self._donnees.values(), key=lambda x: x["dateComplete"]
+        )
+        for maree in sorted_marees:
+            coeff = maree.get("coeff", "")
+            if coeff == "":
+                continue
+            try:
+                coeff_int = int(coeff)
+            except (ValueError, TypeError):
+                continue
+            if (
+                maree["dateComplete"] > now
+                and maree["etat"] == "PM"
+                and coeff_int >= 100
+            ):
+                return maree
+        return None

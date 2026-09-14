@@ -518,3 +518,145 @@ class TestApiMareeInfoWaterLevel:
         level, status = api.get_current_water_level()
         assert level is None
         assert status is None
+
+
+class TestGetProchaineGrandeMaree:
+    """Tests for get_prochaine_grande_maree method."""
+
+    def test_returns_grande_maree_when_available(self):
+        """Test that it finds next tide with coef >= 100."""
+        api = ApiMareeInfo()
+        now = datetime.datetime.now()
+        api._donnees = {
+            "horaire_0_0": {
+                "coeff": 85,
+                "hauteur": 5.5,
+                "horaire": "06:30",
+                "etat": "PM",
+                "nieme": 0,
+                "jour": 0,
+                "date": "2024-01-15T06:30:00",
+                "dateComplete": now + datetime.timedelta(hours=2),
+            },
+            "horaire_1_0": {
+                "coeff": 105,
+                "hauteur": 6.8,
+                "horaire": "18:55",
+                "etat": "PM",
+                "nieme": 0,
+                "jour": 1,
+                "date": "2024-01-16T18:55:00",
+                "dateComplete": now + datetime.timedelta(days=1, hours=6),
+            },
+        }
+        result = api.get_prochaine_grande_maree()
+        assert result is not None
+        assert result["coeff"] == 105
+        assert result["etat"] == "PM"
+
+    def test_returns_none_when_no_grande_maree(self):
+        """Test that it returns None when no coef >= 100."""
+        api = ApiMareeInfo()
+        now = datetime.datetime.now()
+        api._donnees = {
+            "horaire_0_0": {
+                "coeff": 85,
+                "hauteur": 5.5,
+                "horaire": "06:30",
+                "etat": "PM",
+                "nieme": 0,
+                "jour": 0,
+                "date": "2024-01-15T06:30:00",
+                "dateComplete": now + datetime.timedelta(hours=2),
+            },
+        }
+        result = api.get_prochaine_grande_maree()
+        assert result is None
+
+    def test_skips_past_tides(self):
+        """Test that it ignores tides in the past."""
+        api = ApiMareeInfo()
+        now = datetime.datetime.now()
+        api._donnees = {
+            "horaire_0_0": {
+                "coeff": 110,
+                "hauteur": 7.0,
+                "horaire": "06:30",
+                "etat": "PM",
+                "nieme": 0,
+                "jour": 0,
+                "date": "2024-01-15T06:30:00",
+                "dateComplete": now - datetime.timedelta(hours=2),
+            },
+        }
+        result = api.get_prochaine_grande_maree()
+        assert result is None
+
+    def test_skips_low_tide(self):
+        """Test that it ignores BM even with high coef."""
+        api = ApiMareeInfo()
+        now = datetime.datetime.now()
+        api._donnees = {
+            "horaire_0_0": {
+                "coeff": 105,
+                "hauteur": 1.2,
+                "horaire": "12:45",
+                "etat": "BM",
+                "nieme": 0,
+                "jour": 0,
+                "date": "2024-01-15T12:45:00",
+                "dateComplete": now + datetime.timedelta(hours=4),
+            },
+        }
+        result = api.get_prochaine_grande_maree()
+        assert result is None
+
+    def test_returns_first_grande_maree(self):
+        """Test that it returns the chronologically first grande marée."""
+        api = ApiMareeInfo()
+        now = datetime.datetime.now()
+        api._donnees = {
+            "horaire_0_0": {
+                "coeff": 102,
+                "hauteur": 6.5,
+                "horaire": "06:30",
+                "etat": "PM",
+                "nieme": 0,
+                "jour": 0,
+                "date": "2024-01-15T06:30:00",
+                "dateComplete": now + datetime.timedelta(days=3),
+            },
+            "horaire_1_0": {
+                "coeff": 110,
+                "hauteur": 7.0,
+                "horaire": "18:55",
+                "etat": "PM",
+                "nieme": 0,
+                "jour": 1,
+                "date": "2024-01-16T18:55:00",
+                "dateComplete": now + datetime.timedelta(days=10),
+            },
+        }
+        result = api.get_prochaine_grande_maree()
+        assert result is not None
+        assert result["coeff"] == 102
+
+    def test_handles_coef_as_string(self):
+        """Test that it handles coef stored as string."""
+        api = ApiMareeInfo()
+        now = datetime.datetime.now()
+        api._donnees = {
+            "horaire_0_0": {
+                "coeff": "105",
+                "hauteur": 6.8,
+                "horaire": "18:55",
+                "etat": "PM",
+                "nieme": 0,
+                "jour": 0,
+                "date": "2024-01-16T18:55:00",
+                "dateComplete": now + datetime.timedelta(days=1),
+            },
+        }
+        result = api.get_prochaine_grande_maree()
+        assert result is not None
+        assert result["coeff"] == "105"
