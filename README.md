@@ -3,9 +3,14 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.5** - Nommage cohérent FR/EN + constantes centralisées
+**v2.1.6** - Capteur prochaine grande marée
 
 ## 📝 Changelog
+
+### v2.1.6
+- 🌊 **Nouveau capteur** : `sensor.prochaine_grande_maree` — affiche la date/heure de la prochaine grande marée (coefficient >= 100) avec les attributs `coefficient`, `type`, `hauteur`, `delai`, `horaire` (issue #47).
+- 📊 **Prévisions étendues** : Les données MeteoConsult sont maintenant exploitées sur 15 jours au lieu de 6, permettant de détecter les grandes marées à venir.
+- ⚠️ **Comportement morte-eau** : Le capteur affiche `unavailable` en période de morte-eau (aucun coefficient >= 100 dans les 15 jours). C'est normal : les grandes marées ne surviennent que lors des périodes d'équinoxe (2-4 fois par mois).
 
 ### v2.1.5
 - 🏷️ **Constantes centralisées** : `DEFAULT_MAX_HOURS`, `DEFAULT_SCAN_INTERVAL`, `CONF_STORM_KEY` déplacés dans `const.py` (issue #55).
@@ -67,6 +72,7 @@ Voici les entités disponibles (exemple pour le port de Saint-Malo) :
 | **Prochaine Haute** | `sensor.maree_saint_malo_prochaine_haute` | Heure et hauteur de la prochaine marée haute. |
 | **Prochaine Basse** | `sensor.maree_saint_malo_prochaine_basse` | Heure et hauteur de la prochaine marée basse. |
 | **Température Eau** | `sensor.maree_saint_malo_temperature_eau` | Température de l'eau (si disponible). |
+| **Prochaine Grande Marée** | `sensor.maree_saint_malo_prochaine_grande_maree` | Date/heure de la prochaine marée avec coefficient >= 100. Indisponible en morte-eau. |
 
 ### Migration depuis une ancienne version
 
