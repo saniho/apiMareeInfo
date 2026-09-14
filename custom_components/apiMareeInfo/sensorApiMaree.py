@@ -1,6 +1,5 @@
 import datetime
 import logging
-from collections import defaultdict
 
 
 class manageSensorState:
@@ -15,6 +14,48 @@ class manageSensorState:
             _LOGGER = logging.getLogger(__name__)
         self._LOGGER = _LOGGER
         self.version = version
+
+    # ------------------------------------------------------------------
+    # Helpers to reduce duplication across getstatus* methods
+    # ------------------------------------------------------------------
+
+    def _init_status(self, with_http_update=False):
+        """Build the common status dict shared by every getstatus* method."""
+        sc = {
+            "version": self.version,
+            "attribution": "Data provided by apiMareeInfo",
+            "last_update": datetime.datetime.now(),
+        }
+        if with_http_update:
+            sc["last_http_update"] = self._myPort.gethttptimerequest()
+        return sc
+
+    def _get_data_source(self):
+        """Return the data source label based on live vs forecast availability."""
+        return (
+            "MeteoConsult Live"
+            if self._myPort._donneesPrevisLive
+            else "MeteoConsult Forecast (Hourly)"
+        )
+
+    def _get_live_or_forecast(self):
+        """Common pattern: try live data first, fall back to next hourly forecast.
+
+        Returns (data_dict_or_None, source_label_or_None).
+        """
+        data = self._myPort.get_current_live_data()
+        if data:
+            return data, "MeteoConsult Live"
+
+        date_courante = datetime.datetime.now()
+        for x in sorted(self._myPort.getprevis().keys()):
+            if x > date_courante:
+                return self._myPort.getprevis()[x], "MeteoConsult Forecast (Hourly)"
+        return None, None
+
+    # ------------------------------------------------------------------
+    # Tide helpers
+    # ------------------------------------------------------------------
 
     def getnextmaree(self, indice=1, maintenant=None):
         i = 1
@@ -31,6 +72,10 @@ class manageSensorState:
                     return maree
                 i += 1
         return None
+
+    # ------------------------------------------------------------------
+    # getstatus (main tide status – unique logic, kept as-is)
+    # ------------------------------------------------------------------
 
     def getstatus(self):
         status_counts = {}
@@ -89,11 +134,12 @@ class manageSensorState:
 
         return state, status_counts
 
+    # ------------------------------------------------------------------
+    # getStateNextMaree
+    # ------------------------------------------------------------------
+
     def getStateNextMaree(self, pmbm=""):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["last_update"] = datetime.datetime.now()
-        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        sc = self._init_status(with_http_update=True)
 
         next_maree = self.getnextmaree(1)
         if next_maree and next_maree["etat"] == pmbm:
@@ -103,16 +149,19 @@ class manageSensorState:
 
         if maree and maree["etat"] == pmbm:
             state = maree["horaire"]
-            status_counts["coeff"] = maree.get("coeff", "")
-            status_counts["hauteur"] = maree.get("hauteur", "")
+            sc["coeff"] = maree.get("coeff", "")
+            sc["hauteur"] = maree.get("hauteur", "")
         else:
             state = "unavailable"
 
-        return state, status_counts
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusProchainePluie
+    # ------------------------------------------------------------------
 
     def getstatusProchainePluie(self):
-        status_counts = {}
-        status_counts["version"] = self.version
+        sc = self._init_status(with_http_update=True)
 
         dateNextPluie, precipitation = self._myPort.getNextPluie()
         if dateNextPluie:
@@ -122,22 +171,21 @@ class manageSensorState:
             dateNextPluieCh = ""
             state = "unavailable"
 
-        status_counts["prochainePluie"] = dateNextPluieCh
-        status_counts["precipitation"] = precipitation
-        status_counts["message"] = f"{dateNextPluieCh} - {precipitation} mm"
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
-        status_counts["last_update"] = datetime.datetime.now()
-        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
-        
-        # Fallback for 1_hour_forecast to prevent JS errors
-        _, forecast, _ = self._myPort.get_1h_forecast()
-        status_counts["1_hour_forecast"] = forecast
+        sc["prochainePluie"] = dateNextPluieCh
+        sc["precipitation"] = precipitation
+        sc["message"] = f"{dateNextPluieCh} - {precipitation} mm"
 
-        return state, status_counts
+        _, forecast, _ = self._myPort.get_1h_forecast()
+        sc["1_hour_forecast"] = forecast
+
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusTemperatureEau
+    # ------------------------------------------------------------------
 
     def getstatusTemperatureEau(self):
-        status_counts = {}
-        status_counts["version"] = self.version
+        sc = self._init_status(with_http_update=True)
 
         dateTemperatureEau, teau = self._myPort.getTemperatureEau()
         if dateTemperatureEau:
@@ -145,185 +193,150 @@ class manageSensorState:
         else:
             state = "unavailable"
 
-        status_counts["dateTemperatureEau"] = (
+        sc["dateTemperatureEau"] = (
             dateTemperatureEau.strftime("%d/%m %H:%M") if dateTemperatureEau else ""
         )
-        status_counts["teau"] = teau
-        status_counts["last_update"] = datetime.datetime.now()
-        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        sc["teau"] = teau
 
-        return state, status_counts
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusMeteoFrance
+    # ------------------------------------------------------------------
 
     def getstatusMeteoFrance(self):
-        status_counts = {}
-        status_counts["version"] = self.version
+        sc = self._init_status(with_http_update=True)
 
         forecast_time_ref, forecast, source = self._myPort.get_1h_forecast()
-        
-        # L'état est la prévision immédiate (0 min)
         state = forecast.get("0 min", "Temps sec")
 
-        status_counts["forecast_time_ref"] = forecast_time_ref.isoformat()
-        status_counts["1_hour_forecast"] = forecast
-        status_counts["data_source"] = source
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
-        status_counts["last_update"] = datetime.datetime.now()
-        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        sc["forecast_time_ref"] = forecast_time_ref.isoformat()
+        sc["1_hour_forecast"] = forecast
+        sc["data_source"] = source
 
-        return state, status_counts
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusRainChance
+    # ------------------------------------------------------------------
 
     def getstatusRainChance(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        sc = self._init_status()
         state = self._myPort.get_rain_chance()
-        # Check if live data was used (via get_current_live_data which apiMareeInfo uses internaly)
-        if self._myPort._donneesPrevisLive:
-            status_counts["data_source"] = "MeteoConsult Live"
-        else:
-            status_counts["data_source"] = "MeteoConsult Forecast (Hourly)"
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+        sc["data_source"] = self._get_data_source()
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusCloudCover
+    # ------------------------------------------------------------------
 
     def getstatusCloudCover(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        sc = self._init_status()
         state = self._myPort.get_cloud_cover()
-        # Cloud cover currently mostly from Forecast in the provided logic
-        status_counts["data_source"] = "MeteoConsult Forecast (Hourly)"
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+        sc["data_source"] = "MeteoConsult Forecast (Hourly)"
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusWeatherAlert
+    # ------------------------------------------------------------------
 
     def getstatusWeatherAlert(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        sc = self._init_status()
         state = self._myPort.get_weather_alert()
-        status_counts["data_source"] = "MeteoConsult"
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+        sc["data_source"] = "MeteoConsult"
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusPressure
+    # ------------------------------------------------------------------
 
     def getstatusPressure(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        sc = self._init_status()
         state, forecast = self._myPort.get_pressure_forecast()
-        status_counts["pressure_forecast"] = forecast
-        if self._myPort._donneesPrevisLive:
-             status_counts["data_source"] = "MeteoConsult Live"
-        else:
-             status_counts["data_source"] = "MeteoConsult Forecast (Hourly)"
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+        sc["pressure_forecast"] = forecast
+        sc["data_source"] = self._get_data_source()
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusVagues
+    # ------------------------------------------------------------------
 
     def getstatusVagues(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
-        data = self._myPort.get_current_live_data()
+        sc = self._init_status()
+        data, source = self._get_live_or_forecast()
         if data:
-            state = data.get("wave_height")
-            status_counts["wave_height_max"] = data.get("wave_height_max")
-            status_counts["wave_direction"] = data.get("wave_direction")
-            status_counts["swell_height"] = data.get("swell_height")
-            status_counts["sea_code"] = data.get("sea_code")
-            status_counts["wave_direction_deg"] = data.get("wave_direction")
-            status_counts["data_source"] = "MeteoConsult Live"
+            is_live = source == "MeteoConsult Live"
+            state = data.get("wave_height" if is_live else "hauteurvague")
+            sc["wave_height_max"] = data.get("wave_height_max" if is_live else "hauteurmerv")
+            sc["wave_direction"] = data.get("wave_direction" if is_live else "dirhouledegres")
+            sc["swell_height"] = data.get("swell_height" if is_live else "hauteurhoule")
+            if is_live:
+                sc["sea_code"] = data.get("sea_code")
+                sc["wave_direction_deg"] = data.get("wave_direction")
+            sc["data_source"] = source
         else:
-            # Fallback to hourly forecast
-            dateCourante = datetime.datetime.now()
-            for x in sorted(self._myPort.getprevis().keys()):
-                if x > dateCourante:
-                    previs = self._myPort.getprevis()[x]
-                    state = previs.get("hauteurvague")
-                    status_counts["wave_height_max"] = previs.get("hauteurmerv") # Approximation
-                    status_counts["wave_direction"] = previs.get("dirhouledegres")
-                    status_counts["swell_height"] = previs.get("hauteurhoule")
-                    status_counts["data_source"] = "MeteoConsult Forecast (Hourly)"
-                    break
-            else:
-                state = "unavailable"
-        
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+            state = "unavailable"
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusVentLive
+    # ------------------------------------------------------------------
 
     def getstatusVentLive(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
-        data = self._myPort.get_current_live_data()
+        sc = self._init_status()
+        data, source = self._get_live_or_forecast()
         if data:
-            state = data.get("wind_speed")
-            status_counts["wind_gust"] = data.get("wind_gust")
-            status_counts["wind_direction"] = data.get("wind_direction")
-            status_counts["data_source"] = "MeteoConsult Live"
+            is_live = source == "MeteoConsult Live"
+            state = data.get("wind_speed" if is_live else "forcevnds")
+            sc["wind_gust"] = data.get("wind_gust" if is_live else "rafvnds")
+            sc["wind_direction"] = data.get("wind_direction" if is_live else "dirvdegres")
+            sc["data_source"] = source
         else:
-            # Fallback to hourly forecast
-            dateCourante = datetime.datetime.now()
-            for x in sorted(self._myPort.getprevis().keys()):
-                if x > dateCourante:
-                    previs = self._myPort.getprevis()[x]
-                    state = previs.get("forcevnds")
-                    status_counts["wind_gust"] = previs.get("rafvnds")
-                    status_counts["wind_direction"] = previs.get("dirvdegres")
-                    status_counts["data_source"] = "MeteoConsult Forecast (Hourly)"
-                    break
-            else:
-                state = "unavailable"
+            state = "unavailable"
+        return state, sc
 
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+    # ------------------------------------------------------------------
+    # getstatusAirTemp
+    # ------------------------------------------------------------------
 
     def getstatusAirTemp(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
-        data = self._myPort.get_current_live_data()
+        sc = self._init_status()
+        data, source = self._get_live_or_forecast()
         if data:
-            state = data.get("tempe")
-            status_counts["tempe_felt"] = data.get("tempe_felt")
-            status_counts["data_source"] = "MeteoConsult Live"
+            is_live = source == "MeteoConsult Live"
+            state = data.get("tempe" if is_live else "t")
+            if is_live:
+                sc["tempe_felt"] = data.get("tempe_felt")
+            sc["data_source"] = source
         else:
-            # Fallback to hourly forecast
-            dateCourante = datetime.datetime.now()
-            for x in sorted(self._myPort.getprevis().keys()):
-                if x > dateCourante:
-                    previs = self._myPort.getprevis()[x]
-                    state = previs.get("t")
-                    status_counts["data_source"] = "MeteoConsult Forecast (Hourly)"
-                    break
-            else:
-                state = "unavailable"
+            state = "unavailable"
+        return state, sc
 
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+    # ------------------------------------------------------------------
+    # getstatusVisibility
+    # ------------------------------------------------------------------
 
     def getstatusVisibility(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        sc = self._init_status()
         data = self._myPort.get_current_live_data()
         if data:
             state = data.get("visibility")
-            status_counts["data_source"] = "MeteoConsult Live"
+            sc["data_source"] = "MeteoConsult Live"
         else:
-            # No easy fallback for visibility in standard hourly previs
             state = "unavailable"
-            
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+        return state, sc
+
+    # ------------------------------------------------------------------
+    # getstatusWaterLevel
+    # ------------------------------------------------------------------
 
     def getstatusWaterLevel(self):
-        status_counts = {}
-        status_counts["version"] = self.version
-        status_counts["attribution"] = "Data provided by apiMareeInfo"
+        sc = self._init_status()
         level, status = self._myPort.get_current_water_level()
         if level is not None:
             state = level
-            status_counts["tide_status"] = status
-            status_counts["data_source"] = "Calculated (Sinusoidal Interpolation)"
+            sc["tide_status"] = status
+            sc["data_source"] = "Calculated (Sinusoidal Interpolation)"
         else:
             state = "unavailable"
-        status_counts["last_update"] = datetime.datetime.now()
-        return state, status_counts
+        return state, sc
