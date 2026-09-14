@@ -3,9 +3,12 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.2** - Refactor HTTP helper + tests unitaires CI
+**v2.1.4** - Typage complet avec TypedDict
 
 ## 📝 Changelog
+
+### v2.1.4
+- 🏷️ **Typage complet** : Ajout de TypedDict pour les structures de données (`TideData`, `ForecastData`, `LiveForecastItemRaw`, etc.) avec hints sur tous les attributs et méthodes (issue #53).
 
 ### v2.1.2
 - 🔧 **Refactor HTTP** : Extraction du helper HTTP partagé (`http_utils.py`) supprimant la duplication de code entre `ListePorts` et `MeteoMarine` (issue #48).
