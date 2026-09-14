@@ -3,9 +3,15 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.4** - Typage complet avec TypedDict
+**v2.1.5** - Nommage cohérent FR/EN + constantes centralisées
 
 ## 📝 Changelog
+
+### v2.1.5
+- 🏷️ **Constantes centralisées** : `DEFAULT_MAX_HOURS`, `DEFAULT_SCAN_INTERVAL`, `CONF_STORM_KEY` déplacés dans `const.py` (issue #55).
+- 🔤 **Nommage FR→EN** : Les méthodes publiques de `ApiMareeInfo` ont été renommées en anglais (`get_port_name()`, `get_tide_data()`, `has_error()`, etc.) (issue #55).
+- 🔤 **Noms de classes PascalCase** : `manageSensorState` → `SensorStateManager` (issue #55).
+- 🔤 **Variables snake_case** : `_sAM` → `_sensor_manager` dans `sensor.py` (issue #55).
 
 ### v2.1.4
 - 🏷️ **Typage complet** : Ajout de TypedDict pour les structures de données (`TideData`, `ForecastData`, `LiveForecastItemRaw`, etc.) avec hints sur tous les attributs et méthodes (issue #53).
