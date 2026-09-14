@@ -1,6 +1,11 @@
 """Sensor for apiMareeInfo."""
+
+from __future__ import annotations
+
 import logging
 from datetime import timedelta, datetime
+from typing import Any
+
 import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
@@ -37,7 +42,7 @@ async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
-):
+) -> None:
     """Set up the sensor platform."""
     config = entry.data
     options = entry.options
@@ -46,7 +51,7 @@ async def async_setup_entry(
     lng = config[CONF_LONGITUDE]
     stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
     maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, 6))
-    
+
     # Use entry_id as the base for unique IDs to ensure uniqueness per config entry
     idDuPort = entry.entry_id
 
@@ -60,7 +65,7 @@ async def async_setup_entry(
     origine = "stormio" if stormkey else "MeteoMarine"
     info = {"stormkey": stormkey} if stormkey else None
 
-    async def async_update_data():
+    async def async_update_data() -> apiMareeInfo.ApiMareeInfo:
         """Fetch data from API endpoint."""
         try:
             async with async_timeout.timeout(30):
@@ -115,10 +120,10 @@ async def async_setup_entry(
 
 class BaseMareeSensor(CoordinatorEntity):
     """Base class for maree sensors."""
-    
+
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: DataUpdateCoordinator, id_port: str):
+    def __init__(self, coordinator: DataUpdateCoordinator, id_port: str) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._id_port = id_port
@@ -126,7 +131,7 @@ class BaseMareeSensor(CoordinatorEntity):
         self._sAM.init(self.coordinator.data, _LOGGER, __VERSION__)
 
     @property
-    def device_info(self):
+    def device_info(self) -> dict[str, Any]:
         return {
             "identifiers": {(DOMAIN, self._id_port)},
             "name": f"Maree {self.coordinator.data.getnomduport()}",
