@@ -1,7 +1,7 @@
 import logging
 import datetime
-import json
-import aiohttp
+
+from .http_utils import async_fetch_json
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -11,43 +11,14 @@ class ListePorts:
         pass
 
     async def getjson(self, url, session=None, params=None):
-        headers = {
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-language": "fr,en-US;q=0.9,en;q=0.8",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "priority": "u=0, i",
-            "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "document",
-            "sec-fetch-mode": "navigate",
-            "sec-fetch-site": "none",
-            "sec-fetch-user": "?1",
-            "upgrade-insecure-requests": "1",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
-        }
-        
-        async def _fetch(s):
-            try:
-                async with s.get(url, params=params, headers=headers, timeout=30, ssl=False) as response:
-                    response.raise_for_status()
-                    return await response.json(content_type=None)
-            except aiohttp.ClientError as error:
-                _LOGGER.error("Error getting json from %s: %s", url, error)
-                return {"error": "UNKERROR_001"}
-
-        if session:
-            return await _fetch(session)
-        else:
-            async with aiohttp.ClientSession() as local_session:
-                return await _fetch(local_session)
+        return await async_fetch_json(
+            url, session=session, params=params, source_name="ListePorts"
+        )
 
     async def getlisteport(self, nomport, session=None):
         url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php"
         params = {"rech": nomport}
-        retour = await self.getjson(url, session, params=params)
-        return retour
+        return await self.getjson(url, session, params=params)
 
 
 class MeteoMarine:
@@ -58,37 +29,9 @@ class MeteoMarine:
         )
 
     async def getdata(self, session=None):
-        headers = {
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-language": "fr,en-US;q=0.9,en;q=0.8",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "priority": "u=0, i",
-            "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "document",
-            "sec-fetch-mode": "navigate",
-            "sec-fetch-site": "none",
-            "sec-fetch-user": "?1",
-            "upgrade-insecure-requests": "1",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
-        }
-
-        async def _fetch(s):
-            try:
-                async with s.get(self._url, headers=headers, timeout=30, ssl=False) as response:
-                    response.raise_for_status()
-                    return await response.json(content_type=None)
-            except aiohttp.ClientError as error:
-                _LOGGER.error("Error getting data from MeteoMarine (%s): %s", self._url, error)
-                return {"error": "UNKERROR_001"}
-
-        if session:
-            return await _fetch(session)
-        else:
-            async with aiohttp.ClientSession() as local_session:
-                return await _fetch(local_session)
+        return await async_fetch_json(
+            self._url, session=session, source_name="MeteoMarine"
+        )
 
 
 class MeteoMarineLive:
@@ -96,45 +39,15 @@ class MeteoMarineLive:
         self._id_port = id_port
 
     async def getdata(self, session=None):
-        import datetime
-
         now = datetime.datetime.now()
         day = now.strftime("%Y-%m-%d")
         url = (
             "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/en/v40/forecasts/live?day=%s&id=%s&limit=1&type_string=beaches"
             % (day, self._id_port)
         )
-        headers = {
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-language": "fr,en-US;q=0.9,en;q=0.8",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "priority": "u=0, i",
-            "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
-            "sec-fetch-dest": "document",
-            "sec-fetch-mode": "navigate",
-            "sec-fetch-site": "none",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        }
-
-        async def _fetch(s):
-            try:
-                async with s.get(
-                    url, headers=headers, timeout=30, ssl=False
-                ) as response:
-                    response.raise_for_status()
-                    return await response.json(content_type=None)
-            except aiohttp.ClientError as error:
-                _LOGGER.error(
-                    "Error getting data from MeteoMarineLive (%s): %s", url, error
-                )
-                return {"error": "UNKERROR_001"}
-
-        if session:
-            return await _fetch(session)
-        else:
-            async with aiohttp.ClientSession() as local_session:
-                return await _fetch(local_session)
+        return await async_fetch_json(
+            url, session=session, source_name="MeteoMarineLive"
+        )
 
 
 class stormIO:
@@ -144,36 +57,29 @@ class stormIO:
         self._storm_key = storm_key
 
     async def getdata(self, session=None):
-        import datetime
         now = datetime.datetime.now()
         nowJ2 = now + datetime.timedelta(days=2)
         self._deb = now.strftime("%Y-%m-%d %H:%M:%S+00:00")
         self._fin = nowJ2.strftime("%Y-%m-%d %H:%M:%S+00:00")
-        
-        params={
-                'lat': self._lat,
-                'lng': self._lng,
-                'start': self._deb, 'end': self._fin,
-            }
-        headers={
-                'Authorization': self._storm_key
-            }
-        url = 'https://api.stormglass.io/v2/tide/extremes/point'
 
-        async def _fetch(s):
-            try:
-                async with s.get(url, params=params, headers=headers, timeout=600) as response:
-                    response.raise_for_status()
-                    return await response.json()
-            except aiohttp.ClientError as error:
-                _LOGGER.error("Error getting data from StormIO: %s", error)
-                return {"errors": {"key": f"Communication error: {error}"}}
+        params = {
+            "lat": self._lat,
+            "lng": self._lng,
+            "start": self._deb,
+            "end": self._fin,
+        }
+        headers = {"Authorization": self._storm_key}
+        url = "https://api.stormglass.io/v2/tide/extremes/point"
 
-        if session:
-            return await _fetch(session)
-        else:
-            async with aiohttp.ClientSession() as local_session:
-                return await _fetch(local_session)
+        return await async_fetch_json(
+            url,
+            session=session,
+            params=params,
+            headers=headers,
+            timeout=600,
+            source_name="StormIO",
+            error_return={"errors": {"key": "Communication error"}},
+        )
 
 
 class ApiMareeInfo:
@@ -193,7 +99,6 @@ class ApiMareeInfo:
         self._donneesPrevis = {}
         self._donneesPrevisLive = {}
         self._avis = []
-        pass
 
     async def getjson(self, origine, info=None, session=None):
         if origine == "MeteoMarine":
@@ -242,7 +147,7 @@ class ApiMareeInfo:
                 self._dateCourante = jsondata["contenu"]["marees"][0]["datetime"]
                 self._error = False
                 self._avis = jsondata["contenu"].get("avis", [])
-            
+
             # Fetch live data if id is available
             if self._id:
                 live_jsondata = await self.getjson("MeteoMarineLive", session=session)
@@ -402,7 +307,7 @@ class ApiMareeInfo:
     def get_1h_forecast(self):
         dateCourante = datetime.datetime.now()
         forecast = {}
-        
+
         if self._donneesPrevisLive:
             def get_label_risk(risk):
                 if risk == 0: return "Temps sec"
@@ -420,7 +325,7 @@ class ApiMareeInfo:
                 if k >= dateCourante - datetime.timedelta(seconds=120):
                     start_time = k
                     break
-            
+
             if start_time:
                 for i in range(0, 65, 5):
                     target_dt = start_time + datetime.timedelta(minutes=i)
@@ -429,7 +334,7 @@ class ApiMareeInfo:
                         forecast[f"{i} min"] = get_label_risk(risk)
                     else:
                         forecast[f"{i} min"] = "Indisponible"
-                
+
                 return start_time, forecast, "MeteoConsult Live"
 
         # Fallback to hourly data if live data not available
@@ -538,13 +443,13 @@ class ApiMareeInfo:
         dateCourante = datetime.datetime.now()
         forecast = {}
         current_pressure = None
-        
+
         # We combine live and hourly data for the best forecast
         all_data = {**self._donneesPrevis}
         for dt, data in self._donneesPrevisLive.items():
             if "pressure" in data or "pression" in data:
                 all_data[dt] = {**all_data.get(dt, {}), "pressure": data.get("pressure") or data.get("pression")}
-        
+
         sorted_keys = sorted(all_data.keys())
         for k in sorted_keys:
             val = all_data[k].get("pressure") or all_data[k].get("pression")
@@ -553,8 +458,8 @@ class ApiMareeInfo:
                     current_pressure = val
                 else:
                     forecast[k.isoformat()] = val
-                    
+
         if current_pressure is None and sorted_keys:
              current_pressure = all_data[sorted_keys[0]].get("pressure") or all_data[sorted_keys[0]].get("pression")
-             
+
         return current_pressure, forecast

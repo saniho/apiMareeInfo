@@ -3,9 +3,15 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.0.0** - Refonte majeure avec support météo complet
+**v2.1.2** - Refactor HTTP helper + tests unitaires CI
 
 ## 📝 Changelog
+
+### v2.1.2
+- 🔧 **Refactor HTTP** : Extraction du helper HTTP partagé (`http_utils.py`) supprimant la duplication de code entre `ListePorts` et `MeteoMarine` (issue #48).
+- ✅ **Tests unitaires** : Ajout d'une suite de tests complète avec pytest + couverture.
+- 🤖 **CI GitHub Actions** : Ajout du workflow `tests.yml` pour exécuter les tests automatiquement.
+- 📦 **Dépendances de test** : Ajout de `requirements-test.txt` et `pyproject.toml`.
 
 ### v2.0.0
 - 🚀 **Entité Weather** : Ajout d'une plateforme météo complète (`weather`) native pour Home Assistant.
