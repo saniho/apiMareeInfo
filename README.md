@@ -3,9 +3,14 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.6** - Capteur prochaine grande marée
+**v2.1.7.beta.1** - CI/CD complet
 
 ## 📝 Changelog
+
+### v2.1.7.beta.1
+- 🔧 **CI/CD complet** : Pipeline unifié avec lint (ruff), typecheck (mypy), tests (pytest + coverage), CodeQL et HACS validation (issue #57).
+- 🧹 **Nettoyage** : Suppression des workflows obsolètes (`main.yml`, `tests.yml`, `ruff.yml`, `codeql-analysis.yml`, `validate-hacs.yml`) remplacés par un seul `ci.yml`.
+- 🗑️ **Fichiers legacy supprimés** : `testMareeInfo.py` et `test_search.py` (non intégrés au test suite).
 
 ### v2.1.6
 - 🌊 **Nouveau capteur** : `sensor.prochaine_grande_maree` — affiche la date/heure de la prochaine grande marée (coefficient >= 100) avec les attributs `coefficient`, `type`, `hauteur`, `delai`, `horaire` (issue #47).
