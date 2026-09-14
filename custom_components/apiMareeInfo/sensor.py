@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta, datetime
+from datetime import datetime
 from typing import Any
 
 import async_timeout
@@ -26,6 +26,9 @@ from .const import (
     __name__,
     __VERSION__,
     CONF_MAXHOURS,
+    CONF_STORM_KEY,
+    DEFAULT_MAX_HOURS,
+    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     CONF_ID,
 )
@@ -33,9 +36,6 @@ from . import apiMareeInfo, sensorApiMaree
 
 _LOGGER = logging.getLogger(__name__)
 ICON = "mdi:waves"
-DEFAULT_SCAN_INTERVAL = timedelta(minutes=5)
-
-CONF_STORM_KEY = "stormio_key"
 
 
 async def async_setup_entry(
@@ -50,7 +50,7 @@ async def async_setup_entry(
     lat = config[CONF_LATITUDE]
     lng = config[CONF_LONGITUDE]
     stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
-    maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, 6))
+    maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, DEFAULT_MAX_HOURS))
 
     # Use entry_id as the base for unique IDs to ensure uniqueness per config entry
     idDuPort = entry.entry_id
@@ -86,11 +86,11 @@ async def async_setup_entry(
 
     await coordinator.async_refresh()
 
-    if coordinator.data.getError():
+    if coordinator.data.has_error():
         _LOGGER.error(
             "Could not fetch initial data for %s: %s",
             idDuPort,
-            coordinator.data.getErrorMessage(),
+            coordinator.data.get_error_message(),
         )
         # We don't return here to allow the entities to be created even if initial fetch failed
         # They will just be unavailable until the next successful update
@@ -127,14 +127,14 @@ class BaseMareeSensor(CoordinatorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._id_port = id_port
-        self._sAM = sensorApiMaree.manageSensorState()
-        self._sAM.init(self.coordinator.data, _LOGGER, __VERSION__)
+        self._sensor_manager = sensorApiMaree.SensorStateManager()
+        self._sensor_manager.init(self.coordinator.data, _LOGGER, __VERSION__)
 
     @property
     def device_info(self) -> dict[str, Any]:
         return {
             "identifiers": {(DOMAIN, self._id_port)},
-            "name": f"Maree {self.coordinator.data.getnomduport()}",
+            "name": f"Maree {self.coordinator.data.get_port_name()}",
             "manufacturer": "apiMareeInfo",
             "model": self.coordinator.data.getcopyright(),
             "sw_version": __VERSION__,
@@ -158,13 +158,13 @@ class infoMareeSensor(BaseMareeSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        state, _ = self._sAM.getstatus()
+        state, _ = self._sensor_manager.getstatus()
         return state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        _, attributes = self._sAM.getstatus()
+        _, attributes = self._sensor_manager.getstatus()
         return attributes
 
     @property
@@ -189,13 +189,13 @@ class infoMareeHauteSensor(BaseMareeSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        state, _ = self._sAM.getStateNextMaree("PM")
+        state, _ = self._sensor_manager.get_next_tide_state("PM")
         return state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        _, attributes = self._sAM.getStateNextMaree("PM")
+        _, attributes = self._sensor_manager.get_next_tide_state("PM")
         return attributes
 
     @property
@@ -220,13 +220,13 @@ class infoMareeBasseSensor(BaseMareeSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        state, _ = self._sAM.getStateNextMaree("BM")
+        state, _ = self._sensor_manager.get_next_tide_state("BM")
         return state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        _, attributes = self._sAM.getStateNextMaree("BM")
+        _, attributes = self._sensor_manager.get_next_tide_state("BM")
         return attributes
 
     @property
@@ -251,7 +251,7 @@ class infoMareeTEauSensor(BaseMareeSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        state, _ = self._sAM.getstatusTemperatureEau()
+        state, _ = self._sensor_manager.get_water_temp_status()
         return state
 
     @property
@@ -262,7 +262,7 @@ class infoMareeTEauSensor(BaseMareeSensor):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        _, attributes = self._sAM.getstatusTemperatureEau()
+        _, attributes = self._sensor_manager.get_water_temp_status()
         return attributes
 
     @property
@@ -287,13 +287,13 @@ class MareeNextRainForecastSensor(BaseMareeSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        state, _ = self._sAM.getstatusMeteoFrance()
+        state, _ = self._sensor_manager.get_weather_status()
         return state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        _, attributes = self._sAM.getstatusMeteoFrance()
+        _, attributes = self._sensor_manager.get_weather_status()
         return attributes
 
     @property
@@ -315,7 +315,7 @@ class MareeRainChanceSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusRainChance()
+        state, _ = self._sensor_manager.get_rain_chance_status()
         return state
 
     @property
@@ -324,7 +324,7 @@ class MareeRainChanceSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusRainChance()
+        _, attributes = self._sensor_manager.get_rain_chance_status()
         return attributes
 
     @property
@@ -345,7 +345,7 @@ class MareeCloudCoverSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusCloudCover()
+        state, _ = self._sensor_manager.get_cloud_cover_status()
         return state
 
     @property
@@ -354,7 +354,7 @@ class MareeCloudCoverSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusCloudCover()
+        _, attributes = self._sensor_manager.get_cloud_cover_status()
         return attributes
 
     @property
@@ -375,12 +375,12 @@ class MareeWeatherAlertSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusWeatherAlert()
+        state, _ = self._sensor_manager.get_weather_alert_status()
         return state
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusWeatherAlert()
+        _, attributes = self._sensor_manager.get_weather_alert_status()
         return attributes
 
     @property
@@ -401,7 +401,7 @@ class MareePressureSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusPressure()
+        state, _ = self._sensor_manager.get_pressure_status()
         return state
 
     @property
@@ -410,7 +410,7 @@ class MareePressureSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusPressure()
+        _, attributes = self._sensor_manager.get_pressure_status()
         return attributes
 
     @property
@@ -431,14 +431,14 @@ class MareeNextRainTimeSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusProchainePluie()
+        state, _ = self._sensor_manager.get_next_rain_status()
         if isinstance(state, datetime):
              return state.strftime("%d/%m %H:%M")
         return state
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusProchainePluie()
+        _, attributes = self._sensor_manager.get_next_rain_status()
         return attributes
 
     @property
@@ -539,7 +539,7 @@ class MareeWaveSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusVagues()
+        state, _ = self._sensor_manager.get_wave_status()
         return state
 
     @property
@@ -548,7 +548,7 @@ class MareeWaveSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusVagues()
+        _, attributes = self._sensor_manager.get_wave_status()
         return attributes
 
     @property
@@ -569,7 +569,7 @@ class MareeWindSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusVentLive()
+        state, _ = self._sensor_manager.get_wind_status()
         return state
 
     @property
@@ -578,7 +578,7 @@ class MareeWindSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusVentLive()
+        _, attributes = self._sensor_manager.get_wind_status()
         return attributes
 
     @property
@@ -599,7 +599,7 @@ class MareeAirTempSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusAirTemp()
+        state, _ = self._sensor_manager.get_air_temp_status()
         return state
 
     @property
@@ -608,7 +608,7 @@ class MareeAirTempSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusAirTemp()
+        _, attributes = self._sensor_manager.get_air_temp_status()
         return attributes
 
     @property
@@ -629,7 +629,7 @@ class MareeVisibilitySensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusVisibility()
+        state, _ = self._sensor_manager.get_visibility_status()
         return state
 
     @property
@@ -638,7 +638,7 @@ class MareeVisibilitySensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusVisibility()
+        _, attributes = self._sensor_manager.get_visibility_status()
         return attributes
 
     @property
@@ -659,7 +659,7 @@ class MareeWaterLevelSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        state, _ = self._sAM.getstatusWaterLevel()
+        state, _ = self._sensor_manager.get_water_level_status()
         return state
 
     @property
@@ -668,7 +668,7 @@ class MareeWaterLevelSensor(BaseMareeSensor):
 
     @property
     def extra_state_attributes(self):
-        _, attributes = self._sAM.getstatusWaterLevel()
+        _, attributes = self._sensor_manager.get_water_level_status()
         return attributes
 
     @property

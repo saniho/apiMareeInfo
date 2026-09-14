@@ -10,7 +10,7 @@ from .apiMareeInfo import ApiMareeInfo
 from .types import ForecastData, LiveForecastItemRaw, TideData
 
 
-class manageSensorState:
+class SensorStateManager:
     """Gestionnaire d'état pour les capteurs marée/météo."""
 
     def __init__(self) -> None:
@@ -42,7 +42,7 @@ class manageSensorState:
             "last_update": datetime.datetime.now(),
         }
         if with_http_update:
-            sc["last_http_update"] = self._myPort.gethttptimerequest()
+            sc["last_http_update"] = self._myPort.get_http_request_time()
         return sc
 
     def _get_data_source(self) -> str:
@@ -65,9 +65,9 @@ class manageSensorState:
             return data, "MeteoConsult Live"
 
         date_courante = datetime.datetime.now()
-        for x in sorted(self._myPort.getprevis().keys()):
+        for x in sorted(self._myPort.get_forecast_data().keys()):
             if x > date_courante:
-                return self._myPort.getprevis()[x], "MeteoConsult Forecast (Hourly)"
+                return self._myPort.get_forecast_data()[x], "MeteoConsult Forecast (Hourly)"
         return None, None
 
     # ------------------------------------------------------------------
@@ -82,7 +82,7 @@ class manageSensorState:
             maintenant = datetime.datetime.now()
 
         sorted_marees = sorted(
-            self._myPort.getinfo().values(), key=lambda x: x["dateComplete"]
+            self._myPort.get_tide_data().values(), key=lambda x: x["dateComplete"]
         )
 
         for maree in sorted_marees:
@@ -100,16 +100,16 @@ class manageSensorState:
         status_counts: dict[str, Any] = {}
         status_counts["version"] = self.version
 
-        if self._myPort.getError():
-            status_counts["message"] = self._myPort.getErrorMessage()
+        if self._myPort.has_error():
+            status_counts["message"] = self._myPort.get_error_message()
             return "unavailable", status_counts
 
-        status_counts["nomPort"] = self._myPort.getnomduport()
+        status_counts["nomPort"] = self._myPort.get_port_name()
         status_counts["idPort"] = self._myPort.getid()
         status_counts["Copyright"] = self._myPort.getcopyright()
-        status_counts["dateCourante"] = self._myPort.getdatecourante()
+        status_counts["dateCourante"] = self._myPort.get_current_date()
 
-        for info in self._myPort.getinfo().values():
+        for info in self._myPort.get_tide_data().values():
             jour = info["jour"]
             nieme = info["nieme"]
             status_counts[f"horaire_{jour}_{nieme}"] = info["horaire"]
@@ -130,11 +130,11 @@ class manageSensorState:
         status_counts["timeLastCall"] = datetime.datetime.now()
 
         maxTime = datetime.datetime.now() + datetime.timedelta(
-            hours=self._myPort.getmaxhours()
+            hours=self._myPort.get_max_hours()
         )
         dicoPrevis = [
             previs
-            for maDate, previs in self._myPort.getprevis().items()
+            for maDate, previs in self._myPort.get_forecast_data().items()
             if datetime.datetime.now() <= maDate.replace(tzinfo=None) <= maxTime
         ]
         status_counts["prevision"] = dicoPrevis
@@ -149,15 +149,15 @@ class manageSensorState:
             state = "unavailable"
 
         status_counts["last_update"] = datetime.datetime.now()
-        status_counts["last_http_update"] = self._myPort.gethttptimerequest()
+        status_counts["last_http_update"] = self._myPort.get_http_request_time()
 
         return state, status_counts
 
     # ------------------------------------------------------------------
-    # getStateNextMaree
+    # get_next_tide_state
     # ------------------------------------------------------------------
 
-    def getStateNextMaree(self, pmbm: str = "") -> tuple[str, dict[str, Any]]:
+    def get_next_tide_state(self, pmbm: str = "") -> tuple[str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
         next_maree = self.getnextmaree(1)
@@ -176,13 +176,13 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusProchainePluie
+    # get_next_rain_status
     # ------------------------------------------------------------------
 
-    def getstatusProchainePluie(self) -> tuple[datetime.datetime | str, dict[str, Any]]:
+    def get_next_rain_status(self) -> tuple[datetime.datetime | str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
-        dateNextPluie, precipitation = self._myPort.getNextPluie()
+        dateNextPluie, precipitation = self._myPort.get_next_rain()
         if dateNextPluie:
             dateNextPluieCh = dateNextPluie.strftime("%d/%m %H:%M")
             state: datetime.datetime | str = dateNextPluie
@@ -200,13 +200,13 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusTemperatureEau
+    # get_water_temp_status
     # ------------------------------------------------------------------
 
-    def getstatusTemperatureEau(self) -> tuple[str, dict[str, Any]]:
+    def get_water_temp_status(self) -> tuple[str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
-        dateTemperatureEau, teau = self._myPort.getTemperatureEau()
+        dateTemperatureEau, teau = self._myPort.get_water_temperature()
         if dateTemperatureEau:
             state = teau
         else:
@@ -220,10 +220,10 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusMeteoFrance
+    # get_weather_status
     # ------------------------------------------------------------------
 
-    def getstatusMeteoFrance(self) -> tuple[str, dict[str, Any]]:
+    def get_weather_status(self) -> tuple[str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
         forecast_time_ref, forecast, source = self._myPort.get_1h_forecast()
@@ -236,40 +236,40 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusRainChance
+    # get_rain_chance_status
     # ------------------------------------------------------------------
 
-    def getstatusRainChance(self) -> tuple[int, dict[str, Any]]:
+    def get_rain_chance_status(self) -> tuple[int, dict[str, Any]]:
         sc = self._init_status()
         state = self._myPort.get_rain_chance()
         sc["data_source"] = self._get_data_source()
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusCloudCover
+    # get_cloud_cover_status
     # ------------------------------------------------------------------
 
-    def getstatusCloudCover(self) -> tuple[int, dict[str, Any]]:
+    def get_cloud_cover_status(self) -> tuple[int, dict[str, Any]]:
         sc = self._init_status()
         state = self._myPort.get_cloud_cover()
         sc["data_source"] = "MeteoConsult Forecast (Hourly)"
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusWeatherAlert
+    # get_weather_alert_status
     # ------------------------------------------------------------------
 
-    def getstatusWeatherAlert(self) -> tuple[str, dict[str, Any]]:
+    def get_weather_alert_status(self) -> tuple[str, dict[str, Any]]:
         sc = self._init_status()
         state = self._myPort.get_weather_alert()
         sc["data_source"] = "MeteoConsult"
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusPressure
+    # get_pressure_status
     # ------------------------------------------------------------------
 
-    def getstatusPressure(self) -> tuple[str | None, dict[str, Any]]:
+    def get_pressure_status(self) -> tuple[str | None, dict[str, Any]]:
         sc = self._init_status()
         state, forecast = self._myPort.get_pressure_forecast()
         sc["pressure_forecast"] = forecast
@@ -277,10 +277,10 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusVagues
+    # get_wave_status
     # ------------------------------------------------------------------
 
-    def getstatusVagues(self) -> tuple[str | None, dict[str, Any]]:
+    def get_wave_status(self) -> tuple[str | None, dict[str, Any]]:
         sc = self._init_status()
         data, source = self._get_live_or_forecast()
         if data:
@@ -298,10 +298,10 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusVentLive
+    # get_wind_status
     # ------------------------------------------------------------------
 
-    def getstatusVentLive(self) -> tuple[str | None, dict[str, Any]]:
+    def get_wind_status(self) -> tuple[str | None, dict[str, Any]]:
         sc = self._init_status()
         data, source = self._get_live_or_forecast()
         if data:
@@ -315,10 +315,10 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusAirTemp
+    # get_air_temp_status
     # ------------------------------------------------------------------
 
-    def getstatusAirTemp(self) -> tuple[str | None, dict[str, Any]]:
+    def get_air_temp_status(self) -> tuple[str | None, dict[str, Any]]:
         sc = self._init_status()
         data, source = self._get_live_or_forecast()
         if data:
@@ -332,10 +332,10 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusVisibility
+    # get_visibility_status
     # ------------------------------------------------------------------
 
-    def getstatusVisibility(self) -> tuple[str | None, dict[str, Any]]:
+    def get_visibility_status(self) -> tuple[str | None, dict[str, Any]]:
         sc = self._init_status()
         data = self._myPort.get_current_live_data()
         if data:
@@ -346,10 +346,10 @@ class manageSensorState:
         return state, sc
 
     # ------------------------------------------------------------------
-    # getstatusWaterLevel
+    # get_water_level_status
     # ------------------------------------------------------------------
 
-    def getstatusWaterLevel(self) -> tuple[float | str, dict[str, Any]]:
+    def get_water_level_status(self) -> tuple[float | str, dict[str, Any]]:
         sc = self._init_status()
         level, status = self._myPort.get_current_water_level()
         if level is not None:
