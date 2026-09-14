@@ -49,30 +49,34 @@ curl -s -X PATCH \
 
 ---
 
-## Release beta (ex: 2.1.8.beta.1)
+## Release beta (ex: 2.1.8b1)
 
 Même processus que la release normale, avec ces différences :
 
 ### Étape 1 — Bumper la version
 
-Même chose, mais avec le suffixe `.beta.X` :
-- `const.py` → `__VERSION__ = "2.1.8.beta.1"`
-- `manifest.json` → `"version": "2.1.8.beta.1"`
+**ATTENTION** : Home Assistant **rejette** les points dans la version bêta du manifest.
+- ❌ `2.1.8.beta.1` → invalide, l'intégration ne se chargera pas
+- ✅ `2.1.8b1` → format correct
+
+Dans ces 3 fichiers :
+- `const.py` → `__VERSION__ = "2.1.8b1"`
+- `manifest.json` → `"version": "2.1.8b1"`
 - `README.md` → idem
 
 ### Étape 2 — Commit + push
 
 Sur la **feature branch** (pas sur master) :
 ```bash
-git add -A && git commit -m "chore: bump version to 2.1.8.beta.1"
+git add -A && git commit -m "chore: bump version to 2.1.8b1"
 git push
 ```
 
 ### Étape 3 — Tag git
 
 ```bash
-git tag 2.1.8.beta.1
-git push origin 2.1.8.beta.1
+git tag 2.1.8b1
+git push origin 2.1.8b1
 ```
 
 ### Étape 4 — Release GitHub (pré-release)
@@ -83,7 +87,7 @@ curl -s -X POST \
   -H "Authorization: token <TOKEN>" \
   -H "Accept: application/vnd.github+json" \
   https://api.github.com/repos/saniho/apiMareeInfo/releases \
-  -d '{"tag_name":"2.1.8.beta.1","target_commitish":"feature/xxx","name":"v2.1.8.beta.1","body":"<notes>","draft":false,"prerelease":true}'
+  -d '{"tag_name":"2.1.8b1","target_commitish":"feature/xxx","name":"v2.1.8b1","body":"<notes>","draft":false,"prerelease":true}'
 ```
 
 ### Étape 5 — Clôturer l'issue
