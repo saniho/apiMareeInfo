@@ -3,9 +3,14 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.7** - CI/CD complet
+**v2.1.8-beta.1** - Capteur UV câblé à la vraie donnée API
 
 ## 📝 Changelog
+
+### v2.1.8-beta.1
+- 🌞 **Capteur UV** : `MareeUVSensor` câblé à la vraie donnée API MeteoConsult (`previs.detail`) au lieu de retourner `0` en dur (issue #52).
+- 🧪 **Compatibilité** : Les capteurs Freeze/Snow restent en dummy pour compatibilité carte MeteoFrance HACS.
+- 🧪 **Tests** : Ajout de 3 tests pour `get_uv_status()`, correction de l'import dans les tests.
 
 ### v2.1.7
 - 🔧 **CI/CD complet** : Pipeline unifié avec lint (ruff), typecheck (mypy), tests (pytest + coverage), CodeQL et HACS validation (issue #57).
