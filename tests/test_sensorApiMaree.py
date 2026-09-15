@@ -54,18 +54,18 @@ def _make_previs(hours_offset=0, **overrides):
 def _make_port(error=False, error_msg="", info=None, previs=None, avis=None, live_data=None):
     """Create a mock ApiMareeInfo port object."""
     port = MagicMock()
-    port.getError.return_value = error
-    port.getErrorMessage.return_value = error_msg
-    port.getnomduport.return_value = "Saint-Malo"
+    port.has_error.return_value = error
+    port.get_error_message.return_value = error_msg
+    port.get_port_name.return_value = "Saint-Malo"
     port.getid.return_value = "12345"
     port.getcopyright.return_value = "©SHOM"
-    port.getdatecourante.return_value = datetime.datetime.now()
-    port.gethttptimerequest.return_value = datetime.datetime.now()
-    port.getmaxhours.return_value = 6
-    port.getinfo.return_value = info or {}
-    port.getprevis.return_value = previs or {}
-    port.getNextPluie.return_value = (None, 0)
-    port.getTemperatureEau.return_value = (None, 0)
+    port.get_current_date.return_value = datetime.datetime.now()
+    port.get_http_request_time.return_value = datetime.datetime.now()
+    port.get_max_hours.return_value = 6
+    port.get_tide_data.return_value = info or {}
+    port.get_forecast_data.return_value = previs or {}
+    port.get_next_rain.return_value = (None, 0)
+    port.get_water_temperature.return_value = (None, 0)
     port.get_rain_chance.return_value = 0
     port.get_cloud_cover.return_value = 0
     port.get_weather_alert.return_value = "Aucun"
@@ -172,7 +172,7 @@ class TestGetLiveOrForecast:
         """Test None return when neither live nor forecast available."""
         port = _make_port()
         port.get_current_live_data.return_value = None
-        port.getprevis.return_value = {}
+        port.get_forecast_data.return_value = {}
         mss = SensorStateManager()
         mss.init(port)
 
@@ -373,10 +373,10 @@ class TestGetstatus:
 
 
 # ============================================================
-# getStateNextMaree tests
+# get_next_tide_state tests (was getStateNextMaree)
 # ============================================================
-class TestGetStateNextMaree:
-    """Tests for getStateNextMaree method."""
+class TestGetNextTideState:
+    """Tests for get_next_tide_state method."""
 
     def test_returns_next_high_tide(self):
         """Test that next high tide is returned."""
@@ -389,7 +389,7 @@ class TestGetStateNextMaree:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getStateNextMaree(pmbm="PM")
+        state, attrs = mss.get_next_tide_state(pmbm="PM")
         assert state == "18:55"
         assert attrs["coeff"] == 90
 
@@ -402,7 +402,7 @@ class TestGetStateNextMaree:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getStateNextMaree(pmbm="PM")
+        state, attrs = mss.get_next_tide_state(pmbm="PM")
         assert state == "unavailable"
 
     def test_skips_first_if_wrong_type(self):
@@ -416,25 +416,25 @@ class TestGetStateNextMaree:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getStateNextMaree(pmbm="PM")
+        state, attrs = mss.get_next_tide_state(pmbm="PM")
         # First next is BM, so it skips to second which is PM
         assert state == "18:55"
 
 
 # ============================================================
-# getstatusProchainePluie tests
+# get_next_rain_status tests (was getstatusProchainePluie)
 # ============================================================
-class TestGetstatusProchainePluie:
-    """Tests for getstatusProchainePluie method."""
+class TestGetNextRainStatus:
+    """Tests for get_next_rain_status method."""
 
     def test_returns_unavailable_when_no_rain(self):
         """Test unavailable when no rain forecast."""
         port = _make_port()
-        port.getNextPluie.return_value = (None, 0)
+        port.get_next_rain.return_value = (None, 0)
         mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
-        state, attrs = mss.getstatusProchainePluie()
+        state, attrs = mss.get_next_rain_status()
         assert state == "unavailable"
         assert attrs["precipitation"] == 0
 
@@ -442,50 +442,50 @@ class TestGetstatusProchainePluie:
         """Test that rain date is returned."""
         rain_date = datetime.datetime.now() + datetime.timedelta(hours=3)
         port = _make_port()
-        port.getNextPluie.return_value = (rain_date, 2.5)
+        port.get_next_rain.return_value = (rain_date, 2.5)
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusProchainePluie()
+        state, attrs = mss.get_next_rain_status()
         assert state == rain_date
         assert attrs["precipitation"] == 2.5
         assert "1_hour_forecast" in attrs
 
 
 # ============================================================
-# getstatusTemperatureEau tests
+# get_water_temp_status tests (was getstatusTemperatureEau)
 # ============================================================
-class TestGetstatusTemperatureEau:
-    """Tests for getstatusTemperatureEau method."""
+class TestGetWaterTempStatus:
+    """Tests for get_water_temp_status method."""
 
     def test_returns_unavailable_when_no_data(self):
         """Test unavailable when no water temp."""
         port = _make_port()
-        port.getTemperatureEau.return_value = (None, 0)
+        port.get_water_temperature.return_value = (None, 0)
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusTemperatureEau()
+        state, attrs = mss.get_water_temp_status()
         assert state == "unavailable"
 
     def test_returns_temp_when_data(self):
         """Test water temp is returned."""
         temp_date = datetime.datetime.now()
         port = _make_port()
-        port.getTemperatureEau.return_value = (temp_date, 16.5)
+        port.get_water_temperature.return_value = (temp_date, 16.5)
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusTemperatureEau()
+        state, attrs = mss.get_water_temp_status()
         assert state == 16.5
         assert attrs["teau"] == 16.5
 
 
 # ============================================================
-# getstatusMeteoFrance tests
+# get_weather_status tests (was getstatusMeteoFrance)
 # ============================================================
-class TestGetstatusMeteoFrance:
-    """Tests for getstatusMeteoFrance method."""
+class TestGetWeatherStatus:
+    """Tests for get_weather_status method."""
 
     def test_returns_forecast_state(self):
         """Test that forecast state is returned."""
@@ -496,17 +496,17 @@ class TestGetstatusMeteoFrance:
         mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
-        state, attrs = mss.getstatusMeteoFrance()
+        state, attrs = mss.get_weather_status()
         assert state == "Pluie légère"
         assert attrs["data_source"] == "MeteoConsult Live"
         assert "forecast_time_ref" in attrs
 
 
 # ============================================================
-# getstatusRainChance tests
+# get_rain_chance_status tests (was getstatusRainChance)
 # ============================================================
-class TestGetstatusRainChance:
-    """Tests for getstatusRainChance method."""
+class TestGetRainChanceStatus:
+    """Tests for get_rain_chance_status method."""
 
     def test_returns_zero_when_no_rain(self):
         """Test zero rain chance."""
@@ -515,7 +515,7 @@ class TestGetstatusRainChance:
         mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
-        state, attrs = mss.getstatusRainChance()
+        state, attrs = mss.get_rain_chance_status()
         assert state == 0
         assert attrs["version"] == "1.0.0"
 
@@ -526,7 +526,7 @@ class TestGetstatusRainChance:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusRainChance()
+        state, attrs = mss.get_rain_chance_status()
         assert state == 75
         assert attrs["data_source"] == "MeteoConsult Live"
 
@@ -537,16 +537,16 @@ class TestGetstatusRainChance:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusRainChance()
+        state, attrs = mss.get_rain_chance_status()
         assert state == 30
         assert attrs["data_source"] == "MeteoConsult Forecast (Hourly)"
 
 
 # ============================================================
-# getstatusCloudCover tests
+# get_cloud_cover_status tests (was getstatusCloudCover)
 # ============================================================
-class TestGetstatusCloudCover:
-    """Tests for getstatusCloudCover method."""
+class TestGetCloudCoverStatus:
+    """Tests for get_cloud_cover_status method."""
 
     def test_returns_cloud_cover(self):
         """Test cloud cover is returned."""
@@ -555,16 +555,16 @@ class TestGetstatusCloudCover:
         mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
-        state, attrs = mss.getstatusCloudCover()
+        state, attrs = mss.get_cloud_cover_status()
         assert state == 60
         assert attrs["data_source"] == "MeteoConsult Forecast (Hourly)"
 
 
 # ============================================================
-# getstatusWeatherAlert tests
+# get_weather_alert_status tests (was getstatusWeatherAlert)
 # ============================================================
-class TestGetstatusWeatherAlert:
-    """Tests for getstatusWeatherAlert method."""
+class TestGetWeatherAlertStatus:
+    """Tests for get_weather_alert_status method."""
 
     def test_returns_no_alert(self):
         """Test Aucun alert."""
@@ -573,7 +573,7 @@ class TestGetstatusWeatherAlert:
         mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
-        state, attrs = mss.getstatusWeatherAlert()
+        state, attrs = mss.get_weather_alert_status()
         assert state == "Aucun"
         assert attrs["data_source"] == "MeteoConsult"
 
@@ -584,15 +584,15 @@ class TestGetstatusWeatherAlert:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusWeatherAlert()
+        state, attrs = mss.get_weather_alert_status()
         assert state == "Vent violent"
 
 
 # ============================================================
-# getstatusPressure tests
+# get_pressure_status tests (was getstatusPressure)
 # ============================================================
-class TestGetstatusPressure:
-    """Tests for getstatusPressure method."""
+class TestGetPressureStatus:
+    """Tests for get_pressure_status method."""
 
     def test_returns_pressure_with_live(self):
         """Test pressure with live data."""
@@ -601,7 +601,7 @@ class TestGetstatusPressure:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusPressure()
+        state, attrs = mss.get_pressure_status()
         assert state == "1013"
         assert attrs["data_source"] == "MeteoConsult Live"
 
@@ -612,26 +612,26 @@ class TestGetstatusPressure:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusPressure()
+        state, attrs = mss.get_pressure_status()
         assert state == "1012"
         assert attrs["data_source"] == "MeteoConsult Forecast (Hourly)"
 
 
 # ============================================================
-# getstatusVagues tests
+# get_wave_status tests (was getstatusVagues)
 # ============================================================
-class TestGetstatusVagues:
-    """Tests for getstatusVagues method."""
+class TestGetWaveStatus:
+    """Tests for get_wave_status method."""
 
     def test_returns_unavailable_when_no_data(self):
         """Test unavailable when no wave data."""
         port = _make_port()
         port.get_current_live_data.return_value = None
-        port.getprevis.return_value = {}
+        port.get_forecast_data.return_value = {}
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVagues()
+        state, attrs = mss.get_wave_status()
         assert state == "unavailable"
 
     def test_returns_live_wave_data(self):
@@ -641,7 +641,7 @@ class TestGetstatusVagues:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVagues()
+        state, attrs = mss.get_wave_status()
         assert state == 1.5
         assert attrs["wave_height_max"] == 2.0
         assert attrs["data_source"] == "MeteoConsult Live"
@@ -654,16 +654,16 @@ class TestGetstatusVagues:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVagues()
+        state, attrs = mss.get_wave_status()
         assert state == "2.2"
         assert attrs["data_source"] == "MeteoConsult Forecast (Hourly)"
 
 
 # ============================================================
-# getstatusVentLive tests
+# get_wind_status tests (was getstatusVentLive)
 # ============================================================
-class TestGetstatusVentLive:
-    """Tests for getstatusVentLive method."""
+class TestGetWindStatus:
+    """Tests for get_wind_status method."""
 
     def test_returns_live_wind_data(self):
         """Test live wind data is returned."""
@@ -672,7 +672,7 @@ class TestGetstatusVentLive:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVentLive()
+        state, attrs = mss.get_wind_status()
         assert state == 20
         assert attrs["wind_gust"] == 30
         assert attrs["data_source"] == "MeteoConsult Live"
@@ -685,7 +685,7 @@ class TestGetstatusVentLive:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVentLive()
+        state, attrs = mss.get_wind_status()
         assert state == "25"
         assert attrs["data_source"] == "MeteoConsult Forecast (Hourly)"
 
@@ -693,19 +693,19 @@ class TestGetstatusVentLive:
         """Test unavailable when no wind data."""
         port = _make_port()
         port.get_current_live_data.return_value = None
-        port.getprevis.return_value = {}
+        port.get_forecast_data.return_value = {}
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVentLive()
+        state, attrs = mss.get_wind_status()
         assert state == "unavailable"
 
 
 # ============================================================
-# getstatusAirTemp tests
+# get_air_temp_status tests (was getstatusAirTemp)
 # ============================================================
-class TestGetstatusAirTemp:
-    """Tests for getstatusAirTemp method."""
+class TestGetAirTempStatus:
+    """Tests for get_air_temp_status method."""
 
     def test_returns_live_temp(self):
         """Test live air temp is returned."""
@@ -714,7 +714,7 @@ class TestGetstatusAirTemp:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusAirTemp()
+        state, attrs = mss.get_air_temp_status()
         assert state == 18.5
         assert attrs["tempe_felt"] == 17.0
         assert attrs["data_source"] == "MeteoConsult Live"
@@ -727,15 +727,15 @@ class TestGetstatusAirTemp:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusAirTemp()
+        state, attrs = mss.get_air_temp_status()
         assert state == "19.0"
 
 
 # ============================================================
-# getstatusVisibility tests
+# get_visibility_status tests (was getstatusVisibility)
 # ============================================================
-class TestGetstatusVisibility:
-    """Tests for getstatusVisibility method."""
+class TestGetVisibilityStatus:
+    """Tests for get_visibility_status method."""
 
     def test_returns_live_visibility(self):
         """Test live visibility is returned."""
@@ -744,7 +744,7 @@ class TestGetstatusVisibility:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVisibility()
+        state, attrs = mss.get_visibility_status()
         assert state == 10000
         assert attrs["data_source"] == "MeteoConsult Live"
 
@@ -755,15 +755,15 @@ class TestGetstatusVisibility:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusVisibility()
+        state, attrs = mss.get_visibility_status()
         assert state == "unavailable"
 
 
 # ============================================================
-# getstatusWaterLevel tests
+# get_water_level_status tests (was getstatusWaterLevel)
 # ============================================================
-class TestGetstatusWaterLevel:
-    """Tests for getstatusWaterLevel method."""
+class TestGetWaterLevelStatus:
+    """Tests for get_water_level_status method."""
 
     def test_returns_unavailable_when_no_data(self):
         """Test unavailable when no water level."""
@@ -772,7 +772,7 @@ class TestGetstatusWaterLevel:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusWaterLevel()
+        state, attrs = mss.get_water_level_status()
         assert state == "unavailable"
 
     def test_returns_level_and_status(self):
@@ -782,7 +782,7 @@ class TestGetstatusWaterLevel:
         mss = SensorStateManager()
         mss.init(port)
 
-        state, attrs = mss.getstatusWaterLevel()
+        state, attrs = mss.get_water_level_status()
         assert state == 3.5
         assert attrs["tide_status"] == "Montante"
         assert attrs["data_source"] == "Calculated (Sinusoidal Interpolation)"

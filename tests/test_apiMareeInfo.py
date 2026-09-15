@@ -199,9 +199,9 @@ class TestApiMareeInfo:
     def test_setport(self):
         """Test setport stores lat/lng."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
-        assert api.getlat() == "48.5"
-        assert api.getlng() == "-2.0"
+        api.setport(48.5, -2.0)
+        assert api.get_lat() == 48.5
+        assert api.get_lng() == -2.0
 
     def test_setid(self):
         """Test setid stores id."""
@@ -213,60 +213,60 @@ class TestApiMareeInfo:
         """Test setmaxhours stores value."""
         api = ApiMareeInfo()
         api.setmaxhours(12)
-        assert api.getmaxhours() == 12
+        assert api.get_max_hours() == 12
 
-    def test_getnomduport_returns_clean_name(self):
+    def test_get_port_name_returns_clean_name(self):
         """Test that port name strips copyright."""
         api = ApiMareeInfo()
         api._nomDuPort = "Saint-Malo©SHOM"
-        assert api.getnomduport() == "Saint-Malo"
+        assert api.get_port_name() == "Saint-Malo"
 
-    def test_getnomduport_returns_unknown_when_none(self):
+    def test_get_port_name_returns_unknown_when_none(self):
         """Test that Unknown is returned when no port name."""
         api = ApiMareeInfo()
-        assert api.getnomduport() == "Unknown"
+        assert api.get_port_name() == "Unknown"
 
     def test_getcopyright(self):
         """Test copyright returns SHOM."""
         api = ApiMareeInfo()
         assert api.getcopyright() == "©SHOM"
 
-    def test_getnomcompletduport(self):
+    def test_get_full_port_name(self):
         """Test full port name is returned as-is."""
         api = ApiMareeInfo()
         api._nomDuPort = "Saint-Malo©SHOM"
-        assert api.getnomcompletduport() == "Saint-Malo©SHOM"
+        assert api.get_full_port_name() == "Saint-Malo©SHOM"
 
-    def test_getError_and_getErrorMessage(self):
+    def test_has_error_and_get_error_message(self):
         """Test error state getters."""
         api = ApiMareeInfo()
-        assert api.getError() is False
-        assert api.getErrorMessage() == ""
+        assert api.has_error() is False
+        assert api.get_error_message() == ""
 
         api._error = True
         api._errorMessage = "Test error"
-        assert api.getError() is True
-        assert api.getErrorMessage() == "Test error"
+        assert api.has_error() is True
+        assert api.get_error_message() == "Test error"
 
-    def test_gethttptimerequest(self):
+    def test_get_http_request_time(self):
         """Test that HTTP request time is set."""
         api = ApiMareeInfo()
         before = datetime.datetime.now()
         api._httptimerequest = before
         after = datetime.datetime.now()
-        assert before <= api.gethttptimerequest() <= after
+        assert before <= api.get_http_request_time() <= after
 
-    def test_getinfo_returns_donnees(self):
-        """Test that getinfo returns _donnees."""
+    def test_get_tide_data_returns_donnees(self):
+        """Test that get_tide_data returns _donnees."""
         api = ApiMareeInfo()
         api._donnees = {"test": "data"}
-        assert api.getinfo() == {"test": "data"}
+        assert api.get_tide_data() == {"test": "data"}
 
-    def test_getprevis_returns_previsions(self):
-        """Test that getprevis returns _donneesPrevis."""
+    def test_get_forecast_data_returns_previsions(self):
+        """Test that get_forecast_data returns _donneesPrevis."""
         api = ApiMareeInfo()
         api._donneesPrevis = {"test": "forecast"}
-        assert api.getprevis() == {"test": "forecast"}
+        assert api.get_forecast_data() == {"test": "forecast"}
 
 
 class TestApiMareeInfoGetJson:
@@ -276,7 +276,7 @@ class TestApiMareeInfoGetJson:
     async def test_getjson_meteomarine(self):
         """Test getjson routes to MeteoMarine."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
 
         with patch("custom_components.apiMareeInfo.apiMareeInfo.MeteoMarine") as mock_cls:
             mock_instance = MagicMock()
@@ -304,7 +304,7 @@ class TestApiMareeInfoGetJson:
     async def test_getjson_stormio(self):
         """Test getjson routes to stormIO."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
 
         with patch("custom_components.apiMareeInfo.apiMareeInfo.stormIO") as mock_cls:
             mock_instance = MagicMock()
@@ -322,54 +322,54 @@ class TestApiMareeInfoGetInformationPort:
     async def test_parse_meteomarine_data(self, sjm_meteomarine_data):
         """Test parsing of real MeteoMarine data."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(6)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
-        assert api.getError() is False
-        assert api.getnomduport() != "Unknown"
-        assert len(api.getinfo()) > 0
-        assert len(api.getprevis()) > 0
+        assert api.has_error() is False
+        assert api.get_port_name() != "Unknown"
+        assert len(api.get_tide_data()) > 0
+        assert len(api.get_forecast_data()) > 0
 
     @pytest.mark.asyncio
     async def test_parse_meteomarine_empty_marees(self, empty_meteomarine_data):
         """Test handling of empty tide data."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         await api.getinformationport(jsondata=empty_meteomarine_data, origine="MeteoMarine")
 
-        assert api.getError() is True
-        assert "No tide data" in api.getErrorMessage()
+        assert api.has_error() is True
+        assert "No tide data" in api.get_error_message()
 
     @pytest.mark.asyncio
     async def test_parse_meteomarine_error_data(self, error_meteomarine_data):
         """Test handling of error response."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         await api.getinformationport(jsondata=error_meteomarine_data, origine="MeteoMarine")
 
-        assert api.getError() is True
+        assert api.has_error() is True
 
     @pytest.mark.asyncio
     async def test_parse_stormio_data(self, sjm_stormglass_data):
         """Test parsing of StormGlass data."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(6)
         await api.getinformationport(jsondata=sjm_stormglass_data, origine="stormio")
 
-        assert api.getError() is False
-        assert len(api.getinfo()) > 0
+        assert api.has_error() is False
+        assert len(api.get_tide_data()) > 0
 
     @pytest.mark.asyncio
     async def test_parse_stormio_error(self, error_stormglass_data):
         """Test handling of StormGlass error."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         await api.getinformationport(jsondata=error_stormglass_data, origine="stormio")
 
-        assert api.getError() is True
-        assert "Invalid API key" in api.getErrorMessage()
+        assert api.has_error() is True
+        assert "Invalid API key" in api.get_error_message()
 
     @pytest.mark.asyncio
     async def test_unknown_origine_raises(self):
@@ -382,11 +382,11 @@ class TestApiMareeInfoGetInformationPort:
     async def test_meteomarine_parses_tide_structure(self, sjm_meteomarine_data):
         """Test that tide data is parsed into correct structure."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(6)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
-        info = api.getinfo()
+        info = api.get_tide_data()
         for key, maree in info.items():
             assert "coeff" in maree
             assert "hauteur" in maree
@@ -399,11 +399,11 @@ class TestApiMareeInfoGetInformationPort:
     async def test_meteomarine_parses_forecast_structure(self, sjm_meteomarine_data):
         """Test that forecast data is parsed into correct structure."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(6)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
-        previs = api.getprevis()
+        previs = api.get_forecast_data()
         for dt, data in previs.items():
             assert isinstance(dt, datetime.datetime)
             assert "forcevnds" in data
@@ -416,28 +416,28 @@ class TestApiMareeInfoGetters:
     """Tests for ApiMareeInfo data getter methods."""
 
     @pytest.mark.asyncio
-    async def test_getNextPluie_with_rain(self, sjm_meteomarine_data):
-        """Test getNextPluie finds next rain."""
+    async def test_get_next_rain_with_rain(self, sjm_meteomarine_data):
+        """Test get_next_rain finds next rain."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(24)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
-        date, precipitation = api.getNextPluie()
+        date, precipitation = api.get_next_rain()
         # Result depends on fixture data - either (datetime, mm) or (None, 0)
         if date is not None:
             assert isinstance(date, datetime.datetime)
             assert precipitation >= 0
 
     @pytest.mark.asyncio
-    async def test_getTemperatureEau(self, sjm_meteomarine_data):
-        """Test getTemperatureEau returns water temperature."""
+    async def test_get_water_temperature(self, sjm_meteomarine_data):
+        """Test get_water_temperature returns water temperature."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(24)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
-        date, temp = api.getTemperatureEau()
+        date, temp = api.get_water_temperature()
         if date is not None:
             assert isinstance(date, datetime.datetime)
 
@@ -445,7 +445,7 @@ class TestApiMareeInfoGetters:
     async def test_get_cloud_cover(self, sjm_meteomarine_data):
         """Test get_cloud_cover returns a value."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(24)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
@@ -477,7 +477,7 @@ class TestApiMareeInfoGetters:
     async def test_get_pressure_forecast(self, sjm_meteomarine_data):
         """Test get_pressure_forecast returns pressure data."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(24)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
@@ -502,7 +502,7 @@ class TestApiMareeInfoWaterLevel:
     async def test_get_current_water_level_with_data(self, sjm_meteomarine_data):
         """Test water level calculation with real data."""
         api = ApiMareeInfo()
-        api.setport("48.5", "-2.0")
+        api.setport(48.5, -2.0)
         api.setmaxhours(24)
         await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
 
