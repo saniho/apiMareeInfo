@@ -169,15 +169,14 @@ class TestStormIO:
             assert "end" in params
 
     @pytest.mark.asyncio
-    async def test_getdata_custom_error_return(self):
-        """Test that StormIO has custom error return."""
+    async def test_getdata_no_error_return(self):
+        """Test that StormIO no longer passes error_return."""
         with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
-            mock_fetch.return_value = {"errors": {"key": "Communication error"}}
+            mock_fetch.return_value = {"data": []}
             sio = stormIO("48.5", "-2.0", "key123")
-            result = await sio.getdata()
+            await sio.getdata()
 
-            error_return = mock_fetch.call_args[1]["error_return"]
-            assert "errors" in error_return
+            assert "error_return" not in mock_fetch.call_args[1]
 
 
 # ============================================================

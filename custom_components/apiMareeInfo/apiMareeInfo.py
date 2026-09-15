@@ -104,7 +104,6 @@ class stormIO:
             headers=headers,
             timeout=600,
             source_name="StormIO",
-            error_return={"errors": {"key": "Communication error"}},
         )
 
 

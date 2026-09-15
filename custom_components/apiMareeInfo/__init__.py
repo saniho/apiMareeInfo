@@ -24,6 +24,7 @@ except ImportError:
     _HOMEASSISTANT_AVAILABLE = False
 
 from . import apiMareeInfo
+from .exceptions import ApiError, NetworkError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,6 +60,10 @@ if _HOMEASSISTANT_AVAILABLE:
                     if maree_api.has_error():
                         raise UpdateFailed(f"API Error: {maree_api.get_error_message()}")
                     return maree_api
+            except (ApiError, NetworkError) as err:
+                raise UpdateFailed(f"API error: {err}") from err
+            except UpdateFailed:
+                raise
             except Exception as err:
                 raise UpdateFailed(f"Error communicating with API: {err}") from err
 

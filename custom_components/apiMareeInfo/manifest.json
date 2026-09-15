@@ -3,9 +3,9 @@
     "name": "apiMareeInfo sensor",
     "documentation": "https://github.com/saniho/apiMareeInfo#readme",
     "issue_tracker": "https://github.com/saniho/apiMareeInfo/issues",
-    "version": "2.1.9",
+    "version": "2.1.10-beta1",
     "config_flow": true,
-    "requirements": [],
+    "requirements": ["tenacity>=8.0"],
     "dependencies": [],
     "codeowners": ["@saniho"]
 }

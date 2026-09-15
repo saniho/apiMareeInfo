@@ -33,6 +33,7 @@ from .const import (
     CONF_ID,
 )
 from . import apiMareeInfo, sensorApiMaree
+from .exceptions import ApiError, NetworkError
 
 _LOGGER = logging.getLogger(__name__)
 ICON = "mdi:waves"
@@ -73,6 +74,10 @@ async def async_setup_entry(
                     origine=origine, info=info, session=session
                 )
                 return maree_api
+        except (ApiError, NetworkError) as err:
+            raise UpdateFailed(f"API error: {err}")
+        except UpdateFailed:
+            raise
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}")
 
