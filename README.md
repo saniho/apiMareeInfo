@@ -3,9 +3,15 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.9** - Tests unitaires réels avec pytest
+**v2.1.10** - Retry avec tenacity, exceptions métier, logging structuré
 
 ## 📝 Changelog
+
+### v2.1.10
+- 🔄 **Retry automatique** : Appels réseau avec `tenacity` — backoff exponentiel, max 3 tentatives sur erreurs transitoires (réseau, 429, 5xx) (issue #51).
+- ⚠️ **Exceptions métier** : `ApiError`, `RateLimitError`, `NotFoundError`, `NetworkError` remplacent le pattern `{"error": "UNKERROR_001"}`.
+- 📝 **Logging structuré** : `[source] GET url -> status (retriable)` pour chaque tentative.
+- ⏱️ **Timeout configurable** : Paramètre `max_retries` sur `async_fetch_json` (défaut 3).
 
 ### v2.1.9
 - 🧪 **Tests unitaires pytest** : Correction de 57 tests échoués (noms de méthodes obsolètes), ajout de `test_config_flow.py` (27 tests), `test_sensor.py` (140 tests), `test_weather.py` (40 tests) (issue #50).
