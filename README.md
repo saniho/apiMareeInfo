@@ -3,11 +3,11 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v1.1.9-beta.1** - Tests unitaires réels avec pytest
+**v2.1.9-beta.1** - Tests unitaires réels avec pytest
 
 ## 📝 Changelog
 
-### v1.1.9-beta.1
+### v2.1.9-beta.1
 - 🧪 **Tests unitaires pytest** : Correction de 57 tests échoués (noms de méthodes obsolètes), ajout de `test_config_flow.py` (27 tests), `test_sensor.py` (140 tests), `test_weather.py` (40 tests) (issue #50).
 - 📊 **Couverture 87%** : Objectif 80% dépassé. Modules couverts à 100% : `config_flow.py`, `const.py`, `http_utils.py`, `types.py`.
 - 🔤 **Alignement API** : Tests synchronisés avec les nouveaux noms de méthodes (`get_port_name`, `has_error`, `get_next_tide_state`, etc.).
