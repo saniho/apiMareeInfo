@@ -256,6 +256,16 @@ class SensorStateManager:
         return state, sc
 
     # ------------------------------------------------------------------
+    # get_uv_status
+    # ------------------------------------------------------------------
+
+    def get_uv_status(self) -> tuple[int, dict[str, Any]]:
+        sc = self._init_status()
+        state = self._myPort.get_uv()
+        sc["data_source"] = "MeteoConsult Forecast (Hourly)"
+        return state, sc
+
+    # ------------------------------------------------------------------
     # get_weather_alert_status
     # ------------------------------------------------------------------
 

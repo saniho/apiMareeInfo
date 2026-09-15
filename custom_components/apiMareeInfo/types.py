@@ -37,6 +37,7 @@ class ForecastData(TypedDict):
     hauteurmerv: str
     periodemerv: str
     hauteurvague: str
+    uv: str
 
 
 class LiveForecastData(TypedDict, total=False):
@@ -111,6 +112,7 @@ class PrevisDetailRaw(TypedDict):
     hauteurmerv: str
     periodemerv: str
     hauteurvague: str
+    uv: str
 
 
 class ContenuMarees(TypedDict):

@@ -4,7 +4,7 @@ import datetime
 import logging
 from unittest.mock import MagicMock
 
-from custom_components.apiMareeInfo.sensorApiMaree import manageSensorState
+from custom_components.apiMareeInfo.sensorApiMaree import SensorStateManager
 
 
 # ============================================================
@@ -45,6 +45,7 @@ def _make_previs(hours_offset=0, **overrides):
         "hauteurmerv": "2.0",
         "periodemerv": "10",
         "hauteurvague": "1.8",
+        "uv": 0,
     }
     base.update(overrides)
     return now, base
@@ -85,7 +86,7 @@ class TestInitStatus:
     def test_returns_common_fields(self):
         """Test that version, attribution, and last_update are present."""
         port = _make_port()
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="2.0.0")
 
         sc = mss._init_status()
@@ -97,7 +98,7 @@ class TestInitStatus:
     def test_with_http_update(self):
         """Test that last_http_update is included when requested."""
         port = _make_port()
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
         sc = mss._init_status(with_http_update=True)
@@ -107,7 +108,7 @@ class TestInitStatus:
     def test_without_http_update_by_default(self):
         """Test that last_http_update is absent by default."""
         port = _make_port()
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         sc = mss._init_status()
@@ -123,7 +124,7 @@ class TestGetDataSource:
     def test_returns_live_when_live_data(self):
         """Test live source when _donneesPrevisLive is truthy."""
         port = _make_port(live_data={"key": "val"})
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         assert mss._get_data_source() == "MeteoConsult Live"
@@ -132,7 +133,7 @@ class TestGetDataSource:
         """Test forecast source when _donneesPrevisLive is falsy."""
         port = _make_port()
         port._donneesPrevisLive = None
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         assert mss._get_data_source() == "MeteoConsult Forecast (Hourly)"
@@ -148,7 +149,7 @@ class TestGetLiveOrForecast:
         """Test that live data is returned when available."""
         live_data = {"wind_speed": 15, "tempe": 20}
         port = _make_port(live_data=live_data)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         data, source = mss._get_live_or_forecast()
@@ -160,7 +161,7 @@ class TestGetLiveOrForecast:
         now, previs_data = _make_previs(hours_offset=1)
         port = _make_port(previs={now: previs_data})
         port.get_current_live_data.return_value = None
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         data, source = mss._get_live_or_forecast()
@@ -172,7 +173,7 @@ class TestGetLiveOrForecast:
         port = _make_port()
         port.get_current_live_data.return_value = None
         port.getprevis.return_value = {}
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         data, source = mss._get_live_or_forecast()
@@ -185,7 +186,7 @@ class TestGetLiveOrForecast:
         future, future_data = _make_previs(hours_offset=2)
         port = _make_port(previs={past: past_data, future: future_data})
         port.get_current_live_data.return_value = None
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         data, source = mss._get_live_or_forecast()
@@ -197,32 +198,32 @@ class TestGetLiveOrForecast:
 # init tests
 # ============================================================
 class TestManageSensorStateInit:
-    """Tests for manageSensorState initialization."""
+    """Tests for SensorStateManager initialization."""
 
     def test_init_defaults(self):
         """Test default init values."""
-        mss = manageSensorState()
+        mss = SensorStateManager()
         assert mss._myPort is None
         assert mss.version is None
 
     def test_init_with_params(self):
         """Test init with parameters."""
         port = _make_port()
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
         assert mss._myPort == port
         assert mss.version == "1.0.0"
 
     def test_init_creates_logger(self):
         """Test that init creates a logger when none passed."""
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(_make_port())
         assert mss._LOGGER is not None
 
     def test_init_uses_provided_logger(self):
         """Test that init uses provided logger."""
         custom_logger = logging.getLogger("test_logger")
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(_make_port(), _LOGGER=custom_logger)
         assert mss._LOGGER is custom_logger
 
@@ -240,7 +241,7 @@ class TestGetnextmaree:
             "0_1": _make_maree("12:45", "BM", 0, 1, hours_offset=4),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         result = mss.getnextmaree(indice=1)
@@ -255,7 +256,7 @@ class TestGetnextmaree:
             "1_0": _make_maree("18:55", "PM", 1, 0, hours_offset=10),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         result = mss.getnextmaree(indice=2)
@@ -268,7 +269,7 @@ class TestGetnextmaree:
             "0_0": _make_maree("06:30", "PM", 0, 0, hours_offset=-10),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         result = mss.getnextmaree(indice=1)
@@ -282,7 +283,7 @@ class TestGetnextmaree:
             "0_1": {"dateComplete": datetime.datetime(2024, 1, 15, 12, 45), "horaire": "12:45", "etat": "BM", "jour": 0, "nieme": 1, "coeff": 30, "hauteur": 1.2},
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         result = mss.getnextmaree(indice=1, maintenant=base)
@@ -298,7 +299,7 @@ class TestGetstatus:
     def test_returns_unavailable_on_error(self):
         """Test unavailable state when port has error."""
         port = _make_port(error=True, error_msg="Connection failed")
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
         state, attrs = mss.getstatus()
@@ -314,7 +315,7 @@ class TestGetstatus:
         }
         previs = {}
         port = _make_port(info=marees, previs=previs)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="2.0.0")
 
         state, attrs = mss.getstatus()
@@ -331,7 +332,7 @@ class TestGetstatus:
             "0_1": _make_maree("12:45", "BM", 0, 1, coeff=30, hauteur=1.2, hours_offset=4),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatus()
@@ -350,7 +351,7 @@ class TestGetstatus:
             "1_0": _make_maree("18:55", "PM", 1, 0, hours_offset=10),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatus()
@@ -364,7 +365,7 @@ class TestGetstatus:
         now, previs_data = _make_previs(hours_offset=1)
         marees = {"0_0": _make_maree("06:30", "PM", 0, 0, hours_offset=-2)}
         port = _make_port(info=marees, previs={now: previs_data})
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatus()
@@ -385,7 +386,7 @@ class TestGetStateNextMaree:
             "1_0": _make_maree("18:55", "PM", 1, 0, coeff=90, hours_offset=10),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getStateNextMaree(pmbm="PM")
@@ -398,7 +399,7 @@ class TestGetStateNextMaree:
             "0_0": _make_maree("12:45", "BM", 0, 1, hours_offset=4),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getStateNextMaree(pmbm="PM")
@@ -412,7 +413,7 @@ class TestGetStateNextMaree:
             "1_0": _make_maree("18:55", "PM", 1, 0, hours_offset=10),
         }
         port = _make_port(info=marees)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getStateNextMaree(pmbm="PM")
@@ -430,7 +431,7 @@ class TestGetstatusProchainePluie:
         """Test unavailable when no rain forecast."""
         port = _make_port()
         port.getNextPluie.return_value = (None, 0)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
         state, attrs = mss.getstatusProchainePluie()
@@ -442,7 +443,7 @@ class TestGetstatusProchainePluie:
         rain_date = datetime.datetime.now() + datetime.timedelta(hours=3)
         port = _make_port()
         port.getNextPluie.return_value = (rain_date, 2.5)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusProchainePluie()
@@ -461,7 +462,7 @@ class TestGetstatusTemperatureEau:
         """Test unavailable when no water temp."""
         port = _make_port()
         port.getTemperatureEau.return_value = (None, 0)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusTemperatureEau()
@@ -472,7 +473,7 @@ class TestGetstatusTemperatureEau:
         temp_date = datetime.datetime.now()
         port = _make_port()
         port.getTemperatureEau.return_value = (temp_date, 16.5)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusTemperatureEau()
@@ -492,7 +493,7 @@ class TestGetstatusMeteoFrance:
         forecast = {"0 min": "Pluie légère", "30 min": "Sec"}
         port = _make_port()
         port.get_1h_forecast.return_value = (forecast_ref, forecast, "MeteoConsult Live")
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
         state, attrs = mss.getstatusMeteoFrance()
@@ -511,7 +512,7 @@ class TestGetstatusRainChance:
         """Test zero rain chance."""
         port = _make_port()
         port.get_rain_chance.return_value = 0
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
         state, attrs = mss.getstatusRainChance()
@@ -522,7 +523,7 @@ class TestGetstatusRainChance:
         """Test rain chance with live data source."""
         port = _make_port(live_data={"rain_chance": 75})
         port.get_rain_chance.return_value = 75
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusRainChance()
@@ -533,7 +534,7 @@ class TestGetstatusRainChance:
         """Test rain chance without live data."""
         port = _make_port()
         port.get_rain_chance.return_value = 30
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusRainChance()
@@ -551,7 +552,7 @@ class TestGetstatusCloudCover:
         """Test cloud cover is returned."""
         port = _make_port()
         port.get_cloud_cover.return_value = 60
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
         state, attrs = mss.getstatusCloudCover()
@@ -569,7 +570,7 @@ class TestGetstatusWeatherAlert:
         """Test Aucun alert."""
         port = _make_port()
         port.get_weather_alert.return_value = "Aucun"
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port, version="1.0.0")
 
         state, attrs = mss.getstatusWeatherAlert()
@@ -580,7 +581,7 @@ class TestGetstatusWeatherAlert:
         """Test alert phrase is returned."""
         port = _make_port()
         port.get_weather_alert.return_value = "Vent violent"
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusWeatherAlert()
@@ -597,7 +598,7 @@ class TestGetstatusPressure:
         """Test pressure with live data."""
         port = _make_port(live_data={"pressure": "1013"})
         port.get_pressure_forecast.return_value = ("1013", {"trend": "stable"})
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusPressure()
@@ -608,7 +609,7 @@ class TestGetstatusPressure:
         """Test pressure without live data."""
         port = _make_port()
         port.get_pressure_forecast.return_value = ("1012", {})
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusPressure()
@@ -627,7 +628,7 @@ class TestGetstatusVagues:
         port = _make_port()
         port.get_current_live_data.return_value = None
         port.getprevis.return_value = {}
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVagues()
@@ -637,7 +638,7 @@ class TestGetstatusVagues:
         """Test live wave data is returned."""
         live_data = {"wave_height": 1.5, "wave_height_max": 2.0, "wave_direction": 270, "swell_height": 1.2, "sea_code": "moderate"}
         port = _make_port(live_data=live_data)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVagues()
@@ -650,7 +651,7 @@ class TestGetstatusVagues:
         now, previs_data = _make_previs(hours_offset=1, hauteurvague="2.2", hauteurmerv="2.5", dirhouledegres="280", hauteurhoule="1.8")
         port = _make_port(previs={now: previs_data})
         port.get_current_live_data.return_value = None
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVagues()
@@ -668,7 +669,7 @@ class TestGetstatusVentLive:
         """Test live wind data is returned."""
         live_data = {"wind_speed": 20, "wind_gust": 30, "wind_direction": 180}
         port = _make_port(live_data=live_data)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVentLive()
@@ -681,7 +682,7 @@ class TestGetstatusVentLive:
         now, previs_data = _make_previs(hours_offset=1, forcevnds="25", rafvnds="35", dirvdegres="190")
         port = _make_port(previs={now: previs_data})
         port.get_current_live_data.return_value = None
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVentLive()
@@ -693,7 +694,7 @@ class TestGetstatusVentLive:
         port = _make_port()
         port.get_current_live_data.return_value = None
         port.getprevis.return_value = {}
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVentLive()
@@ -710,7 +711,7 @@ class TestGetstatusAirTemp:
         """Test live air temp is returned."""
         live_data = {"tempe": 18.5, "tempe_felt": 17.0}
         port = _make_port(live_data=live_data)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusAirTemp()
@@ -723,7 +724,7 @@ class TestGetstatusAirTemp:
         now, previs_data = _make_previs(hours_offset=1, t="19.0")
         port = _make_port(previs={now: previs_data})
         port.get_current_live_data.return_value = None
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusAirTemp()
@@ -740,7 +741,7 @@ class TestGetstatusVisibility:
         """Test live visibility is returned."""
         live_data = {"visibility": 10000}
         port = _make_port(live_data=live_data)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVisibility()
@@ -751,7 +752,7 @@ class TestGetstatusVisibility:
         """Test unavailable without live data."""
         port = _make_port()
         port.get_current_live_data.return_value = None
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusVisibility()
@@ -768,7 +769,7 @@ class TestGetstatusWaterLevel:
         """Test unavailable when no water level."""
         port = _make_port()
         port.get_current_water_level.return_value = (None, None)
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusWaterLevel()
@@ -778,10 +779,48 @@ class TestGetstatusWaterLevel:
         """Test water level is returned."""
         port = _make_port()
         port.get_current_water_level.return_value = (3.5, "Montante")
-        mss = manageSensorState()
+        mss = SensorStateManager()
         mss.init(port)
 
         state, attrs = mss.getstatusWaterLevel()
         assert state == 3.5
         assert attrs["tide_status"] == "Montante"
         assert attrs["data_source"] == "Calculated (Sinusoidal Interpolation)"
+
+
+# ============================================================
+# get_uv_status tests
+# ============================================================
+class TestGetstatusUV:
+    """Tests for get_uv_status method."""
+
+    def test_returns_uv_value(self):
+        """Test UV value is returned."""
+        port = _make_port()
+        port.get_uv.return_value = 5
+        mss = SensorStateManager()
+        mss.init(port)
+
+        state, attrs = mss.get_uv_status()
+        assert state == 5
+        assert attrs["data_source"] == "MeteoConsult Forecast (Hourly)"
+
+    def test_returns_zero_when_no_data(self):
+        """Test zero UV when no data available."""
+        port = _make_port()
+        port.get_uv.return_value = 0
+        mss = SensorStateManager()
+        mss.init(port)
+
+        state, attrs = mss.get_uv_status()
+        assert state == 0
+
+    def test_returns_high_uv(self):
+        """Test high UV value is returned."""
+        port = _make_port()
+        port.get_uv.return_value = 11
+        mss = SensorStateManager()
+        mss.init(port)
+
+        state, attrs = mss.get_uv_status()
+        assert state == 11

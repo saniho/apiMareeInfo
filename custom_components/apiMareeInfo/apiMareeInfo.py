@@ -249,6 +249,7 @@ class ApiMareeInfo:
                     "hauteurmerv": ele.get("hauteurmerv", ""),
                     "periodemerv": ele.get("periodemerv", ""),
                     "hauteurvague": ele.get("hauteurvague", ""),
+                    "uv": ele.get("uv", ""),
                 }
                 clef = dateComplete.replace(tzinfo=None)
                 dicoPrevis[clef] = detailPrevis
@@ -411,6 +412,13 @@ class ApiMareeInfo:
         for x in sorted(self._donneesPrevis.keys()):
             if x > dateCourante:
                 return self._donneesPrevis[x].get("nuagecouverture", 0)
+        return 0
+
+    def get_uv(self) -> int:
+        dateCourante = datetime.datetime.now()
+        for x in sorted(self._donneesPrevis.keys()):
+            if x > dateCourante:
+                return self._donneesPrevis[x].get("uv", 0)
         return 0
 
     def get_current_live_data(self) -> LiveForecastItemRaw | None:
