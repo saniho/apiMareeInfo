@@ -504,7 +504,7 @@ class MareeSnowChanceSensor(BaseMareeSensor):
 
 
 class MareeUVSensor(BaseMareeSensor):
-    """Representation of the UV sensor (dummy)."""
+    """Representation of the UV sensor."""
 
     @property
     def unique_id(self):
@@ -516,11 +516,17 @@ class MareeUVSensor(BaseMareeSensor):
 
     @property
     def state(self):
-        return 0
+        state, _ = self._sensor_manager.get_uv_status()
+        return state
+
+    @property
+    def unit_of_measurement(self):
+        return "index"
 
     @property
     def extra_state_attributes(self):
-        return {"attribution": "Data provided by apiMareeInfo"}
+        _, attributes = self._sensor_manager.get_uv_status()
+        return attributes
 
     @property
     def icon(self):
