@@ -3,11 +3,11 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.7-beta1** - CI/CD complet
+**v2.1.7** - CI/CD complet
 
 ## 📝 Changelog
 
-### v2.1.7-beta1
+### v2.1.7
 - 🔧 **CI/CD complet** : Pipeline unifié avec lint (ruff), typecheck (mypy), tests (pytest + coverage), CodeQL et HACS validation (issue #57).
 - 🧹 **Nettoyage** : Suppression des workflows obsolètes remplacés par un seul `ci.yml`.
 - 🗑️ **Fichiers legacy supprimés** : `testMareeInfo.py` et `test_search.py`.
