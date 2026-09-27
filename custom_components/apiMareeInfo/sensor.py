@@ -28,6 +28,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
@@ -300,15 +301,15 @@ class MareeSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{id_port}_{description.key}"
 
     @property
-    def device_info(self) -> dict[str, Any]:
-        return {
-            "identifiers": {(DOMAIN, self._id_port)},
-            "name": f"Maree {self.coordinator.data.get_port_name()}",
-            "manufacturer": "apiMareeInfo",
-            "model": self.coordinator.data.getcopyright(),
-            "sw_version": __VERSION__,
-            "entry_type": "service",
-        }
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._id_port)},
+            name=f"Maree {self.coordinator.data.get_port_name()}",
+            manufacturer="apiMareeInfo",
+            model=self.coordinator.data.getcopyright(),
+            sw_version=__VERSION__,
+            entry_type="service",
+        )
 
     @property
     def native_value(self) -> Any:
