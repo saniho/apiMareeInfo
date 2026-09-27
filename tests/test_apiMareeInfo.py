@@ -9,7 +9,7 @@ from custom_components.apiMareeInfo.apiMareeInfo import (
     ListePorts,
     MeteoMarine,
     MeteoMarineLive,
-    stormIO,
+    StormIO,
 )
 
 
@@ -41,7 +41,7 @@ class TestListePorts:
         with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"contenu": [{"nom": "Saint-Malo"}]}
             lp = ListePorts()
-            result = await lp.getlisteport("Saint-Malo")
+            await lp.getlisteport("Saint-Malo")
 
             call_args = mock_fetch.call_args
             assert "recherche.php" in call_args[0][0]
@@ -78,7 +78,7 @@ class TestMeteoMarine:
         with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"contenu": {"marees": []}}
             mm = MeteoMarine("48.5", "-2.0")
-            result = await mm.getdata()
+            await mm.getdata()
 
             mock_fetch.assert_called_once()
             assert "48.5" in mock_fetch.call_args[0][0]
@@ -121,14 +121,14 @@ class TestMeteoMarineLive:
 
 
 # ============================================================
-# stormIO tests
+# StormIO tests
 # ============================================================
 class TestStormIO:
-    """Tests for stormIO class."""
+    """Tests for StormIO class."""
 
     def test_init_stores_credentials(self):
         """Test that credentials are stored."""
-        sio = stormIO("48.5", "-2.0", "key123")
+        sio = StormIO("48.5", "-2.0", "key123")
         assert sio._lat == "48.5"
         assert sio._lng == "-2.0"
         assert sio._storm_key == "key123"
@@ -138,7 +138,7 @@ class TestStormIO:
         """Test that Authorization header is sent."""
         with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             headers = mock_fetch.call_args[1]["headers"]
@@ -149,7 +149,7 @@ class TestStormIO:
         """Test that StormIO uses 600s timeout."""
         with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             assert mock_fetch.call_args[1]["timeout"] == 600
@@ -159,7 +159,7 @@ class TestStormIO:
         """Test that start/end params include 2-day range."""
         with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             params = mock_fetch.call_args[1]["params"]
@@ -173,7 +173,7 @@ class TestStormIO:
         """Test that StormIO no longer passes error_return."""
         with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             assert "error_return" not in mock_fetch.call_args[1]
@@ -189,7 +189,7 @@ class TestApiMareeInfo:
         """Test default initialization values."""
         api = ApiMareeInfo()
         assert api._donnees == {}
-        assert api._nomDuPort is None
+        assert api._nomDuPort == ""
         assert api._error is False
         assert api._errorMessage == ""
         assert api._donneesPrevis == {}
@@ -273,7 +273,7 @@ class TestApiMareeInfoGetJson:
 
     @pytest.mark.asyncio
     async def test_getjson_meteomarine(self):
-        """Test getjson routes to MeteoMarine."""
+        """Test _fetch_json routes to MeteoMarine."""
         api = ApiMareeInfo()
         api.setport(48.5, -2.0)
 
@@ -282,12 +282,12 @@ class TestApiMareeInfoGetJson:
             mock_instance.getdata = AsyncMock(return_value={"data": "test"})
             mock_cls.return_value = mock_instance
 
-            result = await api.getjson("MeteoMarine")
+            result = await api._fetch_json("MeteoMarine")
             assert result == {"data": "test"}
 
     @pytest.mark.asyncio
     async def test_getjson_meteomarinelive(self):
-        """Test getjson routes to MeteoMarineLive."""
+        """Test _fetch_json routes to MeteoMarineLive."""
         api = ApiMareeInfo()
         api.setid("12345")
 
@@ -296,21 +296,21 @@ class TestApiMareeInfoGetJson:
             mock_instance.getdata = AsyncMock(return_value={"content": {}})
             mock_cls.return_value = mock_instance
 
-            result = await api.getjson("MeteoMarineLive")
+            result = await api._fetch_json("MeteoMarineLive")
             assert result == {"content": {}}
 
     @pytest.mark.asyncio
     async def test_getjson_stormio(self):
-        """Test getjson routes to stormIO."""
+        """Test _fetch_json routes to StormIO."""
         api = ApiMareeInfo()
         api.setport(48.5, -2.0)
 
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.stormIO") as mock_cls:
+        with patch("custom_components.apiMareeInfo.apiMareeInfo.StormIO") as mock_cls:
             mock_instance = MagicMock()
             mock_instance.getdata = AsyncMock(return_value={"data": []})
             mock_cls.return_value = mock_instance
 
-            result = await api.getjson("stormio", info={"stormkey": "key123"})
+            result = await api._fetch_json("stormio", info={"stormkey": "key123"})
             assert result == {"data": []}
 
 

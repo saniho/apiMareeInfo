@@ -34,7 +34,7 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from . import apiMareeInfo, sensorApiMaree
+from . import apiMareeInfo
 from .const import (
     __VERSION__,
     CONF_ID,
@@ -234,7 +234,7 @@ async def async_setup_entry(
 
     session = async_get_clientsession(hass)
 
-    maree_api = apiMareeInfo.ApiMareeInfo()
+    maree_api = apiMareeInfo.ApiMareeInfo(version=__VERSION__)
     maree_api.setport(lat, lng)
     maree_api.setid(config.get(CONF_ID))
     maree_api.setmaxhours(maxhours)
@@ -298,8 +298,6 @@ class MareeSensor(CoordinatorEntity, SensorEntity):
         self.entity_description = description
         self._id_port = id_port
         self._attr_unique_id = f"{id_port}_{description.key}"
-        self._sensor_manager = sensorApiMaree.SensorStateManager()
-        self._sensor_manager.init(self.coordinator.data, _LOGGER, __VERSION__)
 
     @property
     def device_info(self) -> dict[str, Any]:
@@ -319,7 +317,7 @@ class MareeSensor(CoordinatorEntity, SensorEntity):
             return self.entity_description.static_state
 
         method = getattr(
-            self._sensor_manager, self.entity_description.status_method
+            self.coordinator.data, self.entity_description.status_method
         )
         state, _ = method(*self.entity_description.status_args)
 
@@ -334,7 +332,7 @@ class MareeSensor(CoordinatorEntity, SensorEntity):
             return {"attribution": "Data provided by apiMareeInfo"}
 
         method = getattr(
-            self._sensor_manager, self.entity_description.status_method
+            self.coordinator.data, self.entity_description.status_method
         )
         _, attributes = method(*self.entity_description.status_args)
         return attributes

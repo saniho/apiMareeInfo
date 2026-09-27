@@ -3,7 +3,7 @@
 import datetime
 import json
 import pathlib
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -25,19 +25,18 @@ def mock_coordinator():
 
 
 def make_sensor(key: str, coordinator, id_port: str = "test_id"):
-    """Create a MareeSensor with a mocked SensorStateManager."""
+    """Create a MareeSensor."""
     from custom_components.apiMareeInfo.sensor import MareeSensor
 
     desc = DESC_MAP[key]
-    with patch("custom_components.apiMareeInfo.sensor.sensorApiMaree.SensorStateManager"):
-        sensor = MareeSensor(coordinator, id_port, desc)
+    sensor = MareeSensor(coordinator, id_port, desc)
     return sensor
 
 
 def make_sensor_with_manager(key: str, coordinator, id_port: str = "test_id"):
-    """Create a MareeSensor and return (sensor, mock_manager)."""
+    """Create a MareeSensor and return (sensor, mock_api_data)."""
     sensor = make_sensor(key, coordinator, id_port)
-    return sensor, sensor._sensor_manager
+    return sensor, sensor.coordinator.data
 
 
 @pytest.fixture
