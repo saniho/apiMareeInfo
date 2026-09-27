@@ -3,10 +3,41 @@
 import datetime
 import json
 import pathlib
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+from custom_components.apiMareeInfo.sensor import SENSOR_DESCRIPTIONS
+
 FIXTURES_DIR = pathlib.Path(__file__).parent / "json"
+
+DESC_MAP = {d.key: d for d in SENSOR_DESCRIPTIONS}
+
+
+@pytest.fixture
+def mock_coordinator():
+    """Mock DataUpdateCoordinator for sensor tests."""
+    coordinator = MagicMock()
+    coordinator.data = MagicMock()
+    coordinator.data.get_port_name.return_value = "Saint-Malo"
+    coordinator.data.getcopyright.return_value = "\u00a9SHOM"
+    return coordinator
+
+
+def make_sensor(key: str, coordinator, id_port: str = "test_id"):
+    """Create a MareeSensor with a mocked SensorStateManager."""
+    from custom_components.apiMareeInfo.sensor import MareeSensor
+
+    desc = DESC_MAP[key]
+    with patch("custom_components.apiMareeInfo.sensor.sensorApiMaree.SensorStateManager"):
+        sensor = MareeSensor(coordinator, id_port, desc)
+    return sensor
+
+
+def make_sensor_with_manager(key: str, coordinator, id_port: str = "test_id"):
+    """Create a MareeSensor and return (sensor, mock_manager)."""
+    sensor = make_sensor(key, coordinator, id_port)
+    return sensor, sensor._sensor_manager
 
 
 @pytest.fixture

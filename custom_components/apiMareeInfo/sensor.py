@@ -19,7 +19,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_LATITUDE,
     CONF_LONGITUDE,
+    PERCENTAGE,
     UnitOfLength,
+    UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
 )
@@ -105,7 +107,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
         name="Rain chance",
         icon="mdi:weather-rainy",
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement="%",
+        native_unit_of_measurement=PERCENTAGE,
         status_method="get_rain_chance_status",
     ),
     MareeSensorEntityDescription(
@@ -113,7 +115,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
         name="Cloud cover",
         icon="mdi:cloud-percent",
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement="%",
+        native_unit_of_measurement=PERCENTAGE,
         status_method="get_cloud_cover_status",
     ),
     MareeSensorEntityDescription(
@@ -128,7 +130,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
         icon="mdi:gauge",
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement="hPa",
+        native_unit_of_measurement=UnitOfPressure.HPA,
         status_method="get_pressure_status",
     ),
     MareeSensorEntityDescription(
@@ -143,7 +145,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
         name="Freeze chance",
         icon="mdi:snowflake",
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement="%",
+        native_unit_of_measurement=PERCENTAGE,
         static_state=0,
         status_method="getstatus",
     ),
@@ -152,7 +154,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
         name="Snow chance",
         icon="mdi:weather-snowy",
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement="%",
+        native_unit_of_measurement=PERCENTAGE,
         static_state=0,
         status_method="getstatus",
     ),
