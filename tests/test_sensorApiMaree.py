@@ -632,7 +632,7 @@ class TestGetWaveStatus:
         mss.init(port)
 
         state, attrs = mss.get_wave_status()
-        assert state == "unavailable"
+        assert state is None
 
     def test_returns_live_wave_data(self):
         """Test live wave data is returned."""
@@ -642,8 +642,8 @@ class TestGetWaveStatus:
         mss.init(port)
 
         state, attrs = mss.get_wave_status()
-        assert state == 1.5
-        assert attrs["wave_height_max"] == 2.0
+        assert state == "1.5"
+        assert attrs["wave_height_max"] == "2.0"
         assert attrs["data_source"] == "MeteoConsult Live"
 
     def test_fallback_to_forecast(self):
@@ -673,8 +673,8 @@ class TestGetWindStatus:
         mss.init(port)
 
         state, attrs = mss.get_wind_status()
-        assert state == 20
-        assert attrs["wind_gust"] == 30
+        assert state == "20"
+        assert attrs["wind_gust"] == "30"
         assert attrs["data_source"] == "MeteoConsult Live"
 
     def test_fallback_to_forecast(self):
@@ -698,7 +698,7 @@ class TestGetWindStatus:
         mss.init(port)
 
         state, attrs = mss.get_wind_status()
-        assert state == "unavailable"
+        assert state is None
 
 
 # ============================================================
@@ -715,7 +715,7 @@ class TestGetAirTempStatus:
         mss.init(port)
 
         state, attrs = mss.get_air_temp_status()
-        assert state == 18.5
+        assert state == "18.5"
         assert attrs["tempe_felt"] == 17.0
         assert attrs["data_source"] == "MeteoConsult Live"
 

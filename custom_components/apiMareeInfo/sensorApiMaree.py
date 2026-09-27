@@ -18,6 +18,12 @@ class SensorStateManager:
         self._LOGGER: logging.Logger = logging.getLogger(__name__)
         self.version: str | None = None
 
+    @property
+    def _port(self) -> ApiMareeInfo:
+        """Return the API client, raising if init() was not called."""
+        assert self._myPort is not None, "SensorStateManager.init() must be called first"
+        return self._myPort
+
     def init(
         self,
         _myPort: ApiMareeInfo,
@@ -42,14 +48,14 @@ class SensorStateManager:
             "last_update": datetime.datetime.now(),
         }
         if with_http_update:
-            sc["last_http_update"] = self._myPort.get_http_request_time()
+            sc["last_http_update"] = self._port.get_http_request_time()
         return sc
 
     def _get_data_source(self) -> str:
         """Return the data source label based on live vs forecast availability."""
         return (
             "MeteoConsult Live"
-            if self._myPort._donneesPrevisLive
+            if self._port._donneesPrevisLive
             else "MeteoConsult Forecast (Hourly)"
         )
 
@@ -60,14 +66,14 @@ class SensorStateManager:
 
         Returns (data_dict_or_None, source_label_or_None).
         """
-        data = self._myPort.get_current_live_data()
+        data = self._port.get_current_live_data()
         if data:
             return data, "MeteoConsult Live"
 
         date_courante = datetime.datetime.now()
-        for x in sorted(self._myPort.get_forecast_data().keys()):
+        for x in sorted(self._port.get_forecast_data().keys()):
             if x > date_courante:
-                return self._myPort.get_forecast_data()[x], "MeteoConsult Forecast (Hourly)"
+                return self._port.get_forecast_data()[x], "MeteoConsult Forecast (Hourly)"
         return None, None
 
     # ------------------------------------------------------------------
@@ -82,7 +88,7 @@ class SensorStateManager:
             maintenant = datetime.datetime.now()
 
         sorted_marees = sorted(
-            self._myPort.get_tide_data().values(), key=lambda x: x["dateComplete"]
+            self._port.get_tide_data().values(), key=lambda x: x["dateComplete"]
         )
 
         for maree in sorted_marees:
@@ -100,16 +106,16 @@ class SensorStateManager:
         status_counts: dict[str, Any] = {}
         status_counts["version"] = self.version
 
-        if self._myPort.has_error():
-            status_counts["message"] = self._myPort.get_error_message()
+        if self._port.has_error():
+            status_counts["message"] = self._port.get_error_message()
             return "unavailable", status_counts
 
-        status_counts["nomPort"] = self._myPort.get_port_name()
-        status_counts["idPort"] = self._myPort.getid()
-        status_counts["Copyright"] = self._myPort.getcopyright()
-        status_counts["dateCourante"] = self._myPort.get_current_date()
+        status_counts["nomPort"] = self._port.get_port_name()
+        status_counts["idPort"] = self._port.getid()
+        status_counts["Copyright"] = self._port.getcopyright()
+        status_counts["dateCourante"] = self._port.get_current_date()
 
-        for info in self._myPort.get_tide_data().values():
+        for info in self._port.get_tide_data().values():
             jour = info["jour"]
             nieme = info["nieme"]
             status_counts[f"horaire_{jour}_{nieme}"] = info["horaire"]
@@ -130,11 +136,11 @@ class SensorStateManager:
         status_counts["timeLastCall"] = datetime.datetime.now()
 
         maxTime = datetime.datetime.now() + datetime.timedelta(
-            hours=self._myPort.get_max_hours()
+            hours=self._port.get_max_hours() or 6
         )
         dicoPrevis = [
             previs
-            for maDate, previs in self._myPort.get_forecast_data().items()
+            for maDate, previs in self._port.get_forecast_data().items()
             if datetime.datetime.now() <= maDate.replace(tzinfo=None) <= maxTime
         ]
         status_counts["prevision"] = dicoPrevis
@@ -149,7 +155,7 @@ class SensorStateManager:
             state = "unavailable"
 
         status_counts["last_update"] = datetime.datetime.now()
-        status_counts["last_http_update"] = self._myPort.get_http_request_time()
+        status_counts["last_http_update"] = self._port.get_http_request_time()
 
         return state, status_counts
 
@@ -162,7 +168,7 @@ class SensorStateManager:
 
         next_maree = self.getnextmaree(1)
         if next_maree and next_maree["etat"] == pmbm:
-            maree = next_maree
+            maree: TideData | None = next_maree
         else:
             maree = self.getnextmaree(2)
 
@@ -182,7 +188,7 @@ class SensorStateManager:
     def get_next_rain_status(self) -> tuple[datetime.datetime | str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
-        dateNextPluie, precipitation = self._myPort.get_next_rain()
+        dateNextPluie, precipitation = self._port.get_next_rain()
         if dateNextPluie:
             dateNextPluieCh = dateNextPluie.strftime("%d/%m %H:%M")
             state: datetime.datetime | str = dateNextPluie
@@ -194,7 +200,7 @@ class SensorStateManager:
         sc["precipitation"] = precipitation
         sc["message"] = f"{dateNextPluieCh} - {precipitation} mm"
 
-        _, forecast, _ = self._myPort.get_1h_forecast()
+        _, forecast, _ = self._port.get_1h_forecast()
         sc["1_hour_forecast"] = forecast
 
         return state, sc
@@ -206,7 +212,7 @@ class SensorStateManager:
     def get_water_temp_status(self) -> tuple[str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
-        dateTemperatureEau, teau = self._myPort.get_water_temperature()
+        dateTemperatureEau, teau = self._port.get_water_temperature()
         if dateTemperatureEau:
             state = teau
         else:
@@ -226,7 +232,7 @@ class SensorStateManager:
     def get_weather_status(self) -> tuple[str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
-        forecast_time_ref, forecast, source = self._myPort.get_1h_forecast()
+        forecast_time_ref, forecast, source = self._port.get_1h_forecast()
         state = forecast.get("0 min", "Temps sec")
 
         sc["forecast_time_ref"] = forecast_time_ref.isoformat()
@@ -241,7 +247,7 @@ class SensorStateManager:
 
     def get_rain_chance_status(self) -> tuple[int, dict[str, Any]]:
         sc = self._init_status()
-        state = self._myPort.get_rain_chance()
+        state = self._port.get_rain_chance()
         sc["data_source"] = self._get_data_source()
         return state, sc
 
@@ -251,7 +257,7 @@ class SensorStateManager:
 
     def get_cloud_cover_status(self) -> tuple[int, dict[str, Any]]:
         sc = self._init_status()
-        state = self._myPort.get_cloud_cover()
+        state = self._port.get_cloud_cover()
         sc["data_source"] = "MeteoConsult Forecast (Hourly)"
         return state, sc
 
@@ -261,7 +267,7 @@ class SensorStateManager:
 
     def get_uv_status(self) -> tuple[int, dict[str, Any]]:
         sc = self._init_status()
-        state = self._myPort.get_uv()
+        state = self._port.get_uv()
         sc["data_source"] = "MeteoConsult Forecast (Hourly)"
         return state, sc
 
@@ -271,7 +277,7 @@ class SensorStateManager:
 
     def get_weather_alert_status(self) -> tuple[str, dict[str, Any]]:
         sc = self._init_status()
-        state = self._myPort.get_weather_alert()
+        state = self._port.get_weather_alert()
         sc["data_source"] = "MeteoConsult"
         return state, sc
 
@@ -281,7 +287,7 @@ class SensorStateManager:
 
     def get_pressure_status(self) -> tuple[str | None, dict[str, Any]]:
         sc = self._init_status()
-        state, forecast = self._myPort.get_pressure_forecast()
+        state, forecast = self._port.get_pressure_forecast()
         sc["pressure_forecast"] = forecast
         sc["data_source"] = self._get_data_source()
         return state, sc
@@ -295,16 +301,16 @@ class SensorStateManager:
         data, source = self._get_live_or_forecast()
         if data:
             is_live = source == "MeteoConsult Live"
-            state = data.get("wave_height" if is_live else "hauteurvague")
-            sc["wave_height_max"] = data.get("wave_height_max" if is_live else "hauteurmerv")
-            sc["wave_direction"] = data.get("wave_direction" if is_live else "dirhouledegres")
-            sc["swell_height"] = data.get("swell_height" if is_live else "hauteurhoule")
+            state = str(data.get("wave_height" if is_live else "hauteurvague", "")) or None
+            sc["wave_height_max"] = str(data.get("wave_height_max" if is_live else "hauteurmerv", ""))
+            sc["wave_direction"] = str(data.get("wave_direction" if is_live else "dirhouledegres", ""))
+            sc["swell_height"] = str(data.get("swell_height" if is_live else "hauteurhoule", ""))
             if is_live:
                 sc["sea_code"] = data.get("sea_code")
                 sc["wave_direction_deg"] = data.get("wave_direction")
             sc["data_source"] = source
         else:
-            state = "unavailable"
+            state = None
         return state, sc
 
     # ------------------------------------------------------------------
@@ -316,12 +322,12 @@ class SensorStateManager:
         data, source = self._get_live_or_forecast()
         if data:
             is_live = source == "MeteoConsult Live"
-            state = data.get("wind_speed" if is_live else "forcevnds")
-            sc["wind_gust"] = data.get("wind_gust" if is_live else "rafvnds")
-            sc["wind_direction"] = data.get("wind_direction" if is_live else "dirvdegres")
+            state = str(data.get("wind_speed" if is_live else "forcevnds", "")) or None
+            sc["wind_gust"] = str(data.get("wind_gust" if is_live else "rafvnds", ""))
+            sc["wind_direction"] = str(data.get("wind_direction" if is_live else "dirvdegres", ""))
             sc["data_source"] = source
         else:
-            state = "unavailable"
+            state = None
         return state, sc
 
     # ------------------------------------------------------------------
@@ -333,12 +339,12 @@ class SensorStateManager:
         data, source = self._get_live_or_forecast()
         if data:
             is_live = source == "MeteoConsult Live"
-            state = data.get("tempe" if is_live else "t")
+            state = str(data.get("tempe" if is_live else "t", "")) or None
             if is_live:
                 sc["tempe_felt"] = data.get("tempe_felt")
             sc["data_source"] = source
         else:
-            state = "unavailable"
+            state = None
         return state, sc
 
     # ------------------------------------------------------------------
@@ -347,7 +353,7 @@ class SensorStateManager:
 
     def get_visibility_status(self) -> tuple[str | None, dict[str, Any]]:
         sc = self._init_status()
-        data = self._myPort.get_current_live_data()
+        data = self._port.get_current_live_data()
         if data:
             state = data.get("visibility")
             sc["data_source"] = "MeteoConsult Live"
@@ -361,7 +367,7 @@ class SensorStateManager:
 
     def get_water_level_status(self) -> tuple[float | str, dict[str, Any]]:
         sc = self._init_status()
-        level, status = self._myPort.get_current_water_level()
+        level, status = self._port.get_current_water_level()
         if level is not None:
             state: float | str = level
             sc["tide_status"] = status
@@ -379,10 +385,10 @@ class SensorStateManager:
     ) -> tuple[str, dict[str, Any]]:
         sc = self._init_status(with_http_update=True)
 
-        if self._myPort.has_error():
+        if self._port.has_error():
             return "unavailable", sc
 
-        maree = self._myPort.get_prochaine_grande_maree()
+        maree = self._port.get_prochaine_grande_maree()
         if maree is None:
             return "unavailable", sc
 

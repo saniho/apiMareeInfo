@@ -1,7 +1,7 @@
 """Config flow for apiMareeInfo."""
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
@@ -28,7 +28,7 @@ CONF_PORT_SEARCH = "port_search"
 CONF_PORT_SELECT = "port_select"
 
 
-class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """Handle a config flow for apiMareeInfo."""
 
     VERSION = 1
@@ -39,9 +39,9 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.data = {}
         self.ports = {}
 
-    async def async_step_user(self, user_input: Dict[str, Any] = None):
+    async def async_step_user(self, user_input: dict[str, Any] | None = None):
         """Step 1: Ask user for a port name to search."""
-        errors = {}
+        errors: dict[str, str] = {}
         if user_input is not None:
             search_term = user_input[CONF_PORT_SEARCH]
             session = async_get_clientsession(self.hass)
@@ -75,9 +75,9 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_select_port(self, user_input: Dict[str, Any] = None):
+    async def async_step_select_port(self, user_input: dict[str, Any] | None = None):
         """Step 2: Show found ports and ask for final details."""
-        errors = {}
+        errors: dict[str, str] = {}
         if user_input is not None:
             selected_port_name = user_input[CONF_PORT_SELECT]
             port_details = self.ports[selected_port_name]
@@ -124,7 +124,7 @@ class ApiMareeInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle an options flow for apiMareeInfo."""
 
-    async def async_step_init(self, user_input: Dict[str, Any] = None):
+    async def async_step_init(self, user_input: dict[str, Any] | None = None):
         """Manage the options."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)

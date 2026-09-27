@@ -10,7 +10,6 @@ from .http_utils import async_fetch_json
 from .types import (
     ForecastData,
     LiveForecastItemRaw,
-    StormGlassResponse,
     TideData,
 )
 
@@ -82,7 +81,7 @@ class stormIO:
         self._lng = lng
         self._storm_key = storm_key
 
-    async def getdata(self, session: Any | None = None) -> StormGlassResponse:
+    async def getdata(self, session: Any | None = None) -> dict[str, Any]:
         now = datetime.datetime.now()
         nowJ2 = now + datetime.timedelta(days=2)
         self._deb = now.strftime("%Y-%m-%d %H:%M:%S+00:00")
@@ -134,14 +133,14 @@ class ApiMareeInfo:
         session: Any | None = None,
     ) -> dict[str, Any] | None:
         if origine == "MeteoMarine":
-            mm = MeteoMarine(self._lat, self._lng)  # type: ignore[arg-type]
-            return await mm.getdata(session)
+            mm_meteo = MeteoMarine(self._lat, self._lng)  # type: ignore[arg-type]
+            return await mm_meteo.getdata(session)
         elif origine == "MeteoMarineLive":
-            mm = MeteoMarineLive(self._id)  # type: ignore[arg-type]
-            return await mm.getdata(session)
+            mm_live = MeteoMarineLive(self._id)  # type: ignore[arg-type]
+            return await mm_live.getdata(session)
         elif origine == "stormio":
-            mm = stormIO(self._lat, self._lng, info["stormkey"])  # type: ignore[arg-type, index]
-            return await mm.getdata(session)
+            mm_storm = stormIO(self._lat, self._lng, info["stormkey"])  # type: ignore[arg-type, index]
+            return await mm_storm.getdata(session)
         return None
 
     def setport(self, lat: float, lng: float) -> None:
@@ -176,10 +175,11 @@ class ApiMareeInfo:
                 self._errorMessage = "No tide data available from MeteoMarine"
                 _LOGGER.warning("MeteoMarine data error for lat=%s, lng=%s. Response: %s", self._lat, self._lng, str(jsondata)[:200])
             else:
-                self._nomDuPort = jsondata["contenu"]["marees"][0]["lieu"]
-                self._dateCourante = jsondata["contenu"]["marees"][0]["datetime"]
+                contenu = jsondata["contenu"]
+                self._nomDuPort = contenu["marees"][0]["lieu"]
+                self._dateCourante = contenu["marees"][0]["datetime"]
                 self._error = False
-                self._avis = jsondata["contenu"].get("avis", [])
+                self._avis = contenu.get("avis", [])
 
             # Fetch live data if id is available
             if self._id:
@@ -193,7 +193,8 @@ class ApiMareeInfo:
         elif origine == "stormio":
             if not jsondata or "errors" in jsondata:
                 self._nomDuPort = ""
-                self._errorMessage = jsondata.get("errors", {}).get("key", "Unknown error from StormIO")
+                errors_dict = jsondata.get("errors", {}) if jsondata else {}
+                self._errorMessage = errors_dict.get("key", "Unknown error from StormIO")
                 self._error = True
             elif "station" in jsondata.get("meta", {}):
                 self._nomDuPort = jsondata["meta"]["station"]['name']
@@ -206,35 +207,36 @@ class ApiMareeInfo:
 
         myMarees: dict[str, TideData] = {}
         dicoPrevis: dict[datetime.datetime, ForecastData] = {}
-        if (origine == "MeteoMarine") and (not self._error):
+        if (origine == "MeteoMarine") and (not self._error) and jsondata is not None:
+            contenu = jsondata["contenu"]
             j = 0
-            for maree in jsondata["contenu"]["marees"]:
+            for maree in contenu["marees"]:
                 i = 0
                 for ele in maree["etales"]:
-                    dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
-                    detailMaree: TideData = {
+                    dateCompleteMaree = datetime.datetime.fromisoformat(ele["datetime"])
+                    detail_maree_mm: TideData = {
                         "coeff": ele.get("coef", ""),
                         "hauteur": ele["hauteur"],
-                        "horaire": dateComplete.strftime("%H:%M"),
+                        "horaire": dateCompleteMaree.strftime("%H:%M"),
                         "etat": ele["type_etale"],
                         "nieme": i,
                         "jour": j,
                         "date": ele["datetime"],
-                        "dateComplete": dateComplete.replace(tzinfo=None),
+                        "dateComplete": dateCompleteMaree.replace(tzinfo=None),
                     }
-                    clef = "horaire_%s_%s" % (j, i)
-                    myMarees[clef] = detailMaree
+                    clef_maree = "horaire_%s_%s" % (j, i)
+                    myMarees[clef_maree] = detail_maree_mm
                     i += 1
                 j += 1
             self._donnees = myMarees
 
-            for ele in jsondata["contenu"]["previs"]["detail"]:
-                dateComplete = datetime.datetime.fromisoformat(ele["datetime"])
+            for ele in contenu["previs"]["detail"]:
+                dateCompletePrev = datetime.datetime.fromisoformat(ele["datetime"])
                 detailPrevis: ForecastData = {
                     "forcevnds": ele.get("forcevnds", ""),
                     "rafvnds": ele.get("rafvnds", ""),
                     "dirvdegres": ele.get("dirvdegres", ""),
-                    "dateComplete": dateComplete.replace(tzinfo=None),
+                    "dateComplete": dateCompletePrev.replace(tzinfo=None),
                     "nebu": ele.get("nebu", ""),
                     "nuagecouverture": ele.get("nuagecouverture", ""),
                     "precipitation": ele.get("precipitation", ""),
@@ -250,30 +252,30 @@ class ApiMareeInfo:
                     "hauteurvague": ele.get("hauteurvague", ""),
                     "uv": ele.get("uv", ""),
                 }
-                clef = dateComplete.replace(tzinfo=None)
-                dicoPrevis[clef] = detailPrevis
-        elif (origine == "stormio") and (not self._error):
+                clef_prev = dateCompletePrev.replace(tzinfo=None)
+                dicoPrevis[clef_prev] = detailPrevis
+        elif (origine == "stormio") and (not self._error) and jsondata is not None:
             j = 0
-            dateCompletePrevious = self._dateCourante
+            dateCompletePrevious: datetime.datetime | None = self._dateCourante
             for maree in jsondata["data"][:6]:
                 i = 0
-                dateComplete = datetime.datetime.fromisoformat(maree["time"])
-                detailMaree: TideData = {
+                dateCompleteStorm = datetime.datetime.fromisoformat(maree["time"])
+                detail_maree_storm: TideData = {
                     "coeff": maree.get("coef", ""),
                     "hauteur": maree.get("height", ""),
-                    "horaire": dateComplete.strftime("%H:%M"),
+                    "horaire": dateCompleteStorm.strftime("%H:%M"),
                     "etat": maree["type"],
                     "nieme": i,
                     "jour": j,
                     "date": maree["time"],
-                    "dateComplete": dateComplete.replace(tzinfo=None),
+                    "dateComplete": dateCompleteStorm.replace(tzinfo=None),
                 }
-                clef = "horaire_%s_%s" % (j, i)
-                myMarees[clef] = detailMaree
+                clef_storm = "horaire_%s_%s" % (j, i)
+                myMarees[clef_storm] = detail_maree_storm
                 i += 1
-                if (dateComplete.date() != dateCompletePrevious.date()):
+                if dateCompletePrevious is not None and dateCompleteStorm.date() != dateCompletePrevious.date():
                     j += 1
-                dateCompletePrevious = dateComplete
+                dateCompletePrevious = dateCompleteStorm
             self._donnees = myMarees
 
         self._donneesPrevis = dicoPrevis
@@ -324,9 +326,8 @@ class ApiMareeInfo:
         for x in self._donneesPrevis.keys():
             if self._donneesPrevis[x]["dateComplete"] > dateCourante:
                 if self._donneesPrevis[x]["precipitation"] != 0:
-                    return self._donneesPrevis[x]["dateComplete"], self._donneesPrevis[
-                        x
-                    ]["precipitation"]
+                    precip = self._donneesPrevis[x]["precipitation"]
+                    return self._donneesPrevis[x]["dateComplete"], float(precip) if precip else 0.0
         return None, 0
 
     def get_water_temperature(self) -> tuple[datetime.datetime | None, str]:
@@ -336,7 +337,7 @@ class ApiMareeInfo:
                 return self._donneesPrevis[x]["dateComplete"], self._donneesPrevis[x][
                     "teau"
                 ]
-        return None, 0  # type: ignore[return-value]
+        return None, ""
 
     def get_1h_forecast(
         self,
@@ -346,10 +347,14 @@ class ApiMareeInfo:
 
         if self._donneesPrevisLive:
             def get_label_risk(risk: int) -> str:
-                if risk == 0: return "Temps sec"
-                if risk <= 25: return "Pluie faible"
-                if risk <= 50: return "Pluie modérée"
-                if risk <= 75: return "Pluie forte"
+                if risk == 0:
+                    return "Temps sec"
+                if risk <= 25:
+                    return "Pluie faible"
+                if risk <= 50:
+                    return "Pluie modérée"
+                if risk <= 75:
+                    return "Pluie forte"
                 return "Pluie très forte"
 
             # Use live data (5-min steps)
@@ -379,9 +384,12 @@ class ApiMareeInfo:
         start_time -= datetime.timedelta(minutes=start_time.minute % 5)
 
         def get_label(mm: float) -> str:
-            if mm == 0: return "Temps sec"
-            if mm <= 1: return "Pluie faible"
-            if mm <= 4: return "Pluie modérée"
+            if mm == 0:
+                return "Temps sec"
+            if mm <= 1:
+                return "Pluie faible"
+            if mm <= 4:
+                return "Pluie modérée"
             return "Pluie forte"
 
         for i in range(0, 65, 5):
@@ -389,7 +397,7 @@ class ApiMareeInfo:
             target_hour = target_dt.replace(minute=0, second=0, microsecond=0)
 
             if target_hour in self._donneesPrevis:
-                mm = self._donneesPrevis[target_hour].get("precipitation", 0)
+                mm = float(self._donneesPrevis[target_hour].get("precipitation", 0) or 0)
                 forecast[f"{i} min"] = get_label(mm)
             else:
                 forecast[f"{i} min"] = "Indisponible"
@@ -410,14 +418,16 @@ class ApiMareeInfo:
         # checking based on the provided JSON it's not there, but for consistency...)
         for x in sorted(self._donneesPrevis.keys()):
             if x > dateCourante:
-                return self._donneesPrevis[x].get("nuagecouverture", 0)
+                val = self._donneesPrevis[x].get("nuagecouverture", 0)
+                return int(val) if val else 0
         return 0
 
     def get_uv(self) -> int:
         dateCourante = datetime.datetime.now()
         for x in sorted(self._donneesPrevis.keys()):
             if x > dateCourante:
-                return self._donneesPrevis[x].get("uv", 0)
+                val = self._donneesPrevis[x].get("uv", 0)
+                return int(val) if val else 0
         return 0
 
     def get_current_live_data(self) -> LiveForecastItemRaw | None:
@@ -478,8 +488,9 @@ class ApiMareeInfo:
             return "Aucun"
         # On prend le premier avis pertinent (niveau > 0)
         for avis in self._avis:
-            if avis.get("niveau", 0) > 0:
-                return avis.get("phrase", "Alerte météo")
+            niveau = avis.get("niveau", 0)
+            if isinstance(niveau, (int, float)) and niveau > 0:
+                return str(avis.get("phrase", "Alerte météo"))
         return "Aucun"
 
     def get_pressure_forecast(
@@ -490,22 +501,26 @@ class ApiMareeInfo:
         current_pressure: str | None = None
 
         # We combine live and hourly data for the best forecast
-        all_data: dict[datetime.datetime, ForecastData] = {**self._donneesPrevis}
+        all_data: dict[datetime.datetime, dict[str, Any]] = {k: dict(v) for k, v in self._donneesPrevis.items()}
         for dt, data in self._donneesPrevisLive.items():
             if "pressure" in data or "pression" in data:
-                all_data[dt] = {**all_data.get(dt, {}), "pressure": data.get("pressure") or data.get("pression")}
+                merged: dict[str, Any] = {**all_data.get(dt, {})}
+                merged["pressure"] = data.get("pressure") or data.get("pression", "")
+                all_data[dt] = merged
 
         sorted_keys = sorted(all_data.keys())
         for k in sorted_keys:
             val = all_data[k].get("pressure") or all_data[k].get("pression")
             if val:
+                val_str = str(val)
                 if k <= dateCourante:
-                    current_pressure = val
+                    current_pressure = val_str
                 else:
-                    forecast[k.isoformat()] = val
+                    forecast[k.isoformat()] = val_str
 
         if current_pressure is None and sorted_keys:
-             current_pressure = all_data[sorted_keys[0]].get("pressure") or all_data[sorted_keys[0]].get("pression")
+            fallback = all_data[sorted_keys[0]].get("pressure") or all_data[sorted_keys[0]].get("pression")
+            current_pressure = str(fallback) if fallback else None
 
         return current_pressure, forecast
 

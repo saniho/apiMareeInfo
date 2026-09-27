@@ -82,7 +82,7 @@ def _classify_error(
     )
 
 
-def _is_retriable(exc: Exception) -> bool:
+def _is_retriable(exc: BaseException) -> bool:
     """Return True if the exception is worth retrying."""
     if isinstance(exc, NetworkError):
         return True
