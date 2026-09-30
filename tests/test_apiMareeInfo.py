@@ -4,13 +4,13 @@ import datetime
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from custom_components.apiMareeInfo.apiMareeInfo import (
-    ApiMareeInfo,
+from custom_components.apiMareeInfo.api_clients import (
     ListePorts,
     MeteoMarine,
     MeteoMarineLive,
-    stormIO,
+    StormIO,
 )
+from custom_components.apiMareeInfo.apiMareeInfo import ApiMareeInfo
 
 
 # ============================================================
@@ -22,7 +22,7 @@ class TestListePorts:
     @pytest.mark.asyncio
     async def test_getjson_calls_async_fetch(self):
         """Test that getjson delegates to async_fetch_json."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"contenu": []}
             lp = ListePorts()
             result = await lp.getjson("http://example.com", params={"q": "test"})
@@ -38,10 +38,10 @@ class TestListePorts:
     @pytest.mark.asyncio
     async def test_getlisteport_builds_correct_url_and_params(self):
         """Test that getlisteport builds correct URL and params."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"contenu": [{"nom": "Saint-Malo"}]}
             lp = ListePorts()
-            result = await lp.getlisteport("Saint-Malo")
+            await lp.getlisteport("Saint-Malo")
 
             call_args = mock_fetch.call_args
             assert "recherche.php" in call_args[0][0]
@@ -50,7 +50,7 @@ class TestListePorts:
     @pytest.mark.asyncio
     async def test_getlisteport_passes_session(self):
         """Test that getlisteport passes session to async_fetch_json."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"contenu": []}
             lp = ListePorts()
             mock_session = MagicMock()
@@ -75,10 +75,10 @@ class TestMeteoMarine:
     @pytest.mark.asyncio
     async def test_getdata_calls_async_fetch(self):
         """Test that getdata delegates to async_fetch_json."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"contenu": {"marees": []}}
             mm = MeteoMarine("48.5", "-2.0")
-            result = await mm.getdata()
+            await mm.getdata()
 
             mock_fetch.assert_called_once()
             assert "48.5" in mock_fetch.call_args[0][0]
@@ -86,7 +86,7 @@ class TestMeteoMarine:
     @pytest.mark.asyncio
     async def test_getdata_passes_session(self):
         """Test that getdata passes session correctly."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {}
             mm = MeteoMarine("48.5", "-2.0")
             mock_session = MagicMock()
@@ -109,26 +109,26 @@ class TestMeteoMarineLive:
     @pytest.mark.asyncio
     async def test_getdata_builds_url_with_today(self):
         """Test that URL contains today's date."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"content": {"forecasts": []}}
             mml = MeteoMarineLive("12345")
             await mml.getdata()
 
             url = mock_fetch.call_args[0][0]
-            today = datetime.datetime.now().strftime("%Y-%m-%d")
+            today = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d")
             assert today in url
             assert "12345" in url
 
 
 # ============================================================
-# stormIO tests
+# StormIO tests
 # ============================================================
 class TestStormIO:
-    """Tests for stormIO class."""
+    """Tests for StormIO class."""
 
     def test_init_stores_credentials(self):
         """Test that credentials are stored."""
-        sio = stormIO("48.5", "-2.0", "key123")
+        sio = StormIO("48.5", "-2.0", "key123")
         assert sio._lat == "48.5"
         assert sio._lng == "-2.0"
         assert sio._storm_key == "key123"
@@ -136,9 +136,9 @@ class TestStormIO:
     @pytest.mark.asyncio
     async def test_getdata_sends_auth_header(self):
         """Test that Authorization header is sent."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             headers = mock_fetch.call_args[1]["headers"]
@@ -147,9 +147,9 @@ class TestStormIO:
     @pytest.mark.asyncio
     async def test_getdata_uses_600s_timeout(self):
         """Test that StormIO uses 600s timeout."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             assert mock_fetch.call_args[1]["timeout"] == 600
@@ -157,9 +157,9 @@ class TestStormIO:
     @pytest.mark.asyncio
     async def test_getdata_includes_date_range(self):
         """Test that start/end params include 2-day range."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             params = mock_fetch.call_args[1]["params"]
@@ -171,9 +171,9 @@ class TestStormIO:
     @pytest.mark.asyncio
     async def test_getdata_no_error_return(self):
         """Test that StormIO no longer passes error_return."""
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
+        with patch("custom_components.apiMareeInfo.api_clients.async_fetch_json", new_callable=AsyncMock) as mock_fetch:
             mock_fetch.return_value = {"data": []}
-            sio = stormIO("48.5", "-2.0", "key123")
+            sio = StormIO("48.5", "-2.0", "key123")
             await sio.getdata()
 
             assert "error_return" not in mock_fetch.call_args[1]
@@ -189,7 +189,7 @@ class TestApiMareeInfo:
         """Test default initialization values."""
         api = ApiMareeInfo()
         assert api._donnees == {}
-        assert api._nomDuPort is None
+        assert api._nomDuPort == ""
         assert api._error is False
         assert api._errorMessage == ""
         assert api._donneesPrevis == {}
@@ -250,9 +250,9 @@ class TestApiMareeInfo:
     def test_get_http_request_time(self):
         """Test that HTTP request time is set."""
         api = ApiMareeInfo()
-        before = datetime.datetime.now()
+        before = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api._httptimerequest = before
-        after = datetime.datetime.now()
+        after = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         assert before <= api.get_http_request_time() <= after
 
     def test_get_tide_data_returns_donnees(self):
@@ -273,7 +273,7 @@ class TestApiMareeInfoGetJson:
 
     @pytest.mark.asyncio
     async def test_getjson_meteomarine(self):
-        """Test getjson routes to MeteoMarine."""
+        """Test _fetch_json routes to MeteoMarine."""
         api = ApiMareeInfo()
         api.setport(48.5, -2.0)
 
@@ -282,12 +282,12 @@ class TestApiMareeInfoGetJson:
             mock_instance.getdata = AsyncMock(return_value={"data": "test"})
             mock_cls.return_value = mock_instance
 
-            result = await api.getjson("MeteoMarine")
+            result = await api._fetch_json("MeteoMarine")
             assert result == {"data": "test"}
 
     @pytest.mark.asyncio
     async def test_getjson_meteomarinelive(self):
-        """Test getjson routes to MeteoMarineLive."""
+        """Test _fetch_json routes to MeteoMarineLive."""
         api = ApiMareeInfo()
         api.setid("12345")
 
@@ -296,26 +296,46 @@ class TestApiMareeInfoGetJson:
             mock_instance.getdata = AsyncMock(return_value={"content": {}})
             mock_cls.return_value = mock_instance
 
-            result = await api.getjson("MeteoMarineLive")
+            result = await api._fetch_json("MeteoMarineLive")
             assert result == {"content": {}}
 
     @pytest.mark.asyncio
     async def test_getjson_stormio(self):
-        """Test getjson routes to stormIO."""
+        """Test _fetch_json routes to StormIO."""
         api = ApiMareeInfo()
         api.setport(48.5, -2.0)
 
-        with patch("custom_components.apiMareeInfo.apiMareeInfo.stormIO") as mock_cls:
+        with patch("custom_components.apiMareeInfo.apiMareeInfo.StormIO") as mock_cls:
             mock_instance = MagicMock()
             mock_instance.getdata = AsyncMock(return_value={"data": []})
             mock_cls.return_value = mock_instance
 
-            result = await api.getjson("stormio", info={"stormkey": "key123"})
+            result = await api._fetch_json("stormio", info={"stormkey": "key123"})
             assert result == {"data": []}
 
 
 class TestApiMareeInfoGetInformationPort:
     """Tests for getinformationport parsing."""
+
+    @pytest.mark.asyncio
+    async def test_live_feed_failure_preserves_tides(self, sjm_meteomarine_data):
+        """An optional live feed outage must not invalidate the tide forecast."""
+        api = ApiMareeInfo()
+        api.setid("190")
+
+        async def fake_fetch(source, info=None, session=None):
+            if source == "MeteoMarineLive":
+                raise RuntimeError("Live feed HTTP 500")
+            return None
+
+        api._fetch_json = fake_fetch  # type: ignore[method-assign]
+
+        await api.getinformationport(jsondata=sjm_meteomarine_data, origine="MeteoMarine")
+
+        assert api.has_error() is False
+        assert api.get_tide_data()
+        assert api.get_forecast_data()
+        assert api._donneesPrevisLive == {}
 
     @pytest.mark.asyncio
     async def test_parse_meteomarine_data(self, sjm_meteomarine_data):
@@ -525,7 +545,7 @@ class TestGetProchaineGrandeMaree:
     def test_returns_grande_maree_when_available(self):
         """Test that it finds next tide with coef >= 100."""
         api = ApiMareeInfo()
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api._donnees = {
             "horaire_0_0": {
                 "coeff": 85,
@@ -556,7 +576,7 @@ class TestGetProchaineGrandeMaree:
     def test_returns_none_when_no_grande_maree(self):
         """Test that it returns None when no coef >= 100."""
         api = ApiMareeInfo()
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api._donnees = {
             "horaire_0_0": {
                 "coeff": 85,
@@ -575,7 +595,7 @@ class TestGetProchaineGrandeMaree:
     def test_skips_past_tides(self):
         """Test that it ignores tides in the past."""
         api = ApiMareeInfo()
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api._donnees = {
             "horaire_0_0": {
                 "coeff": 110,
@@ -594,7 +614,7 @@ class TestGetProchaineGrandeMaree:
     def test_skips_low_tide(self):
         """Test that it ignores BM even with high coef."""
         api = ApiMareeInfo()
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api._donnees = {
             "horaire_0_0": {
                 "coeff": 105,
@@ -613,7 +633,7 @@ class TestGetProchaineGrandeMaree:
     def test_returns_first_grande_maree(self):
         """Test that it returns the chronologically first grande marée."""
         api = ApiMareeInfo()
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api._donnees = {
             "horaire_0_0": {
                 "coeff": 102,
@@ -643,7 +663,7 @@ class TestGetProchaineGrandeMaree:
     def test_handles_coef_as_string(self):
         """Test that it handles coef stored as string."""
         api = ApiMareeInfo()
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api._donnees = {
             "horaire_0_0": {
                 "coeff": "105",

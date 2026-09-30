@@ -3,40 +3,209 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable
 
-import async_timeout
-
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfLength,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.const import (
-    CONF_LATITUDE,
-    CONF_LONGITUDE,
-)
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
-    UpdateFailed,
 )
 
 from .const import (
-    __name__,
     __VERSION__,
-    CONF_MAXHOURS,
-    CONF_STORM_KEY,
-    DEFAULT_MAX_HOURS,
-    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
-    CONF_ID,
 )
-from . import apiMareeInfo, sensorApiMaree
-from .exceptions import ApiError, NetworkError
 
 _LOGGER = logging.getLogger(__name__)
-ICON = "mdi:waves"
+
+
+@dataclass(kw_only=True)
+class MareeSensorEntityDescription(SensorEntityDescription):
+    """Describe a Maree sensor."""
+
+    status_method: str
+    status_args: tuple[Any, ...] = ()
+    state_transform: Callable[[Any], Any] | None = None
+    static_state: Any = None
+
+
+def _format_next_rain_time(state: Any) -> str:
+    """Format datetime to DD/MM HH:MM."""
+    if isinstance(state, datetime):
+        return state.strftime("%d/%m %H:%M")
+    return state
+
+
+SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
+    MareeSensorEntityDescription(
+        key="maree_du_jour",
+        name="Maree du jour",
+        icon="mdi:waves",
+        status_method="getstatus",
+    ),
+    MareeSensorEntityDescription(
+        key="maree_haute",
+        name="Maree Haute",
+        translation_key="maree_haute",
+        icon="mdi:waves-arrow-up",
+        status_method="get_next_tide_state",
+        status_args=("PM",),
+    ),
+    MareeSensorEntityDescription(
+        key="maree_basse",
+        name="Maree Basse",
+        translation_key="maree_basse",
+        icon="mdi:waves-arrow-down",
+        status_method="get_next_tide_state",
+        status_args=("BM",),
+    ),
+    MareeSensorEntityDescription(
+        key="temperature_eau",
+        name="Temperature Eau",
+        translation_key="temperature_eau",
+        icon="mdi:thermometer-water",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        status_method="get_water_temp_status",
+    ),
+    MareeSensorEntityDescription(
+        key="next_rain",
+        name="Next rain",
+        translation_key="next_rain",
+        icon="mdi:weather-rainy",
+        status_method="get_weather_status",
+    ),
+    MareeSensorEntityDescription(
+        key="rain_chance",
+        name="Rain chance",
+        icon="mdi:weather-rainy",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=PERCENTAGE,
+        status_method="get_rain_chance_status",
+    ),
+    MareeSensorEntityDescription(
+        key="cloud_cover",
+        name="Cloud cover",
+        icon="mdi:cloud-percent",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=PERCENTAGE,
+        status_method="get_cloud_cover_status",
+    ),
+    MareeSensorEntityDescription(
+        key="weather_alert",
+        name="Weather alert",
+        icon="mdi:alert",
+        status_method="get_weather_alert_status",
+    ),
+    MareeSensorEntityDescription(
+        key="pressure",
+        name="Pressure",
+        icon="mdi:gauge",
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfPressure.HPA,
+        status_method="get_pressure_status",
+    ),
+    MareeSensorEntityDescription(
+        key="next_rain_time",
+        name="Next rain time",
+        icon="mdi:weather-pouring",
+        status_method="get_next_rain_status",
+        state_transform=_format_next_rain_time,
+    ),
+    MareeSensorEntityDescription(
+        key="freeze_chance",
+        name="Freeze chance",
+        icon="mdi:snowflake",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=PERCENTAGE,
+        static_state=0,
+        status_method="getstatus",
+    ),
+    MareeSensorEntityDescription(
+        key="snow_chance",
+        name="Snow chance",
+        icon="mdi:weather-snowy",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=PERCENTAGE,
+        static_state=0,
+        status_method="getstatus",
+    ),
+    MareeSensorEntityDescription(
+        key="uv",
+        name="UV",
+        icon="mdi:weather-sunny-alert",
+        state_class=SensorStateClass.MEASUREMENT,
+        status_method="get_uv_status",
+    ),
+    MareeSensorEntityDescription(
+        key="waves",
+        name="Waves",
+        icon="mdi:waves",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfLength.METERS,
+        status_method="get_wave_status",
+    ),
+    MareeSensorEntityDescription(
+        key="wind_live",
+        name="Wind Live",
+        icon="mdi:wind",
+        device_class=SensorDeviceClass.WIND_SPEED,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
+        status_method="get_wind_status",
+    ),
+    MareeSensorEntityDescription(
+        key="air_temp",
+        name="Air Temperature",
+        icon="mdi:thermometer",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        status_method="get_air_temp_status",
+    ),
+    MareeSensorEntityDescription(
+        key="visibility",
+        name="Visibility",
+        icon="mdi:eye",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfLength.METERS,
+        status_method="get_visibility_status",
+    ),
+    MareeSensorEntityDescription(
+        key="water_level",
+        name="Water Level",
+        icon="mdi:water-percent",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfLength.METERS,
+        status_method="get_water_level_status",
+    ),
+    MareeSensorEntityDescription(
+        key="prochaine_grande_maree",
+        name="Prochaine grande maree",
+        icon="mdi:waves-arrow-up",
+        status_method="get_prochaine_grande_maree_status",
+    ),
+)
 
 
 async def async_setup_entry(
@@ -45,670 +214,85 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the sensor platform."""
-    config = entry.data
-    options = entry.options
-
-    lat = config[CONF_LATITUDE]
-    lng = config[CONF_LONGITUDE]
-    stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
-    maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, DEFAULT_MAX_HOURS))
-
-    # Use entry_id as the base for unique IDs to ensure uniqueness per config entry
-    idDuPort = entry.entry_id
-
-    session = async_get_clientsession(hass)
-
-    maree_api = apiMareeInfo.ApiMareeInfo()
-    maree_api.setport(lat, lng)
-    maree_api.setid(config.get(CONF_ID))
-    maree_api.setmaxhours(maxhours)
-
-    origine = "stormio" if stormkey else "MeteoMarine"
-    info = {"stormkey": stormkey} if stormkey else None
-
-    async def async_update_data() -> apiMareeInfo.ApiMareeInfo:
-        """Fetch data from API endpoint."""
-        try:
-            async with async_timeout.timeout(30):
-                await maree_api.getinformationport(
-                    origine=origine, info=info, session=session
-                )
-                return maree_api
-        except (ApiError, NetworkError) as err:
-            raise UpdateFailed(f"API error: {err}")
-        except UpdateFailed:
-            raise
-        except Exception as err:
-            raise UpdateFailed(f"Error communicating with API: {err}")
-
-    coordinator = DataUpdateCoordinator(
-        hass,
-        _LOGGER,
-        name=f"{DOMAIN}-{idDuPort}",
-        update_method=async_update_data,
-        update_interval=DEFAULT_SCAN_INTERVAL,
-    )
-
-    await coordinator.async_refresh()
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    id_port = entry.entry_id
 
     if coordinator.data.has_error():
         _LOGGER.error(
             "Could not fetch initial data for %s: %s",
-            idDuPort,
+            id_port,
             coordinator.data.get_error_message(),
         )
-        # We don't return here to allow the entities to be created even if initial fetch failed
-        # They will just be unavailable until the next successful update
 
     entities = [
-        infoMareeSensor(coordinator, idDuPort),
-        infoMareeHauteSensor(coordinator, idDuPort),
-        infoMareeBasseSensor(coordinator, idDuPort),
-        infoMareeTEauSensor(coordinator, idDuPort),
-        MareeNextRainForecastSensor(coordinator, idDuPort),
-        MareeRainChanceSensor(coordinator, idDuPort),
-        MareeCloudCoverSensor(coordinator, idDuPort),
-        MareeWeatherAlertSensor(coordinator, idDuPort),
-        MareePressureSensor(coordinator, idDuPort),
-        MareeNextRainTimeSensor(coordinator, idDuPort),
-        MareeFreezeChanceSensor(coordinator, idDuPort),
-        MareeSnowChanceSensor(coordinator, idDuPort),
-        MareeUVSensor(coordinator, idDuPort),
-        MareeWaveSensor(coordinator, idDuPort),
-        MareeWindSensor(coordinator, idDuPort),
-        MareeAirTempSensor(coordinator, idDuPort),
-        MareeVisibilitySensor(coordinator, idDuPort),
-        MareeWaterLevelSensor(coordinator, idDuPort),
-        MareeProchaineGrandeMareeSensor(coordinator, idDuPort),
+        MareeSensor(coordinator, id_port, description)
+        for description in SENSOR_DESCRIPTIONS
     ]
     async_add_entities(entities, True)
 
 
-class BaseMareeSensor(CoordinatorEntity):
-    """Base class for maree sensors."""
+class MareeSensor(CoordinatorEntity, SensorEntity):
+    """Generic Maree sensor using SensorEntityDescription."""
 
     _attr_has_entity_name = True
+    entity_description: MareeSensorEntityDescription
 
-    def __init__(self, coordinator: DataUpdateCoordinator, id_port: str) -> None:
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        id_port: str,
+        description: MareeSensorEntityDescription,
+    ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
+        self.entity_description = description
         self._id_port = id_port
-        self._sensor_manager = sensorApiMaree.SensorStateManager()
-        self._sensor_manager.init(self.coordinator.data, _LOGGER, __VERSION__)
+        self._attr_unique_id = f"{id_port}_{description.key}"
+        self._cached_result: tuple[Any, dict[str, Any]] | None = None
 
     @property
-    def device_info(self) -> dict[str, Any]:
-        return {
-            "identifiers": {(DOMAIN, self._id_port)},
-            "name": f"Maree {self.coordinator.data.get_port_name()}",
-            "manufacturer": "apiMareeInfo",
-            "model": self.coordinator.data.getcopyright(),
-            "sw_version": __VERSION__,
-            "entry_type": "service",
-        }
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._id_port)},
+            name=f"Maree {self.coordinator.data.get_port_name()}",
+            manufacturer="apiMareeInfo",
+            model=self.coordinator.data.getcopyright(),
+            sw_version=__VERSION__,
+            entry_type="service",
+        )
 
+    def _get_status(self) -> tuple[Any, dict[str, Any]]:
+        """Call status method once per update cycle, cache the result."""
+        if self._cached_result is not None:
+            return self._cached_result
+        method = getattr(
+            self.coordinator.data, self.entity_description.status_method
+        )
+        self._cached_result = method(*self.entity_description.status_args)
+        return self._cached_result
 
-class infoMareeSensor(BaseMareeSensor):
-    """Representation of the main tide sensor."""
+    def _handle_coordinator_update(self) -> None:
+        """Invalidate cache on coordinator update."""
+        self._cached_result = None
+        super()._handle_coordinator_update()
 
     @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"{self._id_port}_maree_du_jour"
+    def native_value(self) -> Any:
+        """Return the sensor state."""
+        if self.entity_description.static_state is not None:
+            return self.entity_description.static_state
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Maree du jour"
+        state, _ = self._get_status()
 
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        state, _ = self._sensor_manager.getstatus()
+        if self.entity_description.state_transform is not None:
+            return self.entity_description.state_transform(state)
         return state
 
     @property
-    def extra_state_attributes(self):
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes."""
-        _, attributes = self._sensor_manager.getstatus()
+        if self.entity_description.static_state is not None:
+            return {"attribution": "Data provided by apiMareeInfo"}
+
+        _, attributes = self._get_status()
         return attributes
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return ICON
-
-
-class infoMareeHauteSensor(BaseMareeSensor):
-    """Representation of the next high tide sensor."""
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"{self._id_port}_maree_haute"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Maree Haute"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        state, _ = self._sensor_manager.get_next_tide_state("PM")
-        return state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        _, attributes = self._sensor_manager.get_next_tide_state("PM")
-        return attributes
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:waves-arrow-up"
-
-
-class infoMareeBasseSensor(BaseMareeSensor):
-    """Representation of the next low tide sensor."""
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"{self._id_port}_maree_basse"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Maree Basse"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        state, _ = self._sensor_manager.get_next_tide_state("BM")
-        return state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        _, attributes = self._sensor_manager.get_next_tide_state("BM")
-        return attributes
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:waves-arrow-down"
-
-
-class infoMareeTEauSensor(BaseMareeSensor):
-    """Representation of the water temperature sensor."""
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"{self._id_port}_temperature_eau"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Temperature Eau"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        state, _ = self._sensor_manager.get_water_temp_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return "°C"
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        _, attributes = self._sensor_manager.get_water_temp_status()
-        return attributes
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:thermometer-water"
-
-
-class MareeNextRainForecastSensor(BaseMareeSensor):
-    """Representation of the 1h precipitation sensor from Météo-France."""
-
-    @property
-    def unique_id(self):
-        """Return a unique_id for this entity."""
-        return f"{self._id_port}_next_rain"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Next rain"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        state, _ = self._sensor_manager.get_weather_status()
-        return state
-
-    @property
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        _, attributes = self._sensor_manager.get_weather_status()
-        return attributes
-
-    @property
-    def icon(self):
-        """Icon to use in the frontend."""
-        return "mdi:weather-rainy"
-
-
-class MareeRainChanceSensor(BaseMareeSensor):
-    """Representation of the rain chance sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_rain_chance"
-
-    @property
-    def name(self):
-        return "Rain chance"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_rain_chance_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "%"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_rain_chance_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:weather-rainy"
-
-
-class MareeCloudCoverSensor(BaseMareeSensor):
-    """Representation of the cloud cover sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_cloud_cover"
-
-    @property
-    def name(self):
-        return "Cloud cover"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_cloud_cover_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "%"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_cloud_cover_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:cloud-percent"
-
-
-class MareeWeatherAlertSensor(BaseMareeSensor):
-    """Representation of the weather alert sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_weather_alert"
-
-    @property
-    def name(self):
-        return "Weather alert"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_weather_alert_status()
-        return state
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_weather_alert_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:alert"
-
-
-class MareePressureSensor(BaseMareeSensor):
-    """Representation of the atmospheric pressure sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_pressure"
-
-    @property
-    def name(self):
-        return "Pressure"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_pressure_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "hPa"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_pressure_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:gauge"
-
-
-class MareeNextRainTimeSensor(BaseMareeSensor):
-    """Representation of the next rain time sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_next_rain_time"
-
-    @property
-    def name(self):
-        return "Next rain time"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_next_rain_status()
-        if isinstance(state, datetime):
-             return state.strftime("%d/%m %H:%M")
-        return state
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_next_rain_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:weather-pouring"
-
-
-class MareeFreezeChanceSensor(BaseMareeSensor):
-    """Representation of the freeze chance sensor (dummy)."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_freeze_chance"
-
-    @property
-    def name(self):
-        return "Freeze chance"
-
-    @property
-    def state(self):
-        return 0
-
-    @property
-    def unit_of_measurement(self):
-        return "%"
-
-    @property
-    def extra_state_attributes(self):
-        return {"attribution": "Data provided by apiMareeInfo"}
-
-    @property
-    def icon(self):
-        return "mdi:snowflake"
-
-
-class MareeSnowChanceSensor(BaseMareeSensor):
-    """Representation of the snow chance sensor (dummy)."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_snow_chance"
-
-    @property
-    def name(self):
-        return "Snow chance"
-
-    @property
-    def state(self):
-        return 0
-
-    @property
-    def unit_of_measurement(self):
-        return "%"
-
-    @property
-    def extra_state_attributes(self):
-        return {"attribution": "Data provided by apiMareeInfo"}
-
-    @property
-    def icon(self):
-        return "mdi:weather-snowy"
-
-
-class MareeUVSensor(BaseMareeSensor):
-    """Representation of the UV sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_uv"
-
-    @property
-    def name(self):
-        return "UV"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_uv_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "index"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_uv_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:weather-sunny-alert"
-
-
-class MareeWaveSensor(BaseMareeSensor):
-    """Representation of the wave and sea state sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_waves"
-
-    @property
-    def name(self):
-        return "Waves"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_wave_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "m"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_wave_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:waves"
-
-
-class MareeWindSensor(BaseMareeSensor):
-    """Representation of the live wind sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_wind_live"
-
-    @property
-    def name(self):
-        return "Wind Live"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_wind_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "km/h"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_wind_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:wind"
-
-
-class MareeAirTempSensor(BaseMareeSensor):
-    """Representation of the air temperature sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_air_temp"
-
-    @property
-    def name(self):
-        return "Air Temperature"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_air_temp_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "°C"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_air_temp_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:thermometer"
-
-
-class MareeVisibilitySensor(BaseMareeSensor):
-    """Representation of the visibility sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_visibility"
-
-    @property
-    def name(self):
-        return "Visibility"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_visibility_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "m"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_visibility_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:eye"
-
-
-class MareeWaterLevelSensor(BaseMareeSensor):
-    """Representation of the real-time water level sensor."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_water_level"
-
-    @property
-    def name(self):
-        return "Water Level"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_water_level_status()
-        return state
-
-    @property
-    def unit_of_measurement(self):
-        return "m"
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_water_level_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:water-percent"
-
-
-class MareeProchaineGrandeMareeSensor(BaseMareeSensor):
-    """Representation of the next high tide with coefficient >= 100."""
-
-    @property
-    def unique_id(self):
-        return f"{self._id_port}_prochaine_grande_maree"
-
-    @property
-    def name(self):
-        return "Prochaine grande maree"
-
-    @property
-    def state(self):
-        state, _ = self._sensor_manager.get_prochaine_grande_maree_status()
-        return state
-
-    @property
-    def extra_state_attributes(self):
-        _, attributes = self._sensor_manager.get_prochaine_grande_maree_status()
-        return attributes
-
-    @property
-    def icon(self):
-        return "mdi:waves-arrow-up"

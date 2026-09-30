@@ -1,7 +1,7 @@
 """Tests for the MareeWeather entity."""
 import sys
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 from enum import IntFlag
 
@@ -254,9 +254,9 @@ def test_condition_no_data(weather, mock_coordinator):
 
 @pytest.mark.asyncio
 async def test_async_forecast_hourly(weather, mock_coordinator):
-    now = datetime.now()
-    future1 = now.replace(hour=now.hour + 1, minute=0, second=0, microsecond=0)
-    future2 = now.replace(hour=now.hour + 2, minute=0, second=0, microsecond=0)
+    tomorrow = datetime.now() + timedelta(days=1)
+    future1 = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0)
+    future2 = tomorrow.replace(hour=11, minute=0, second=0, microsecond=0)
     mock_coordinator.data.get_forecast_data.return_value = {
         future1: {
             "t": 14.0,

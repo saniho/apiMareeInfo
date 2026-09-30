@@ -2,10 +2,12 @@
 
 import datetime
 
+from homeassistant.const import Platform
+
 ISSUE_URL = "https://github.com/saniho/apiMareeInfo/issues"
 
 DOMAIN = "apiMareeInfo"
-PLATFORMS = ["sensor", "weather"]
+PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 
 CONF_SCAN_INTERVAL_HTTP = datetime.timedelta(seconds=60 * 5)
 DEFAULT_SCAN_INTERVAL = datetime.timedelta(minutes=5)
@@ -20,6 +22,4 @@ PROVIDER_STORMGLASS = "Stormglass.io"
 DEFAULT_PROVIDER = PROVIDER_MAREEINFO
 PROVIDERS = [PROVIDER_MAREEINFO]
 
-__VERSION__ = "2.1.10"
-
-__name__ = "apiMareeInfo"
+__VERSION__ = "2.1.11"

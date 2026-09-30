@@ -3,10 +3,40 @@
 import datetime
 import json
 import pathlib
+from unittest.mock import MagicMock
 
 import pytest
 
+from custom_components.apiMareeInfo.sensor import SENSOR_DESCRIPTIONS
+
 FIXTURES_DIR = pathlib.Path(__file__).parent / "json"
+
+DESC_MAP = {d.key: d for d in SENSOR_DESCRIPTIONS}
+
+
+@pytest.fixture
+def mock_coordinator():
+    """Mock DataUpdateCoordinator for sensor tests."""
+    coordinator = MagicMock()
+    coordinator.data = MagicMock()
+    coordinator.data.get_port_name.return_value = "Saint-Malo"
+    coordinator.data.getcopyright.return_value = "\u00a9SHOM"
+    return coordinator
+
+
+def make_sensor(key: str, coordinator, id_port: str = "test_id"):
+    """Create a MareeSensor."""
+    from custom_components.apiMareeInfo.sensor import MareeSensor
+
+    desc = DESC_MAP[key]
+    sensor = MareeSensor(coordinator, id_port, desc)
+    return sensor
+
+
+def make_sensor_with_manager(key: str, coordinator, id_port: str = "test_id"):
+    """Create a MareeSensor and return (sensor, mock_api_data)."""
+    sensor = make_sensor(key, coordinator, id_port)
+    return sensor, sensor.coordinator.data
 
 
 @pytest.fixture
@@ -44,7 +74,7 @@ def error_stormglass_data():
 @pytest.fixture
 def live_forecast_data():
     """Return mock live forecast data for MeteoMarineLive."""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     forecasts = []
     for i in range(0, 65, 5):
         dt = now + datetime.timedelta(minutes=i)
@@ -63,7 +93,7 @@ def live_forecast_data():
 @pytest.fixture
 def sample_marees():
     """Return sample tide data for unit testing."""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     return {
         "horaire_0_0": {
             "coeff": 85,
@@ -101,7 +131,7 @@ def sample_marees():
 @pytest.fixture
 def sample_previs():
     """Return sample forecast data for unit testing."""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     current_hour = now.replace(minute=0, second=0, microsecond=0)
     return {
         current_hour: {

@@ -3,695 +3,662 @@
 from __future__ import annotations
 
 from datetime import datetime
-from unittest.mock import MagicMock, patch, PropertyMock
 
-import pytest
-
-from custom_components.apiMareeInfo.sensor import (
-    BaseMareeSensor,
-    infoMareeSensor,
-    infoMareeHauteSensor,
-    infoMareeBasseSensor,
-    infoMareeTEauSensor,
-    MareeNextRainForecastSensor,
-    MareeRainChanceSensor,
-    MareeCloudCoverSensor,
-    MareeWeatherAlertSensor,
-    MareePressureSensor,
-    MareeNextRainTimeSensor,
-    MareeFreezeChanceSensor,
-    MareeSnowChanceSensor,
-    MareeUVSensor,
-    MareeWaveSensor,
-    MareeWindSensor,
-    MareeAirTempSensor,
-    MareeVisibilitySensor,
-    MareeWaterLevelSensor,
-    MareeProchaineGrandeMareeSensor,
+from homeassistant.const import (
+    PERCENTAGE,
+    UnitOfLength,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
 )
+
+from custom_components.apiMareeInfo.sensor import MareeSensor
 from custom_components.apiMareeInfo.const import DOMAIN, __VERSION__
 
-
-@pytest.fixture
-def mock_coordinator():
-    coordinator = MagicMock()
-    coordinator.data = MagicMock()
-    coordinator.data.get_port_name.return_value = "Saint-Malo"
-    coordinator.data.getcopyright.return_value = "©SHOM"
-    return coordinator
-
-
-def _make_sensor(sensor_class, coordinator, id_port="test_id"):
-    """Helper: create a sensor with a mocked SensorStateManager."""
-    with patch("custom_components.apiMareeInfo.sensor.sensorApiMaree.SensorStateManager"):
-        sensor = sensor_class(coordinator, id_port)
-    return sensor
-
-
-def _make_sensor_with_manager(sensor_class, coordinator, id_port="test_id"):
-    """Helper: create a sensor and return (sensor, mock_manager)."""
-    with patch("custom_components.apiMareeInfo.sensor.sensorApiMaree.SensorStateManager") as MockSM:
-        sensor = sensor_class(coordinator, id_port)
-    return sensor, sensor._sensor_manager
+from .conftest import make_sensor, make_sensor_with_manager
 
 
 # ---------------------------------------------------------------------------
-# BaseMareeSensor
+# Base sensor (device_info, has_entity_name)
 # ---------------------------------------------------------------------------
 
 
-class TestBaseMareeSensor:
+class TestMareeSensorBase:
     def test_device_info(self, mock_coordinator):
-        sensor = _make_sensor(BaseMareeSensor, mock_coordinator, "port123")
+        sensor = make_sensor("maree_du_jour", mock_coordinator, "port123")
         info = sensor.device_info
         assert info["identifiers"] == {(DOMAIN, "port123")}
         assert info["name"] == "Maree Saint-Malo"
         assert info["manufacturer"] == "apiMareeInfo"
-        assert info["model"] == "©SHOM"
+        assert info["model"] == "\u00a9SHOM"
         assert info["sw_version"] == __VERSION__
         assert info["entry_type"] == "service"
 
     def test_has_entity_name(self, mock_coordinator):
-        sensor = _make_sensor(BaseMareeSensor, mock_coordinator)
-        assert BaseMareeSensor._attr_has_entity_name is True
+        make_sensor("maree_du_jour", mock_coordinator)
+        assert MareeSensor._attr_has_entity_name is True
 
 
 # ---------------------------------------------------------------------------
-# infoMareeSensor
+# maree_du_jour (main tide)
 # ---------------------------------------------------------------------------
 
 
-class TestInfoMareeSensor:
+class TestMareeDuJour:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeSensor, mock_coordinator, "abc")
+        sensor = make_sensor("maree_du_jour", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_maree_du_jour"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeSensor, mock_coordinator)
-        assert sensor.name == "Maree du jour"
+        sensor = make_sensor("maree_du_jour", mock_coordinator)
+        assert sensor.entity_description.name == "Maree du jour"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeSensor, mock_coordinator)
-        assert sensor.icon == "mdi:waves"
+        sensor = make_sensor("maree_du_jour", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:waves"
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_du_jour", mock_coordinator)
         manager.getstatus.return_value = ("12:45", {"key": "val"})
-        assert sensor.state == "12:45"
+        assert sensor.native_value == "12:45"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_du_jour", mock_coordinator)
         manager.getstatus.return_value = ("12:45", {"key": "val"})
         assert sensor.extra_state_attributes == {"key": "val"}
 
 
 # ---------------------------------------------------------------------------
-# infoMareeHauteSensor
+# maree_haute
 # ---------------------------------------------------------------------------
 
 
-class TestInfoMareeHauteSensor:
+class TestMareeHaute:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeHauteSensor, mock_coordinator, "abc")
+        sensor = make_sensor("maree_haute", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_maree_haute"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeHauteSensor, mock_coordinator)
-        assert sensor.name == "Maree Haute"
+        sensor = make_sensor("maree_haute", mock_coordinator)
+        assert sensor.entity_description.name == "Maree Haute"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeHauteSensor, mock_coordinator)
-        assert sensor.icon == "mdi:waves-arrow-up"
+        sensor = make_sensor("maree_haute", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:waves-arrow-up"
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeHauteSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_haute", mock_coordinator)
         manager.get_next_tide_state.return_value = ("14:30", {"coeff": 95})
-        assert sensor.state == "14:30"
+        assert sensor.native_value == "14:30"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeHauteSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_haute", mock_coordinator)
         manager.get_next_tide_state.return_value = ("14:30", {"coeff": 95})
         assert sensor.extra_state_attributes == {"coeff": 95}
 
     def test_calls_pm(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeHauteSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_haute", mock_coordinator)
         manager.get_next_tide_state.return_value = ("14:30", {})
-        _ = sensor.state
+        _ = sensor.native_value
         manager.get_next_tide_state.assert_called_with("PM")
 
 
 # ---------------------------------------------------------------------------
-# infoMareeBasseSensor
+# maree_basse
 # ---------------------------------------------------------------------------
 
 
-class TestInfoMareeBasseSensor:
+class TestMareeBasse:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeBasseSensor, mock_coordinator, "abc")
+        sensor = make_sensor("maree_basse", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_maree_basse"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeBasseSensor, mock_coordinator)
-        assert sensor.name == "Maree Basse"
+        sensor = make_sensor("maree_basse", mock_coordinator)
+        assert sensor.entity_description.name == "Maree Basse"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeBasseSensor, mock_coordinator)
-        assert sensor.icon == "mdi:waves-arrow-down"
+        sensor = make_sensor("maree_basse", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:waves-arrow-down"
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeBasseSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_basse", mock_coordinator)
         manager.get_next_tide_state.return_value = ("08:15", {"coeff": 25})
-        assert sensor.state == "08:15"
+        assert sensor.native_value == "08:15"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeBasseSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_basse", mock_coordinator)
         manager.get_next_tide_state.return_value = ("08:15", {"coeff": 25})
         assert sensor.extra_state_attributes == {"coeff": 25}
 
     def test_calls_bm(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeBasseSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("maree_basse", mock_coordinator)
         manager.get_next_tide_state.return_value = ("08:15", {})
-        _ = sensor.state
+        _ = sensor.native_value
         manager.get_next_tide_state.assert_called_with("BM")
 
 
 # ---------------------------------------------------------------------------
-# infoMareeTEauSensor
+# temperature_eau
 # ---------------------------------------------------------------------------
 
 
-class TestInfoMareeTEauSensor:
+class TestTemperatureEau:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeTEauSensor, mock_coordinator, "abc")
+        sensor = make_sensor("temperature_eau", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_temperature_eau"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeTEauSensor, mock_coordinator)
-        assert sensor.name == "Temperature Eau"
+        sensor = make_sensor("temperature_eau", mock_coordinator)
+        assert sensor.entity_description.name == "Temperature Eau"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeTEauSensor, mock_coordinator)
-        assert sensor.icon == "mdi:thermometer-water"
+        sensor = make_sensor("temperature_eau", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:thermometer-water"
 
-    def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(infoMareeTEauSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "°C"
+    def test_device_class(self, mock_coordinator):
+        from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+        sensor = make_sensor("temperature_eau", mock_coordinator)
+        assert sensor.entity_description.device_class == SensorDeviceClass.TEMPERATURE
+        assert sensor.entity_description.state_class == SensorStateClass.MEASUREMENT
+        assert sensor.native_unit_of_measurement == UnitOfTemperature.CELSIUS
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeTEauSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("temperature_eau", mock_coordinator)
         manager.get_water_temp_status.return_value = ("18.5", {"trend": "up"})
-        assert sensor.state == "18.5"
+        assert sensor.native_value == "18.5"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(infoMareeTEauSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("temperature_eau", mock_coordinator)
         manager.get_water_temp_status.return_value = ("18.5", {"trend": "up"})
         assert sensor.extra_state_attributes == {"trend": "up"}
 
 
 # ---------------------------------------------------------------------------
-# MareeNextRainForecastSensor
+# next_rain
 # ---------------------------------------------------------------------------
 
 
-class TestMareeNextRainForecastSensor:
+class TestNextRain:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeNextRainForecastSensor, mock_coordinator, "abc")
+        sensor = make_sensor("next_rain", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_next_rain"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeNextRainForecastSensor, mock_coordinator)
-        assert sensor.name == "Next rain"
+        sensor = make_sensor("next_rain", mock_coordinator)
+        assert sensor.entity_description.name == "Next rain"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeNextRainForecastSensor, mock_coordinator)
-        assert sensor.icon == "mdi:weather-rainy"
+        sensor = make_sensor("next_rain", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:weather-rainy"
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeNextRainForecastSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("next_rain", mock_coordinator)
         manager.get_weather_status.return_value = ("Dans 2h", {"source": "MF"})
-        assert sensor.state == "Dans 2h"
+        assert sensor.native_value == "Dans 2h"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeNextRainForecastSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("next_rain", mock_coordinator)
         manager.get_weather_status.return_value = ("Dans 2h", {"source": "MF"})
         assert sensor.extra_state_attributes == {"source": "MF"}
 
 
 # ---------------------------------------------------------------------------
-# MareeRainChanceSensor
+# rain_chance
 # ---------------------------------------------------------------------------
 
 
-class TestMareeRainChanceSensor:
+class TestRainChance:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeRainChanceSensor, mock_coordinator, "abc")
+        sensor = make_sensor("rain_chance", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_rain_chance"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeRainChanceSensor, mock_coordinator)
-        assert sensor.name == "Rain chance"
+        sensor = make_sensor("rain_chance", mock_coordinator)
+        assert sensor.entity_description.name == "Rain chance"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeRainChanceSensor, mock_coordinator)
-        assert sensor.icon == "mdi:weather-rainy"
+        sensor = make_sensor("rain_chance", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:weather-rainy"
 
     def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeRainChanceSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "%"
+        sensor = make_sensor("rain_chance", mock_coordinator)
+        assert sensor.native_unit_of_measurement == PERCENTAGE
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeRainChanceSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("rain_chance", mock_coordinator)
         manager.get_rain_chance_status.return_value = (42, {"hours": 3})
-        assert sensor.state == 42
+        assert sensor.native_value == 42
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeRainChanceSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("rain_chance", mock_coordinator)
         manager.get_rain_chance_status.return_value = (42, {"hours": 3})
         assert sensor.extra_state_attributes == {"hours": 3}
 
 
 # ---------------------------------------------------------------------------
-# MareeCloudCoverSensor
+# cloud_cover
 # ---------------------------------------------------------------------------
 
 
-class TestMareeCloudCoverSensor:
+class TestCloudCover:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeCloudCoverSensor, mock_coordinator, "abc")
+        sensor = make_sensor("cloud_cover", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_cloud_cover"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeCloudCoverSensor, mock_coordinator)
-        assert sensor.name == "Cloud cover"
+        sensor = make_sensor("cloud_cover", mock_coordinator)
+        assert sensor.entity_description.name == "Cloud cover"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeCloudCoverSensor, mock_coordinator)
-        assert sensor.icon == "mdi:cloud-percent"
+        sensor = make_sensor("cloud_cover", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:cloud-percent"
 
     def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeCloudCoverSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "%"
+        sensor = make_sensor("cloud_cover", mock_coordinator)
+        assert sensor.native_unit_of_measurement == PERCENTAGE
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeCloudCoverSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("cloud_cover", mock_coordinator)
         manager.get_cloud_cover_status.return_value = (75, {"oktas": 6})
-        assert sensor.state == 75
+        assert sensor.native_value == 75
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeCloudCoverSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("cloud_cover", mock_coordinator)
         manager.get_cloud_cover_status.return_value = (75, {"oktas": 6})
         assert sensor.extra_state_attributes == {"oktas": 6}
 
 
 # ---------------------------------------------------------------------------
-# MareeWeatherAlertSensor
+# weather_alert
 # ---------------------------------------------------------------------------
 
 
-class TestMareeWeatherAlertSensor:
+class TestWeatherAlert:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeWeatherAlertSensor, mock_coordinator, "abc")
+        sensor = make_sensor("weather_alert", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_weather_alert"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeWeatherAlertSensor, mock_coordinator)
-        assert sensor.name == "Weather alert"
+        sensor = make_sensor("weather_alert", mock_coordinator)
+        assert sensor.entity_description.name == "Weather alert"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeWeatherAlertSensor, mock_coordinator)
-        assert sensor.icon == "mdi:alert"
+        sensor = make_sensor("weather_alert", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:alert"
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWeatherAlertSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("weather_alert", mock_coordinator)
         manager.get_weather_alert_status.return_value = ("Vert", {"color": "green"})
-        assert sensor.state == "Vert"
+        assert sensor.native_value == "Vert"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWeatherAlertSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("weather_alert", mock_coordinator)
         manager.get_weather_alert_status.return_value = ("Vert", {"color": "green"})
         assert sensor.extra_state_attributes == {"color": "green"}
 
 
 # ---------------------------------------------------------------------------
-# MareePressureSensor
+# pressure
 # ---------------------------------------------------------------------------
 
 
-class TestMareePressureSensor:
+class TestPressure:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareePressureSensor, mock_coordinator, "abc")
+        sensor = make_sensor("pressure", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_pressure"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareePressureSensor, mock_coordinator)
-        assert sensor.name == "Pressure"
+        sensor = make_sensor("pressure", mock_coordinator)
+        assert sensor.entity_description.name == "Pressure"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareePressureSensor, mock_coordinator)
-        assert sensor.icon == "mdi:gauge"
+        sensor = make_sensor("pressure", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:gauge"
 
-    def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareePressureSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "hPa"
+    def test_device_class(self, mock_coordinator):
+        from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+        sensor = make_sensor("pressure", mock_coordinator)
+        assert sensor.entity_description.device_class == SensorDeviceClass.PRESSURE
+        assert sensor.entity_description.state_class == SensorStateClass.MEASUREMENT
+        assert sensor.native_unit_of_measurement == UnitOfPressure.HPA
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareePressureSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("pressure", mock_coordinator)
         manager.get_pressure_status.return_value = (1013, {"trend": "stable"})
-        assert sensor.state == 1013
+        assert sensor.native_value == 1013
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareePressureSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("pressure", mock_coordinator)
         manager.get_pressure_status.return_value = (1013, {"trend": "stable"})
         assert sensor.extra_state_attributes == {"trend": "stable"}
 
 
 # ---------------------------------------------------------------------------
-# MareeNextRainTimeSensor
+# next_rain_time
 # ---------------------------------------------------------------------------
 
 
-class TestMareeNextRainTimeSensor:
+class TestNextRainTime:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeNextRainTimeSensor, mock_coordinator, "abc")
+        sensor = make_sensor("next_rain_time", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_next_rain_time"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeNextRainTimeSensor, mock_coordinator)
-        assert sensor.name == "Next rain time"
+        sensor = make_sensor("next_rain_time", mock_coordinator)
+        assert sensor.entity_description.name == "Next rain time"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeNextRainTimeSensor, mock_coordinator)
-        assert sensor.icon == "mdi:weather-pouring"
+        sensor = make_sensor("next_rain_time", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:weather-pouring"
 
     def test_state_string(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeNextRainTimeSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("next_rain_time", mock_coordinator)
         manager.get_next_rain_status.return_value = ("Dans 45min", {})
-        assert sensor.state == "Dans 45min"
+        assert sensor.native_value == "Dans 45min"
 
     def test_state_datetime_formatted(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeNextRainTimeSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("next_rain_time", mock_coordinator)
         dt = datetime(2025, 7, 15, 14, 30)
         manager.get_next_rain_status.return_value = (dt, {})
-        assert sensor.state == "15/07 14:30"
+        assert sensor.native_value == "15/07 14:30"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeNextRainTimeSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("next_rain_time", mock_coordinator)
         manager.get_next_rain_status.return_value = ("Dans 45min", {"minutes": 45})
         assert sensor.extra_state_attributes == {"minutes": 45}
 
 
 # ---------------------------------------------------------------------------
-# MareeFreezeChanceSensor
+# freeze_chance (dummy)
 # ---------------------------------------------------------------------------
 
 
-class TestMareeFreezeChanceSensor:
+class TestFreezeChance:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeFreezeChanceSensor, mock_coordinator, "abc")
+        sensor = make_sensor("freeze_chance", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_freeze_chance"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeFreezeChanceSensor, mock_coordinator)
-        assert sensor.name == "Freeze chance"
+        sensor = make_sensor("freeze_chance", mock_coordinator)
+        assert sensor.entity_description.name == "Freeze chance"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeFreezeChanceSensor, mock_coordinator)
-        assert sensor.icon == "mdi:snowflake"
+        sensor = make_sensor("freeze_chance", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:snowflake"
 
     def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeFreezeChanceSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "%"
+        sensor = make_sensor("freeze_chance", mock_coordinator)
+        assert sensor.native_unit_of_measurement == PERCENTAGE
 
     def test_state(self, mock_coordinator):
-        sensor = _make_sensor(MareeFreezeChanceSensor, mock_coordinator)
-        assert sensor.state == 0
+        sensor = make_sensor("freeze_chance", mock_coordinator)
+        assert sensor.native_value == 0
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor = _make_sensor(MareeFreezeChanceSensor, mock_coordinator)
+        sensor = make_sensor("freeze_chance", mock_coordinator)
         assert sensor.extra_state_attributes == {"attribution": "Data provided by apiMareeInfo"}
 
 
 # ---------------------------------------------------------------------------
-# MareeSnowChanceSensor
+# snow_chance (dummy)
 # ---------------------------------------------------------------------------
 
 
-class TestMareeSnowChanceSensor:
+class TestSnowChance:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeSnowChanceSensor, mock_coordinator, "abc")
+        sensor = make_sensor("snow_chance", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_snow_chance"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeSnowChanceSensor, mock_coordinator)
-        assert sensor.name == "Snow chance"
+        sensor = make_sensor("snow_chance", mock_coordinator)
+        assert sensor.entity_description.name == "Snow chance"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeSnowChanceSensor, mock_coordinator)
-        assert sensor.icon == "mdi:weather-snowy"
+        sensor = make_sensor("snow_chance", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:weather-snowy"
 
     def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeSnowChanceSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "%"
+        sensor = make_sensor("snow_chance", mock_coordinator)
+        assert sensor.native_unit_of_measurement == PERCENTAGE
 
     def test_state(self, mock_coordinator):
-        sensor = _make_sensor(MareeSnowChanceSensor, mock_coordinator)
-        assert sensor.state == 0
+        sensor = make_sensor("snow_chance", mock_coordinator)
+        assert sensor.native_value == 0
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor = _make_sensor(MareeSnowChanceSensor, mock_coordinator)
+        sensor = make_sensor("snow_chance", mock_coordinator)
         assert sensor.extra_state_attributes == {"attribution": "Data provided by apiMareeInfo"}
 
 
 # ---------------------------------------------------------------------------
-# MareeUVSensor
+# uv
 # ---------------------------------------------------------------------------
 
 
-class TestMareeUVSensor:
+class TestUV:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeUVSensor, mock_coordinator, "abc")
+        sensor = make_sensor("uv", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_uv"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeUVSensor, mock_coordinator)
-        assert sensor.name == "UV"
+        sensor = make_sensor("uv", mock_coordinator)
+        assert sensor.entity_description.name == "UV"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeUVSensor, mock_coordinator)
-        assert sensor.icon == "mdi:weather-sunny-alert"
-
-    def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeUVSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "index"
+        sensor = make_sensor("uv", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:weather-sunny-alert"
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeUVSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("uv", mock_coordinator)
         manager.get_uv_status.return_value = (6, {"max": 11})
-        assert sensor.state == 6
+        assert sensor.native_value == 6
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeUVSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("uv", mock_coordinator)
         manager.get_uv_status.return_value = (6, {"max": 11})
         assert sensor.extra_state_attributes == {"max": 11}
 
 
 # ---------------------------------------------------------------------------
-# MareeWaveSensor
+# waves
 # ---------------------------------------------------------------------------
 
 
-class TestMareeWaveSensor:
+class TestWaves:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaveSensor, mock_coordinator, "abc")
+        sensor = make_sensor("waves", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_waves"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaveSensor, mock_coordinator)
-        assert sensor.name == "Waves"
+        sensor = make_sensor("waves", mock_coordinator)
+        assert sensor.entity_description.name == "Waves"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaveSensor, mock_coordinator)
-        assert sensor.icon == "mdi:waves"
+        sensor = make_sensor("waves", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:waves"
 
     def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaveSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "m"
+        sensor = make_sensor("waves", mock_coordinator)
+        assert sensor.native_unit_of_measurement == UnitOfLength.METERS
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWaveSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("waves", mock_coordinator)
         manager.get_wave_status.return_value = ("1.2", {"period": "8s"})
-        assert sensor.state == "1.2"
+        assert sensor.native_value == "1.2"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWaveSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("waves", mock_coordinator)
         manager.get_wave_status.return_value = ("1.2", {"period": "8s"})
         assert sensor.extra_state_attributes == {"period": "8s"}
 
 
 # ---------------------------------------------------------------------------
-# MareeWindSensor
+# wind_live
 # ---------------------------------------------------------------------------
 
 
-class TestMareeWindSensor:
+class TestWindLive:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeWindSensor, mock_coordinator, "abc")
+        sensor = make_sensor("wind_live", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_wind_live"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeWindSensor, mock_coordinator)
-        assert sensor.name == "Wind Live"
+        sensor = make_sensor("wind_live", mock_coordinator)
+        assert sensor.entity_description.name == "Wind Live"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeWindSensor, mock_coordinator)
-        assert sensor.icon == "mdi:wind"
+        sensor = make_sensor("wind_live", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:wind"
 
-    def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeWindSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "km/h"
+    def test_device_class(self, mock_coordinator):
+        from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+        sensor = make_sensor("wind_live", mock_coordinator)
+        assert sensor.entity_description.device_class == SensorDeviceClass.WIND_SPEED
+        assert sensor.entity_description.state_class == SensorStateClass.MEASUREMENT
+        assert sensor.native_unit_of_measurement == UnitOfSpeed.KILOMETERS_PER_HOUR
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWindSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("wind_live", mock_coordinator)
         manager.get_wind_status.return_value = ("25", {"direction": "NW"})
-        assert sensor.state == "25"
+        assert sensor.native_value == "25"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWindSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("wind_live", mock_coordinator)
         manager.get_wind_status.return_value = ("25", {"direction": "NW"})
         assert sensor.extra_state_attributes == {"direction": "NW"}
 
 
 # ---------------------------------------------------------------------------
-# MareeAirTempSensor
+# air_temp
 # ---------------------------------------------------------------------------
 
 
-class TestMareeAirTempSensor:
+class TestAirTemp:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeAirTempSensor, mock_coordinator, "abc")
+        sensor = make_sensor("air_temp", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_air_temp"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeAirTempSensor, mock_coordinator)
-        assert sensor.name == "Air Temperature"
+        sensor = make_sensor("air_temp", mock_coordinator)
+        assert sensor.entity_description.name == "Air Temperature"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeAirTempSensor, mock_coordinator)
-        assert sensor.icon == "mdi:thermometer"
+        sensor = make_sensor("air_temp", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:thermometer"
 
-    def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeAirTempSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "°C"
+    def test_device_class(self, mock_coordinator):
+        from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+        sensor = make_sensor("air_temp", mock_coordinator)
+        assert sensor.entity_description.device_class == SensorDeviceClass.TEMPERATURE
+        assert sensor.entity_description.state_class == SensorStateClass.MEASUREMENT
+        assert sensor.native_unit_of_measurement == UnitOfTemperature.CELSIUS
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeAirTempSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("air_temp", mock_coordinator)
         manager.get_air_temp_status.return_value = ("22.3", {"feels_like": "21"})
-        assert sensor.state == "22.3"
+        assert sensor.native_value == "22.3"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeAirTempSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("air_temp", mock_coordinator)
         manager.get_air_temp_status.return_value = ("22.3", {"feels_like": "21"})
         assert sensor.extra_state_attributes == {"feels_like": "21"}
 
 
 # ---------------------------------------------------------------------------
-# MareeVisibilitySensor
+# visibility
 # ---------------------------------------------------------------------------
 
 
-class TestMareeVisibilitySensor:
+class TestVisibility:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeVisibilitySensor, mock_coordinator, "abc")
+        sensor = make_sensor("visibility", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_visibility"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeVisibilitySensor, mock_coordinator)
-        assert sensor.name == "Visibility"
+        sensor = make_sensor("visibility", mock_coordinator)
+        assert sensor.entity_description.name == "Visibility"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeVisibilitySensor, mock_coordinator)
-        assert sensor.icon == "mdi:eye"
+        sensor = make_sensor("visibility", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:eye"
 
     def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeVisibilitySensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "m"
+        sensor = make_sensor("visibility", mock_coordinator)
+        assert sensor.native_unit_of_measurement == UnitOfLength.METERS
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeVisibilitySensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("visibility", mock_coordinator)
         manager.get_visibility_status.return_value = ("10000", {"condition": "good"})
-        assert sensor.state == "10000"
+        assert sensor.native_value == "10000"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeVisibilitySensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("visibility", mock_coordinator)
         manager.get_visibility_status.return_value = ("10000", {"condition": "good"})
         assert sensor.extra_state_attributes == {"condition": "good"}
 
 
 # ---------------------------------------------------------------------------
-# MareeWaterLevelSensor
+# water_level
 # ---------------------------------------------------------------------------
 
 
-class TestMareeWaterLevelSensor:
+class TestWaterLevel:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaterLevelSensor, mock_coordinator, "abc")
+        sensor = make_sensor("water_level", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_water_level"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaterLevelSensor, mock_coordinator)
-        assert sensor.name == "Water Level"
+        sensor = make_sensor("water_level", mock_coordinator)
+        assert sensor.entity_description.name == "Water Level"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaterLevelSensor, mock_coordinator)
-        assert sensor.icon == "mdi:water-percent"
+        sensor = make_sensor("water_level", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:water-percent"
 
     def test_unit_of_measurement(self, mock_coordinator):
-        sensor = _make_sensor(MareeWaterLevelSensor, mock_coordinator)
-        assert sensor.unit_of_measurement == "m"
+        sensor = make_sensor("water_level", mock_coordinator)
+        assert sensor.native_unit_of_measurement == UnitOfLength.METERS
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWaterLevelSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("water_level", mock_coordinator)
         manager.get_water_level_status.return_value = ("3.5", {"ref": "maregraphe"})
-        assert sensor.state == "3.5"
+        assert sensor.native_value == "3.5"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(MareeWaterLevelSensor, mock_coordinator)
+        sensor, manager = make_sensor_with_manager("water_level", mock_coordinator)
         manager.get_water_level_status.return_value = ("3.5", {"ref": "maregraphe"})
         assert sensor.extra_state_attributes == {"ref": "maregraphe"}
 
 
 # ---------------------------------------------------------------------------
-# MareeProchaineGrandeMareeSensor
+# prochaine_grande_maree
 # ---------------------------------------------------------------------------
 
 
-class TestMareeProchaineGrandeMareeSensor:
+class TestProchaineGrandeMaree:
     def test_unique_id(self, mock_coordinator):
-        sensor = _make_sensor(MareeProchaineGrandeMareeSensor, mock_coordinator, "abc")
+        sensor = make_sensor("prochaine_grande_maree", mock_coordinator, "abc")
         assert sensor.unique_id == "abc_prochaine_grande_maree"
 
     def test_name(self, mock_coordinator):
-        sensor = _make_sensor(MareeProchaineGrandeMareeSensor, mock_coordinator)
-        assert sensor.name == "Prochaine grande maree"
+        sensor = make_sensor("prochaine_grande_maree", mock_coordinator)
+        assert sensor.entity_description.name == "Prochaine grande maree"
 
     def test_icon(self, mock_coordinator):
-        sensor = _make_sensor(MareeProchaineGrandeMareeSensor, mock_coordinator)
-        assert sensor.icon == "mdi:waves-arrow-up"
+        sensor = make_sensor("prochaine_grande_maree", mock_coordinator)
+        assert sensor.entity_description.icon == "mdi:waves-arrow-up"
 
     def test_state(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(
-            MareeProchaineGrandeMareeSensor, mock_coordinator
-        )
+        sensor, manager = make_sensor_with_manager("prochaine_grande_maree", mock_coordinator)
         manager.get_prochaine_grande_maree_status.return_value = (
             "15/07 11:22",
             {"coefficient": 110},
         )
-        assert sensor.state == "15/07 11:22"
+        assert sensor.native_value == "15/07 11:22"
 
     def test_extra_state_attributes(self, mock_coordinator):
-        sensor, manager = _make_sensor_with_manager(
-            MareeProchaineGrandeMareeSensor, mock_coordinator
-        )
+        sensor, manager = make_sensor_with_manager("prochaine_grande_maree", mock_coordinator)
         manager.get_prochaine_grande_maree_status.return_value = (
             "15/07 11:22",
             {"coefficient": 110},

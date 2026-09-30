@@ -17,7 +17,6 @@ from custom_components.apiMareeInfo.const import (
     CONF_MAXHOURS,
     CONF_PROVIDER,
     DEFAULT_PROVIDER,
-    DOMAIN,
 )
 
 

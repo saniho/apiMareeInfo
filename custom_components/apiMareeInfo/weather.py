@@ -1,6 +1,6 @@
 """Weather platform for apiMareeInfo."""
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from homeassistant.components.weather import (
     WeatherEntity,
@@ -10,6 +10,7 @@ from homeassistant.components.weather import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfSpeed, UnitOfPrecipitationDepth
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 
@@ -68,15 +69,15 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
         self._attr_supported_features = WeatherEntityFeature.FORECAST_HOURLY
 
     @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self._id_port)},
-            "name": f"Maree {self.coordinator.data.get_port_name()}",
-            "manufacturer": "apiMareeInfo",
-            "model": self.coordinator.data.getcopyright(),
-            "sw_version": __VERSION__,
-            "entry_type": "service",
-        }
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._id_port)},
+            name=f"Maree {self.coordinator.data.get_port_name()}",
+            manufacturer="apiMareeInfo",
+            model=self.coordinator.data.getcopyright(),
+            sw_version=__VERSION__,
+            entry_type="service",
+        )
 
     @property
     def unique_id(self):
@@ -106,7 +107,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
         if not previs:
             return None
         
-        now = datetime.now()
+        now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
         # Find the closest forecast in the past or now
         closest_dt = None
         for dt in sorted(previs.keys()):
@@ -197,7 +198,7 @@ class MareeWeather(CoordinatorEntity, WeatherEntity):
         """Return the hourly forecast."""
         previs = self.coordinator.data.get_forecast_data()
         forecasts = []
-        now = datetime.now()
+        now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
         for dt, data in previs.items():
             if dt < now:
                 continue

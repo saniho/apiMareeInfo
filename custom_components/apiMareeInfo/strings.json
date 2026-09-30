@@ -35,17 +35,17 @@
   },
   "entity": {
     "sensor": {
-      "next_high_tide": {
+      "maree_haute": {
         "name": "Prochaine marée haute"
       },
-      "next_low_tide": {
+      "maree_basse": {
         "name": "Prochaine marée basse"
       },
-      "water_temp": {
+      "temperature_eau": {
         "name": "Température de l'eau"
       },
-      "precipitation_meteofrance": {
-        "name": "Précipitations 1h (via MeteoMarine)"
+      "next_rain": {
+        "name": "Prochaine pluie"
       }
     }
   }
