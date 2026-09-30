@@ -3,9 +3,20 @@
 Intégration Home Assistant pour récupérer les informations de marée et de météo marine.
 
 ## Version actuelle
-**v2.1.10** - Retry avec tenacity, exceptions métier, logging structuré
+**v2.1.11-beta1** - Refactoring architecture, sécurité, corrections
 
 ## 📝 Changelog
+
+### v2.1.11-beta1
+- 🏗️ **Refactoring architecture** : Extraction des clients API (`ListePorts`, `MeteoMarine`, `MeteoMarineLive`, `StormIO`) dans `api_clients.py`, suppression de `sensorApiMaree.py`, parseurs dédiés dans `parsers.py`.
+- 🔄 **Coordinator unique** : Suppression du double coordinator — un seul `DataUpdateCoordinator` créé dans `__init__.py` avec support StormGlass natif.
+- 🔒 **Parsers défensifs** : Accès `.get()` sur les clés API imbriquées (`contenu["marees"]`, `previs["detail"]`) — pas de crash si l'API retourne une réponse partielle.
+- 🌡️ **Visibility en float** : Capteur `visibility` casté en `float` au lieu de `str` — compatible `SensorStateClass.MEASUREMENT`.
+- ⚡ **Cache capteurs** : `native_value` et `extra_state_attributes` partagent un cache — 1 appel status/update au lieu de 2.
+- 🏷️ **Platform enum** : `PLATFORMS` utilise `Platform.SENSOR` / `Platform.WEATHER` (HA 2023.7+).
+- 🔤 **Traductions** : `strings.json` aligné sur les vrais keys capteurs + `translation_key` ajouté.
+- 🧹 **Nettoyage** : Pattern `try/except ImportError` supprimé, `config_entry=` ajouté au coordinator, `__name__` écrasé supprimé, `DeviceInfo` au lieu de dict brut.
+- 🐍 **Typage** : mypy 0 erreur, ruff 0 violation.
 
 ### v2.1.10
 - 🔄 **Retry automatique** : Appels réseau avec `tenacity` — backoff exponentiel, max 3 tentatives sur erreurs transitoires (réseau, 429, 5xx) (issue #51).
