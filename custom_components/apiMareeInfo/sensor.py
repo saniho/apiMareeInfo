@@ -7,8 +7,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable
 
-import async_timeout
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -17,8 +15,6 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    CONF_LATITUDE,
-    CONF_LONGITUDE,
     PERCENTAGE,
     UnitOfLength,
     UnitOfPressure,
@@ -26,26 +22,17 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
-    UpdateFailed,
 )
 
-from . import apiMareeInfo
 from .const import (
     __VERSION__,
-    CONF_ID,
-    CONF_MAXHOURS,
-    CONF_STORM_KEY,
-    DEFAULT_MAX_HOURS,
-    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
-from .exceptions import ApiError, NetworkError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -77,6 +64,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
     MareeSensorEntityDescription(
         key="maree_haute",
         name="Maree Haute",
+        translation_key="maree_haute",
         icon="mdi:waves-arrow-up",
         status_method="get_next_tide_state",
         status_args=("PM",),
@@ -84,6 +72,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
     MareeSensorEntityDescription(
         key="maree_basse",
         name="Maree Basse",
+        translation_key="maree_basse",
         icon="mdi:waves-arrow-down",
         status_method="get_next_tide_state",
         status_args=("BM",),
@@ -91,6 +80,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
     MareeSensorEntityDescription(
         key="temperature_eau",
         name="Temperature Eau",
+        translation_key="temperature_eau",
         icon="mdi:thermometer-water",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -100,6 +90,7 @@ SENSOR_DESCRIPTIONS: tuple[MareeSensorEntityDescription, ...] = (
     MareeSensorEntityDescription(
         key="next_rain",
         name="Next rain",
+        translation_key="next_rain",
         icon="mdi:weather-rainy",
         status_method="get_weather_status",
     ),
@@ -223,50 +214,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the sensor platform."""
-    config = entry.data
-    options = entry.options
-
-    lat = config[CONF_LATITUDE]
-    lng = config[CONF_LONGITUDE]
-    stormkey = options.get(CONF_STORM_KEY, config.get(CONF_STORM_KEY))
-    maxhours = options.get(CONF_MAXHOURS, config.get(CONF_MAXHOURS, DEFAULT_MAX_HOURS))
-
+    coordinator = hass.data[DOMAIN][entry.entry_id]
     id_port = entry.entry_id
-
-    session = async_get_clientsession(hass)
-
-    maree_api = apiMareeInfo.ApiMareeInfo(version=__VERSION__)
-    maree_api.setport(lat, lng)
-    maree_api.setid(config.get(CONF_ID))
-    maree_api.setmaxhours(maxhours)
-
-    origine = "stormio" if stormkey else "MeteoMarine"
-    info = {"stormkey": stormkey} if stormkey else None
-
-    async def async_update_data() -> apiMareeInfo.ApiMareeInfo:
-        """Fetch data from API endpoint."""
-        try:
-            async with async_timeout.timeout(30):
-                await maree_api.getinformationport(
-                    origine=origine, info=info, session=session
-                )
-                return maree_api
-        except (ApiError, NetworkError) as err:
-            raise UpdateFailed(f"API error: {err}")
-        except UpdateFailed:
-            raise
-        except Exception as err:
-            raise UpdateFailed(f"Error communicating with API: {err}")
-
-    coordinator = DataUpdateCoordinator(
-        hass,
-        _LOGGER,
-        name=f"{DOMAIN}-{id_port}",
-        update_method=async_update_data,
-        update_interval=DEFAULT_SCAN_INTERVAL,
-    )
-
-    await coordinator.async_refresh()
 
     if coordinator.data.has_error():
         _LOGGER.error(
@@ -299,6 +248,7 @@ class MareeSensor(CoordinatorEntity, SensorEntity):
         self.entity_description = description
         self._id_port = id_port
         self._attr_unique_id = f"{id_port}_{description.key}"
+        self._cached_result: tuple[Any, dict[str, Any]] | None = None
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -311,16 +261,28 @@ class MareeSensor(CoordinatorEntity, SensorEntity):
             entry_type="service",
         )
 
+    def _get_status(self) -> tuple[Any, dict[str, Any]]:
+        """Call status method once per update cycle, cache the result."""
+        if self._cached_result is not None:
+            return self._cached_result
+        method = getattr(
+            self.coordinator.data, self.entity_description.status_method
+        )
+        self._cached_result = method(*self.entity_description.status_args)
+        return self._cached_result
+
+    def _handle_coordinator_update(self) -> None:
+        """Invalidate cache on coordinator update."""
+        self._cached_result = None
+        super()._handle_coordinator_update()
+
     @property
     def native_value(self) -> Any:
         """Return the sensor state."""
         if self.entity_description.static_state is not None:
             return self.entity_description.static_state
 
-        method = getattr(
-            self.coordinator.data, self.entity_description.status_method
-        )
-        state, _ = method(*self.entity_description.status_args)
+        state, _ = self._get_status()
 
         if self.entity_description.state_transform is not None:
             return self.entity_description.state_transform(state)
@@ -332,8 +294,5 @@ class MareeSensor(CoordinatorEntity, SensorEntity):
         if self.entity_description.static_state is not None:
             return {"attribution": "Data provided by apiMareeInfo"}
 
-        method = getattr(
-            self.coordinator.data, self.entity_description.status_method
-        )
-        _, attributes = method(*self.entity_description.status_args)
+        _, attributes = self._get_status()
         return attributes

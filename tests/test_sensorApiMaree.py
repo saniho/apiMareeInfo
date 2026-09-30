@@ -10,7 +10,7 @@ from custom_components.apiMareeInfo.apiMareeInfo import ApiMareeInfo
 # ============================================================
 def _make_maree(horaire, etat, jour, nieme, coeff=85, hauteur=5.5, hours_offset=0):
     """Create a tide entry dict."""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     return {
         "horaire": horaire,
         "etat": etat,
@@ -24,7 +24,7 @@ def _make_maree(horaire, etat, jour, nieme, coeff=85, hauteur=5.5, hours_offset=
 
 def _make_previs(hours_offset=0, **overrides):
     """Create a forecast entry dict."""
-    now = datetime.datetime.now().replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=hours_offset)
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(minute=0, second=0, microsecond=0, tzinfo=None) + datetime.timedelta(hours=hours_offset)
     base = {
         "forcevnds": "15",
         "rafvnds": "25",
@@ -68,7 +68,7 @@ def _make_api(
     api._donneesPrevis = previs or {}
     api._donneesPrevisLive = live_data or {}
     api._avis = avis or []
-    api._httptimerequest = datetime.datetime.now()
+    api._httptimerequest = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     return api
 
 
@@ -241,16 +241,16 @@ class TestGetNextRainStatus:
     def test_returns_unavailable_when_no_rain(self):
         api = _make_api()
         api.get_next_rain = lambda: (None, 0)
-        api.get_1h_forecast = lambda: (datetime.datetime.now(), {}, "")
+        api.get_1h_forecast = lambda: (datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None), {}, "")
         state, attrs = api.get_next_rain_status()
         assert state == "unavailable"
         assert attrs["precipitation"] == 0
 
     def test_returns_date_when_rain_forecast(self):
-        rain_date = datetime.datetime.now() + datetime.timedelta(hours=3)
+        rain_date = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=3)
         api = _make_api()
         api.get_next_rain = lambda: (rain_date, 2.5)
-        api.get_1h_forecast = lambda: (datetime.datetime.now(), {}, "")
+        api.get_1h_forecast = lambda: (datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None), {}, "")
         state, attrs = api.get_next_rain_status()
         assert state == rain_date
         assert attrs["precipitation"] == 2.5
@@ -270,7 +270,7 @@ class TestGetWaterTempStatus:
         assert state == "unavailable"
 
     def test_returns_temp_when_data(self):
-        temp_date = datetime.datetime.now()
+        temp_date = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         api = _make_api()
         api.get_water_temperature = lambda: (temp_date, "16.5")
         state, attrs = api.get_water_temp_status()
@@ -285,7 +285,7 @@ class TestGetWeatherStatus:
     """Tests for get_weather_status method."""
 
     def test_returns_forecast_state(self):
-        forecast_ref = datetime.datetime.now()
+        forecast_ref = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         forecast = {"0 min": "Pluie légère", "30 min": "Sec"}
         api = _make_api()
         api.get_1h_forecast = lambda: (forecast_ref, forecast, "MeteoConsult Live")
@@ -388,7 +388,7 @@ class TestGetWaveStatus:
         assert state is None
 
     def test_returns_live_wave_data(self):
-        live_data = {datetime.datetime.now(): {"wave_height": 1.5, "wave_height_max": 2.0, "wave_direction": 270, "swell_height": 1.2, "sea_code": "moderate"}}
+        live_data = {datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None): {"wave_height": 1.5, "wave_height_max": 2.0, "wave_direction": 270, "swell_height": 1.2, "sea_code": "moderate"}}
         api = _make_api(live_data=live_data)
         state, attrs = api.get_wave_status()
         assert state == "1.5"
@@ -410,7 +410,7 @@ class TestGetWindStatus:
     """Tests for get_wind_status method."""
 
     def test_returns_live_wind_data(self):
-        live_data = {datetime.datetime.now(): {"wind_speed": 20, "wind_gust": 30, "wind_direction": 180}}
+        live_data = {datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None): {"wind_speed": 20, "wind_gust": 30, "wind_direction": 180}}
         api = _make_api(live_data=live_data)
         state, attrs = api.get_wind_status()
         assert state == "20"
@@ -437,7 +437,7 @@ class TestGetAirTempStatus:
     """Tests for get_air_temp_status method."""
 
     def test_returns_live_temp(self):
-        live_data = {datetime.datetime.now(): {"tempe": 18.5, "tempe_felt": 17.0}}
+        live_data = {datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None): {"tempe": 18.5, "tempe_felt": 17.0}}
         api = _make_api(live_data=live_data)
         state, attrs = api.get_air_temp_status()
         assert state == "18.5"
@@ -458,7 +458,7 @@ class TestGetVisibilityStatus:
     """Tests for get_visibility_status method."""
 
     def test_returns_live_visibility(self):
-        live_data = {datetime.datetime.now(): {"visibility": 10000}}
+        live_data = {datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None): {"visibility": 10000}}
         api = _make_api(live_data=live_data)
         state, attrs = api.get_visibility_status()
         assert state == 10000
@@ -467,7 +467,7 @@ class TestGetVisibilityStatus:
     def test_unavailable_without_live(self):
         api = _make_api()
         state, attrs = api.get_visibility_status()
-        assert state == "unavailable"
+        assert state is None
 
 
 # ============================================================

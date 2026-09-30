@@ -9,6 +9,11 @@ from typing import Any
 from .types import ForecastData, TideData
 
 
+def _utc_now() -> datetime.datetime:
+    """Return current UTC time as a naive datetime (for comparison with API data)."""
+    return datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
+
+
 @dataclass
 class ParsedData:
     """Result of parsing an API response."""
@@ -24,14 +29,13 @@ class ParsedData:
 
 def parse_meteo_marine(jsondata: dict[str, Any], lat: float | None, lng: float | None) -> ParsedData:
     """Parse MeteoMarine API response into ParsedData."""
-    if (
-        not jsondata
-        or "contenu" not in jsondata
-        or len(jsondata["contenu"]["marees"]) == 0
-    ):
+    contenu = jsondata.get("contenu") if jsondata else None
+    marees = contenu.get("marees", []) if contenu else []
+
+    if not contenu or not marees:
         return ParsedData(
             port_name="",
-            date_courante=datetime.datetime.now(),
+            date_courante=_utc_now(),
             avis=[],
             tides={},
             forecasts={},
@@ -39,14 +43,13 @@ def parse_meteo_marine(jsondata: dict[str, Any], lat: float | None, lng: float |
             error_message="No tide data available from MeteoMarine",
         )
 
-    contenu = jsondata["contenu"]
-
-    tides = _parse_meteo_marine_tides(contenu["marees"])
-    forecasts = _parse_meteo_marine_forecasts(contenu["previs"]["detail"])
+    tides = _parse_meteo_marine_tides(marees)
+    details = contenu.get("previs", {}).get("detail", [])
+    forecasts = _parse_meteo_marine_forecasts(details) if details else {}
 
     return ParsedData(
-        port_name=contenu["marees"][0]["lieu"],
-        date_courante=contenu["marees"][0]["datetime"],
+        port_name=marees[0].get("lieu", ""),
+        date_courante=marees[0].get("datetime", _utc_now()),
         avis=contenu.get("avis", []),
         tides=tides,
         forecasts=forecasts,
@@ -106,7 +109,7 @@ def parse_storm_io(jsondata: dict[str, Any], previous_date: datetime.datetime | 
         errors_dict = jsondata.get("errors", {}) if jsondata else {}
         return ParsedData(
             port_name="",
-            date_courante=datetime.datetime.now(),
+            date_courante=_utc_now(),
             avis=[],
             tides={},
             forecasts={},
@@ -120,7 +123,7 @@ def parse_storm_io(jsondata: dict[str, Any], previous_date: datetime.datetime | 
 
     return ParsedData(
         port_name=station_name,
-        date_courante=datetime.datetime.now(),
+        date_courante=_utc_now(),
         avis=[],
         tides=tides,
         forecasts={},

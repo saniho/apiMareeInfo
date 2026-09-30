@@ -7,98 +7,16 @@ import logging
 import math
 from typing import Any
 
-from .http_utils import async_fetch_json
+from .api_clients import ListePorts, MeteoMarine, MeteoMarineLive, StormIO  # noqa: F401
 from .parsers import ParsedData, parse_meteo_marine, parse_storm_io
 from .types import ForecastData, LiveForecastItemRaw, TideData
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class ListePorts:
-    """Recherche de ports via l'API MeteoConsult."""
-
-    async def getjson(
-        self,
-        url: str,
-        session: Any | None = None,
-        params: dict[str, str] | None = None,
-    ) -> dict[str, Any]:
-        return await async_fetch_json(
-            url, session=session, params=params, source_name="ListePorts"
-        )
-
-    async def getlisteport(
-        self, nomport: str, session: Any | None = None
-    ) -> dict[str, Any]:
-        url = "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/fr/v30/recherche.php"
-        params = {"rech": nomport}
-        return await self.getjson(url, session, params=params)
-
-
-class MeteoMarine:
-    """Récupération des données marées via l'API MeteoConsult."""
-
-    def __init__(self, lat: float, lng: float) -> None:
-        self._url = (
-            "https://ws.meteoconsult.fr/meteoconsultmarine/androidtab/115/fr/v30/previsionsSpot.php?lat=%s&lon=%s"
-            % (lat, lng)
-        )
-
-    async def getdata(self, session: Any | None = None) -> dict[str, Any]:
-        return await async_fetch_json(
-            self._url, session=session, source_name="MeteoMarine"
-        )
-
-
-class MeteoMarineLive:
-    """Récupération des données live (5-min) via l'API MeteoConsult."""
-
-    def __init__(self, id_port: str) -> None:
-        self._id_port = id_port
-
-    async def getdata(self, session: Any | None = None) -> dict[str, Any]:
-        now = datetime.datetime.now()
-        day = now.strftime("%Y-%m-%d")
-        url = (
-            "https://ws.meteoconsult.fr/meteoconsultmarine/android/100/en/v40/forecasts/live?day=%s&id=%s&limit=1&type_string=beaches"
-            % (day, self._id_port)
-        )
-        return await async_fetch_json(
-            url, session=session, source_name="MeteoMarineLive"
-        )
-
-
-class StormIO:
-    """Récupération des données marées via l'API StormGlass."""
-
-    def __init__(self, lat: float, lng: float, storm_key: str) -> None:
-        self._lat = lat
-        self._lng = lng
-        self._storm_key = storm_key
-
-    async def getdata(self, session: Any | None = None) -> dict[str, Any]:
-        now = datetime.datetime.now()
-        nowJ2 = now + datetime.timedelta(days=2)
-        self._deb = now.strftime("%Y-%m-%d %H:%M:%S+00:00")
-        self._fin = nowJ2.strftime("%Y-%m-%d %H:%M:%S+00:00")
-
-        params = {
-            "lat": self._lat,
-            "lng": self._lng,
-            "start": self._deb,
-            "end": self._fin,
-        }
-        headers = {"Authorization": self._storm_key}
-        url = "https://api.stormglass.io/v2/tide/extremes/point"
-
-        return await async_fetch_json(
-            url,
-            session=session,
-            params=params,
-            headers=headers,
-            timeout=600,
-            source_name="StormIO",
-        )
+def _utc_now() -> datetime.datetime:
+    """Return current UTC time as a naive datetime (for comparison with API data)."""
+    return datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
 
 
 class ApiMareeInfo:
@@ -116,7 +34,7 @@ class ApiMareeInfo:
         self._message: str = ""
         self._error: bool = False
         self._errorMessage: str = ""
-        self._httptimerequest: datetime.datetime = datetime.datetime.now()
+        self._httptimerequest: datetime.datetime = _utc_now()
         self._meteofrance_precipitation: float = 0
         self._donneesPrevis: dict[datetime.datetime, ForecastData] = {}
         self._donneesPrevisLive: dict[datetime.datetime, LiveForecastItemRaw] = {}
@@ -188,11 +106,11 @@ class ApiMareeInfo:
         elif origine == "stormio":
             parsed = parse_storm_io(jsondata or {}, self._dateCourante)
             self._apply_parsed(parsed)
-            self._dateCourante = datetime.datetime.now()
+            self._dateCourante = _utc_now()
         else:
             raise RuntimeError("Data Origin unknown")
 
-        self._httptimerequest = datetime.datetime.now()
+        self._httptimerequest = _utc_now()
 
     def _apply_parsed(self, parsed: ParsedData) -> None:
         """Apply parsed data to internal state."""
@@ -254,7 +172,7 @@ class ApiMareeInfo:
     # ------------------------------------------------------------------
 
     def get_next_rain(self) -> tuple[datetime.datetime | None, float]:
-        now = datetime.datetime.now()
+        now = _utc_now()
         for dt in self._donneesPrevis.keys():
             if self._donneesPrevis[dt]["dateComplete"] > now:
                 if self._donneesPrevis[dt]["precipitation"] != 0:
@@ -263,14 +181,14 @@ class ApiMareeInfo:
         return None, 0
 
     def get_water_temperature(self) -> tuple[datetime.datetime | None, str]:
-        now = datetime.datetime.now()
+        now = _utc_now()
         for dt in self._donneesPrevis.keys():
             if self._donneesPrevis[dt]["dateComplete"] > now:
                 return self._donneesPrevis[dt]["dateComplete"], self._donneesPrevis[dt]["teau"]
         return None, ""
 
     def get_1h_forecast(self) -> tuple[datetime.datetime, dict[str, str], str]:
-        now = datetime.datetime.now()
+        now = _utc_now()
         forecast: dict[str, str] = {}
 
         if self._donneesPrevisLive:
@@ -306,14 +224,14 @@ class ApiMareeInfo:
         return start_time, forecast, "MeteoConsult Forecast (Hourly Sliding)"
 
     def get_rain_chance(self) -> int:
-        now = datetime.datetime.now()
+        now = _utc_now()
         for x in sorted(self._donneesPrevisLive.keys()):
             if x > now:
                 return self._donneesPrevisLive[x].get("precip_risk", 0)
         return 0
 
     def get_cloud_cover(self) -> int:
-        now = datetime.datetime.now()
+        now = _utc_now()
         for x in sorted(self._donneesPrevis.keys()):
             if x > now:
                 val = self._donneesPrevis[x].get("nuagecouverture", 0)
@@ -321,7 +239,7 @@ class ApiMareeInfo:
         return 0
 
     def get_uv(self) -> int:
-        now = datetime.datetime.now()
+        now = _utc_now()
         for x in sorted(self._donneesPrevis.keys()):
             if x > now:
                 val = self._donneesPrevis[x].get("uv", 0)
@@ -331,14 +249,14 @@ class ApiMareeInfo:
     def get_current_live_data(self) -> LiveForecastItemRaw | None:
         if not self._donneesPrevisLive:
             return None
-        now = datetime.datetime.now()
+        now = _utc_now()
         closest_dt = min(self._donneesPrevisLive.keys(), key=lambda x: abs(x - now))
         if abs(closest_dt - now) > datetime.timedelta(minutes=15):
             return None
         return self._donneesPrevisLive[closest_dt]
 
     def get_current_water_level(self) -> tuple[float | None, str | None]:
-        now = datetime.datetime.now()
+        now = _utc_now()
         sorted_marees = sorted(self._donnees.values(), key=lambda x: x["dateComplete"])
         if not sorted_marees:
             return None, None
@@ -373,7 +291,7 @@ class ApiMareeInfo:
         return "Aucun"
 
     def get_pressure_forecast(self) -> tuple[str | None, dict[str, str]]:
-        now = datetime.datetime.now()
+        now = _utc_now()
         forecast: dict[str, str] = {}
         current_pressure: str | None = None
 
@@ -402,7 +320,7 @@ class ApiMareeInfo:
 
     def get_prochaine_grande_maree(self) -> TideData | None:
         """Return the next tide with coefficient >= 100, or None."""
-        now = datetime.datetime.now()
+        now = _utc_now()
         sorted_marees = sorted(self._donnees.values(), key=lambda x: x["dateComplete"])
         for maree in sorted_marees:
             coeff = maree.get("coeff", "")
@@ -426,7 +344,7 @@ class ApiMareeInfo:
         """Return the Nth future tide."""
         i = 1
         if maintenant is None:
-            maintenant = datetime.datetime.now()
+            maintenant = _utc_now()
         sorted_marees = sorted(self._donnees.values(), key=lambda x: x["dateComplete"])
         for maree in sorted_marees:
             if maintenant < maree["dateComplete"]:
@@ -444,7 +362,7 @@ class ApiMareeInfo:
         sc: dict[str, Any] = {
             "version": self.version,
             "attribution": "Data provided by apiMareeInfo",
-            "last_update": datetime.datetime.now(),
+            "last_update": datetime.datetime.now(tz=datetime.timezone.utc),
         }
         if with_http_update:
             sc["last_http_update"] = self._httptimerequest
@@ -463,7 +381,7 @@ class ApiMareeInfo:
         data = self.get_current_live_data()
         if data:
             return data, "MeteoConsult Live"
-        now = datetime.datetime.now()
+        now = _utc_now()
         for x in sorted(self._donneesPrevis.keys()):
             if x > now:
                 return self._donneesPrevis[x], "MeteoConsult Forecast (Hourly)"
@@ -500,15 +418,15 @@ class ApiMareeInfo:
                 status_counts[f"next_coeff_{i}"] = pMaree.get("coeff", "")
                 status_counts[f"next_etat_{i}"] = pMaree["etat"]
 
-        status_counts["timeLastCall"] = datetime.datetime.now()
+        status_counts["timeLastCall"] = _utc_now()
 
-        maxTime = datetime.datetime.now() + datetime.timedelta(
+        maxTime = _utc_now() + datetime.timedelta(
             hours=self.get_max_hours() or 6
         )
         dicoPrevis = [
             previs
             for maDate, previs in self._donneesPrevis.items()
-            if datetime.datetime.now() <= maDate.replace(tzinfo=None) <= maxTime
+            if _utc_now() <= maDate.replace(tzinfo=None) <= maxTime
         ]
         status_counts["prevision"] = dicoPrevis
 
@@ -521,7 +439,7 @@ class ApiMareeInfo:
         else:
             state = "unavailable"
 
-        status_counts["last_update"] = datetime.datetime.now()
+        status_counts["last_update"] = datetime.datetime.now(tz=datetime.timezone.utc)
         status_counts["last_http_update"] = self._httptimerequest
 
         return state, status_counts
@@ -666,14 +584,15 @@ class ApiMareeInfo:
             state = None
         return state, sc
 
-    def get_visibility_status(self) -> tuple[str | None, dict[str, Any]]:
+    def get_visibility_status(self) -> tuple[float | None, dict[str, Any]]:
         sc = self._base_attrs()
         data = self.get_current_live_data()
         if data:
-            state = data.get("visibility")
+            raw = data.get("visibility")
+            state = float(raw) if raw else None
             sc["data_source"] = "MeteoConsult Live"
         else:
-            state = "unavailable"
+            state = None
         return state, sc
 
     def get_water_level_status(self) -> tuple[float | str, dict[str, Any]]:
@@ -698,7 +617,7 @@ class ApiMareeInfo:
             return "unavailable", sc
 
         dt = maree["dateComplete"]
-        now = datetime.datetime.now()
+        now = _utc_now()
         delta = dt - now
         days = delta.days
         hours, remainder = divmod(delta.seconds, 3600)

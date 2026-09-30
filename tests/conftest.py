@@ -74,7 +74,7 @@ def error_stormglass_data():
 @pytest.fixture
 def live_forecast_data():
     """Return mock live forecast data for MeteoMarineLive."""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     forecasts = []
     for i in range(0, 65, 5):
         dt = now + datetime.timedelta(minutes=i)
@@ -93,7 +93,7 @@ def live_forecast_data():
 @pytest.fixture
 def sample_marees():
     """Return sample tide data for unit testing."""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     return {
         "horaire_0_0": {
             "coeff": 85,
@@ -131,7 +131,7 @@ def sample_marees():
 @pytest.fixture
 def sample_previs():
     """Return sample forecast data for unit testing."""
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
     current_hour = now.replace(minute=0, second=0, microsecond=0)
     return {
         current_hour: {
