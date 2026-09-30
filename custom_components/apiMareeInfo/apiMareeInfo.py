@@ -96,12 +96,24 @@ class ApiMareeInfo:
             self._apply_parsed(parsed)
 
             if self._id:
-                live_jsondata = await self._fetch_json("MeteoMarineLive", session=session)
-                self._donneesPrevisLive = {}
-                if live_jsondata and "content" in live_jsondata and "forecasts" in live_jsondata["content"]:
-                    for f in live_jsondata["content"]["forecasts"]:
-                        dt = datetime.datetime.fromisoformat(f["datetime"])
-                        self._donneesPrevisLive[dt.replace(tzinfo=None)] = f
+                try:
+                    live_jsondata = await self._fetch_json(
+                        "MeteoMarineLive", session=session
+                    )
+                except Exception as err:
+                    # Live observations are optional. A failure here must not hide
+                    # the tide and hourly forecast data fetched above.
+                    _LOGGER.warning(
+                        "Live marine data unavailable for port %s: %s",
+                        self._id,
+                        err,
+                    )
+                else:
+                    self._donneesPrevisLive = {}
+                    if live_jsondata and "content" in live_jsondata and "forecasts" in live_jsondata["content"]:
+                        for f in live_jsondata["content"]["forecasts"]:
+                            dt = datetime.datetime.fromisoformat(f["datetime"])
+                            self._donneesPrevisLive[dt.replace(tzinfo=None)] = f
 
         elif origine == "stormio":
             parsed = parse_storm_io(jsondata or {}, self._dateCourante)
